@@ -9,7 +9,6 @@ interface IERC20 {
 
 contract Disperse {
     function disperseEther(address[] recipients, uint256[] values) external payable {
-        require(recipients.length == values.length);
         for (uint256 i = 0; i < recipients.length; i++)
             recipients[i].transfer(values[i]);
         uint256 balance = address(this).balance;
@@ -18,9 +17,8 @@ contract Disperse {
     }
 
     function disperseToken(IERC20 token, address[] recipients, uint256[] values) external {
-        require(recipients.length == values.length);
         uint256 total = 0;
-        for (uint256 i = 0; i < values.length; i++)
+        for (uint256 i = 0; i < recipients.length; i++)
             total += values[i];
         require(token.transferFrom(msg.sender, address(this), total));
         for (i = 0; i < recipients.length; i++)
@@ -28,7 +26,6 @@ contract Disperse {
     }
 
     function disperseTokenSimple(IERC20 token, address[] recipients, uint256[] values) external {
-        require(recipients.length == values.length);
         for (uint256 i = 0; i < recipients.length; i++)
             require(token.transferFrom(msg.sender, recipients[i], values[i]));
     }
