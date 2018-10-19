@@ -1,6 +1,5 @@
 import pytest
 from eth_tester.exceptions import TransactionFailed
-from time import time
 
 
 def test_disperse_ether(w3, disperse, recipients, values, ether_balances):
