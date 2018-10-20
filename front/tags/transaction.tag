@@ -17,6 +17,7 @@ transaction
       font-size: 1.4rem;
       display: flex;
       align-items: baseline;
+      margin-bottom: 1.4rem;
     }
 
     .status {
