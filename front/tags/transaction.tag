@@ -45,6 +45,15 @@ transaction
       font-size: 1rem;
     }
 
+    input[type="submit"]:disabled {
+        opacity: .4;
+    }
+
+    .secondary > input {
+        background: none;
+        border: 1px crimson solid;
+    }
+
   script.
     this.status = null
     this.message = null
