@@ -12,9 +12,8 @@ disperse
 
 
   section(if='{step >= 2 && sending === "token"}')
-    h2 which token
+    h2 token address
     form(onsubmit='{load_token}')
-      label.block token address
       .flex.shadow
         input(type='text', placeholder='0x...', value='{contracts.token}', ref='token')
         input(type='submit', value='load')
@@ -120,8 +119,9 @@ disperse
         }
       } catch(error) {
         // non-compliant interface
-        this.info.token = {message: 'non-compliant token', status: 'error'}
+        this.info.token = {message: 'unsupported token', status: 'error'}
         this.update({step: 2, token: {}})
+        console.log(error)
         return
       }
       console.log(this.token)
