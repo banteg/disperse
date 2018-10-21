@@ -11,6 +11,5 @@ import './tags/addresses.tag'
 import './tags/amount.tag'
 import './tags/transaction.tag'
 
-riot.mount('*')
 window.ethers = ethers
-console.log('main done')
+riot.mount('*')

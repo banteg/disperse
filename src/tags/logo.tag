@@ -21,7 +21,9 @@ logo
     }
 
     network_name() {
-      return networks[web3.version.network].name || `unknown network (${web3.version.network})`
+      let network = web3.version.network
+      if (!network) return
+      return networks[network] ? networks[network].name : '🤔'
     }
 
   style.
