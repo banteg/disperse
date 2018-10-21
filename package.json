@@ -1,0 +1,26 @@
+{
+  "name": "disperse",
+  "version": "1.0.0",
+  "description": "distribute ether or tokens to multiple addresses",
+  "main": "index.js",
+  "scripts": {
+    "test": "buidler test"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^4.0.7",
+    "riot": "^3.13.0"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.26.3",
+    "node-sass": "^4.9.4",
+    "pug": "^2.0.3",
+    "rollup": "^0.66.6",
+    "rollup-plugin-buble": "^0.19.4",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-postcss": "^1.6.2",
+    "rollup-plugin-riot": "^2.0.0"
+  }
+}
