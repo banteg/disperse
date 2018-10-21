@@ -14,8 +14,7 @@ amount
   
   script.
     amount() {
-      let s = ethers.utils.formatUnits(this.opts.amount, this.opts.decimals)
-      return s.startsWith('-') ? `(${s.slice(1)})` : s
+      return ethers.utils.formatUnits(this.opts.amount, this.opts.decimals)
     }
 
   style.
