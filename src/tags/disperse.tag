@@ -53,12 +53,9 @@ disperse
       message='{disperse_message()}'
     )
 
-  section(if='{step >= 5}')
-    h2 thanks
-    p thanks for using this tool.
-
   script.
-    this.statuses = ['approve', 'pending', 'success', 'failed']
+    import {disperse, erc20} from '../js/contracts.js'
+
     this.step = 1
     this.info = {
       debug: {},
@@ -67,32 +64,18 @@ disperse
       disperse: {},
     }
     this.network = null
+    this.network_unavailable = false
     this.wallet = {
       address: null,
       status: 'connecting...',
     }
+    // contracts
+    this.disperse = {}
     this.token = {}
-    this.erc20 = {
-      abi: [
-        'function name() view returns (string)',
-        'function symbol() view returns (string)',
-        'function decimals() view returns (uint8)',
-        'function balanceOf(address) view returns (uint256)',
-        'function allowance(address, address) view returns (uint256)',
-        'function approve(address, uint256) returns (bool)',
-      ]
-    }
-    this.disperse = {
-      address: '0x5b1869D9A4C187F2EAa108f3062412ecf0526b24',
-      abi: [
-        'function disperseEther(address[] recipients, uint256[] values)',
-        'function disperseToken(address token, address[] recipients, uint256[] values)',
-        'function disperseTokenSimple(address token, address[] recipients, uint256[] values)',
-      ]
-    }
+
     this.sending = null
     this.contracts = {
-      token: '0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab',
+      token: '0x825514093d55e89d2d38a9f86f5027d523701d0a',
     }
 
     async debug() {
@@ -121,11 +104,12 @@ disperse
         // invalid address
         this.info.token = {message: 'invalid address', status: 'error'}
         this.update({step: 2, token: {}})
+        console.log(error)
         return
       }
       try {
         // load the details
-        var token =  new ethers.Contract(address, this.erc20.abi, this.provider.getSigner())
+        var token =  new ethers.Contract(address, erc20.abi, this.provider.getSigner())
         this.token = {
           address: address,
           balance: null,

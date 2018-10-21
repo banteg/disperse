@@ -8,3 +8,14 @@ export const disperse = {
     5777: '0x634ad8bf795655b3d855be5e7cc97a0cdcdb6497',
   },
 }
+
+export const erc20 = {
+  abi: [
+    'function name() view returns (string)',
+    'function symbol() view returns (string)',
+    'function decimals() view returns (uint8)',
+    'function balanceOf(address) view returns (uint256)',
+    'function allowance(address, address) view returns (uint256)',
+    'function approve(address, uint256) returns (bool)',
+  ]
+}
