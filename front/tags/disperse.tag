@@ -7,21 +7,22 @@ disperse
   
   section(if='{step >= 2}')
     ether-or-token
+    p(show='{sending == "ether"}') you have
+      amount(amount='{wallet.balance}', symbol='{symbol()}', decimals='{decimals()}')
+
 
   section(show='{step >= 2 && sending === "token"}')
     h2 which token
 
     form(ref="s1", onsubmit='{load_token}')
-      div
-        div(if='{sending === "ether"}')
-          p you have {pretty(wallet.balance)}
-        div(if='{sending === "token"}')
-          label.block token address
-          .flex.shadow
-            input(type='text', placeholder='0x...', value='{contracts.token}', ref='token')
-            input(type='submit', value='load')
-          p.status(class='{info.token.status}') {info.token.msg}
-          p(if='{token.balance}') you have {pretty(token.balance)} ({token.name})
+      label.block token address
+      .flex.shadow
+        input(type='text', placeholder='0x...', value='{contracts.token}', ref='token')
+        input(type='submit', value='load')
+      p.status(class='{info.token.status}') {info.token.msg}
+      p(if='{token.balance}') you have
+        amount(amount='{token.balance}', symbol='{symbol()}', decimals='{decimals()}')
+        span  ({token.name})
   
   section(show='{step >= 3}')
     h2 recipients and amounts
@@ -32,22 +33,29 @@ disperse
 
   section(if='{step >= 4}')
     h2 confirm
-    addresses(addresses='{addresses}')
-    transaction(show='{sending === "ether"}', title='disperse ether', action='disperseEther')
+    addresses(addresses='{addresses}', symbol='{symbol()}', decimals='{decimals()}')
+    transaction(show='{sending === "ether"}', disabled='{left() < 0}' title='disperse ether', action='disperseEther')
 
-  // allowance
-  section(if='{sending == "token" && step >= 4}')
+  div(if='{sending == "token" && step >= 4}')
     h2 allowance
-    div(if='{token.allowance.lt(total())}')
-      p allow smart contract to transfer tokens on your behalf. read more about token allowance <a href='https://tokenallowance.io/' target='_blank'>here</a>.
-      transaction(title='approve', action='approve')
-    div(if='{token.allowance.gte(total())}')
-      p disperse contract has allowance, you can send tokens now.
-      transaction(show='{false}' title='deny', action='deny')
-      transaction(show='{sending === "token"}', title='disperse token', action='disperseToken')
+    p(show='{token.allowance.lt(total())}') allow smart contract to transfer tokens on your behalf.
+    //- learn more about token allowance <a href="https://tokenallowance.io/" target="_blank">here</a>.
+    p(show='{token.allowance.gte(total())}') disperse contract has allowance, you can send tokens now.
+    transaction(
+      title='{token.allowance.lt(total()) ? "approve" : "revoke"}',
+      action='{token.allowance.lt(total()) ? "approve" : "deny"}',
+      class='{secondary: token.allowance.gte(total())}'
+    )
+    transaction(
+      show='{sending === "token"}',
+      disabled='{left() < 0 || token.allowance.lt(total())}',
+      title='disperse token',
+      action='disperseToken',
+      message='{disperse_message()}'
+    )
 
   script.
-    this.eth_symbol = 'eth' // or Ξ
+    this.eth_symbol = 'ETH' // or Ξ
     this.statuses = ['approve', 'pending', 'success', 'failed']
     this.step = 1
     this.info = {
@@ -200,23 +208,15 @@ disperse
       }
     }
 
-    // display utils
-
-    neg(amount) {
-      if (amount.startsWith('-')) {
-        return `(${amount.slice(1)})`
-      }
-      return amount
-    }
-
-    pretty(wei) {
-      switch (this.sending) {
-        case 'token': return this.neg(`${ethers.utils.formatUnits(wei, this.token.decimals)} ${this.token.symbol}`)
-        case 'ether': return this.neg(`${ethers.utils.formatEther(wei)} ${this.eth_symbol}`)
-      }
-    }
-
     // computed values
+
+    symbol() {
+      return this.sending === 'ether' ? 'ETH' : this.token.symbol
+    }
+
+    decimals() {
+      return this.sending == 'ether' ? 18 : this.token.decimals
+    }
 
     total() {
       if (this.addresses.length) {
@@ -243,6 +243,11 @@ disperse
         case 'token': return this.step >= 4 && this.token.allowance.gte(this.total())
         case 'ether': return this.step >= 4
       }
+    }
+
+    disperse_message() {
+      if (this.token.allowance.lt(this.total())) return 'needs allowance'
+      if (this.left() < 0) return 'total exceeds balance'
     }
 
     // account utils
