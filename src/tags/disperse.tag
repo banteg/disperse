@@ -6,7 +6,7 @@ disperse
     p {wallet.status}
   
   section(if='{step >= 2}')
-    ether-or-token
+    chooser
     p(if='{sending == "ether"}') you have
       amount(amount='{wallet.balance}', symbol='{symbol()}', decimals='{decimals()}')
 

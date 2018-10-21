@@ -1,5 +1,5 @@
-ether-or-token
-  div
+chooser
+  .chooser
     label send
     input(type='radio', value='ether', name='what', id='ether', onchange='{choose}')
     label(for='ether') ether
@@ -13,13 +13,13 @@ ether-or-token
     }
 
   style.
-    ether-or-token 
+    .chooser
       display:block
       font-style: italic
       margin-top: 2.1rem
       margin-bottom: 1.4rem
 
-    ether-or-token label
+    label
         margin-right: .25rem
         font-size: 2.2rem
 
@@ -27,12 +27,12 @@ ether-or-token
         display: none
         color: #111111
 
-    ether-or-token input[type="radio"] + label
+    input[type="radio"] + label
         display: inline-block
         font-size: 2.2rem
         color: rgba(0, 0, 0, .5)
         background: aquamarine
 
-    ether-or-token input[type="radio"]:checked + label
+    input[type="radio"]:checked + label
         color: #111111
         box-shadow: 6px 6px crimson
