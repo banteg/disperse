@@ -15,45 +15,6 @@ transaction
     div(class='{status}') {message}
     a.hash(target='_blank', href='{etherscan(hash)}') {hash}
 
-  style.
-    transaction {
-      font-size: 1.4rem;
-      display: flex;
-      align-items: baseline;
-      margin-bottom: 1.4rem;
-    }
-
-    .status {
-      margin-left: 1.4rem;
-      font-style: italic;
-    }
-
-    .status .pending {
-      color: rgba(0, 0, 0, .6);
-    }
-
-    .status .success {
-      color: #28bd14;
-    }
-
-    .status .failed {
-      color: #d43939;
-    }
-
-    .hash {
-      font-style: normal;
-      font-size: 1rem;
-    }
-
-    input[type="submit"]:disabled {
-        opacity: .4;
-    }
-
-    transaction.secondary input {
-        background: none;
-        border: 1px crimson solid;
-    }
-
   script.
     this.status = null
     this.message = null
@@ -94,3 +55,35 @@ transaction
     etherscan(hash) {
       return `https://etherscan.io/tx/${hash}`
     }
+
+  style.
+    transaction 
+      font-size: 1.4rem
+      display: flex
+      align-items: baseline
+      margin-bottom: 1.4rem
+
+    .status 
+      margin-left: 1.4rem
+      font-style: italic
+  
+    .status .pending 
+      color: rgba(0, 0, 0, .6)  
+
+    .status .success 
+      color: #28bd14
+  
+    .status .failed 
+      color: #d43939
+  
+    .hash 
+      font-style: normal
+      font-size: 1rem
+    
+    input[type="submit"]:disabled 
+        opacity: .4
+  
+    transaction.secondary input 
+        background: none
+        border: 1px crimson solid
+    

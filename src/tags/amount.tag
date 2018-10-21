@@ -12,13 +12,12 @@ amount
   span {amount()} 
   span.sc {opts.symbol}
   
-  style.
-    .sc {
-      font-variant: all-small-caps;
-    }
-
   script.
     amount() {
       let s = ethers.utils.formatUnits(this.opts.amount, this.opts.decimals)
       return s.startsWith('-') ? `(${s.slice(1)})` : s
     }
+
+  style.
+    .sc
+      font-variant: all-small-caps

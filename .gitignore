@@ -1,2 +1,5 @@
 node_modules
 artifacts
+dist/bundle.js*
+.vscode
+.ipynb_checkpoints

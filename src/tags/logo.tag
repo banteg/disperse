@@ -12,32 +12,25 @@ logo
     em verb
     span(style="font-style: normal")  distribute ether or tokens to multiple addresses
 
-  style.
-    header {
-      display: flex;
-      align-items: baseline;
-    }
-    header .expand {
-      flex-grow: 1;
-    }
-    header a {
-      font-size: 1.4rem;
-      margin-right: 1.4rem;
-    }
-
-    .eth svg path {
-      transition: fill .3s !important;
-    }
-
-    .active svg path {
-      fill: aquamarine !important;
-    }
-
-    .inactive svg path {
-      fill: crimson !important;
-    }
-
   script.
     logoClass() {
       return this.parent.step > 1 ? 'active' : 'inactive'
     }
+
+  style.
+    header
+      display: flex
+      align-items: baseline
+
+    header a
+      font-size: 1.4rem
+      margin-right: 1.4rem
+
+    .eth svg path
+      transition: fill .3s !important
+
+    .active svg path
+      fill: aquamarine !important
+
+    .inactive svg path
+      fill: crimson !important

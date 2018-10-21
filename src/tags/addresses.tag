@@ -13,47 +13,43 @@ addresses
     li.accent
       .flex
         div address
-        .grow
+        .expand
         div amount
     li(each='{opts.addresses}')
       .flex
         div {address}
-        .grow.bar
+        .expand.bar
         amount(amount='{value}', symbol='{parent.opts.symbol}', decimals='{parent.opts.decimals}')
 
   ul
     li.accent
       .flex
         div total
-        .grow
+        .expand
         amount(amount='{parent.total()}', symbol='{opts.symbol}', decimals='{opts.decimals}')
     li.accent
       .flex
         div your balance
-        .grow
+        .expand
         amount(amount='{parent.balance()}', symbol='{opts.symbol}', decimals='{opts.decimals}')
     li.accent
       .flex.fade(class='{negative: parent.left() < 0}')
         div remaining
-        .grow
+        .expand
         amount(amount='{parent.left()}', symbol='{opts.symbol}', decimals='{opts.decimals}')
 
   style.
-    .accent {
-      font-style: italic;
-    }
-    .grow {
-      flex-grow: 1;
-    }
-    .bar {
-      margin: auto 0.3em;
-      border-bottom: 1px #111111 solid;
-    }
-    .fade {
-      transition: color .3s;
-    }
-    .negative {
-      color: crimson;
-    }
+    .accent
+      font-style: italic
+
+    .bar
+      margin: auto 0.3em
+      border-bottom: 1px #111111 solid
+
+    .fade
+      transition: color .3s
+
+    .negative
+      color: crimson
 
   script.
