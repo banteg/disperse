@@ -1,10 +1,16 @@
 disperse
   section
     logo
-  section
+
+  section(if='{network_unavailable}')
+    h2 network not yet supported
+    p let us know on telegram or open an issue on gitub and we'll deploy the contract on this network.
+    p network id: {network}
+
+  section(if='{step >= 1}')
     h2 connect to wallet
     p {wallet.status}
-  
+
   section(if='{step >= 2}')
     chooser
     p(if='{sending == "ether"}') you have
@@ -150,20 +156,19 @@ disperse
     // transaction functions
 
     async approve() {
-      this.ensureDisperseContract()
+      // should we approve only the amount needed or -1?
       return this.token.contract.approve(this.disperse.address, ethers.constants.MaxUint256)
     }
 
     async deny() {
-      this.ensureDisperseContract()
       return this.token.contract.approve(this.disperse.address, ethers.constants.Zero)
     }
 
     async disperseEther() {
-      this.ensureDisperseContract()
       let recipients = this.addresses.map(e => e.address)
       let values = this.addresses.map(e => e.value)
       console.log('disperseEther', recipients, values, this.total().toString())
+      console.log(this.disperse)
       let gas = await this.disperse.contract.estimate.disperseEther(recipients, values, {value: this.total()})
       return this.disperse.contract.disperseEther(
           recipients, values,
@@ -172,28 +177,16 @@ disperse
     }
 
     async disperseToken() {
-      this.ensureDisperseContract()
       let recipients = this.addresses.map(e => e.address)
       let values = this.addresses.map(e => e.value)
       console.log('disperseToken', this.token.address, recipients, values, this.total().toString())
+      console.log(this.disperse)
       let gas = await this.disperse.contract.estimate.disperseToken(this.token.address, recipients, values)
       let transaction = this.disperse.contract.disperseToken(
         this.token.address, recipients, values,
         {gasLimit: gas * 2}
       )
       return transaction
-    }
-
-    ensureDisperseContract() {
-      if (!this.disperse.contract) {
-        this.disperse.contract = new ethers.Contract(
-          this.disperse.address,
-          this.disperse.abi,
-          this.provider.getSigner()
-        )
-        console.log(this.disperse.contract)
-        window.disperse = this.disperse.contract
-      }
     }
 
     // computed values
@@ -275,36 +268,46 @@ disperse
 
     afterWeb3() {
       this.provider = new ethers.providers.Web3Provider(web3.currentProvider)
+      this.network = web3.version.nework
+      this.load_disperse_contract()
       setInterval(this.watch_account, 100)
       setInterval(this.watch_network, 500)
       this.debug()
       this.update()
     }
 
+    load_disperse_contract() {
+      this.network = web3.version.network
+      this.disperse.address = disperse.address[this.network]
+      if (this.disperse.address) {
+        this.disperse.contract = new ethers.Contract(
+          this.disperse.address,
+          disperse.abi,
+          this.provider.getSigner()
+        )
+        console.log(`Disperse contract initialized at ${this.disperse.address}`)
+      } else {
+        this.update({network_unavailable: true, step: 0})
+      }
+    }
+
     // web3 stuff
 
     async connectWeb3() {
         if (window.ethereum) {
-            console.log('// Modern dapp browsers...')
             window.web3 = new Web3(ethereum)
             try {
-                console.log('Request account access if needed')
                 await ethereum.enable()
-                console.log('Accounts now exposed')
             } catch (error) {
-                console.log('User denied account access...')
                 this.wallet.status = 'please unlock metamask'
             }
             this.afterWeb3()
         }
         else if (window.web3) {
-            console.log('// Legacy dapp browsers...')
             window.web3 = new Web3(web3.currentProvider);
-            console.log('Acccounts always exposed')
             this.afterWeb3()
         }
         else {
-          //- this.provider = ethers.getDefaultProvider('homestead')
           this.wallet.status = `non-ethereum browser, consider installing metamask.`
           this.update()
         }
