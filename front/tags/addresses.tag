@@ -1,3 +1,13 @@
+//-
+  addresses
+
+  list of addresses with grand total
+
+  @param addresses  list of {address, value} objects
+  @param symbol     token symbol to use
+  @param decimals   how far to move the decimal point
+//
+
 addresses
   ul
     li.accent
@@ -5,26 +15,28 @@ addresses
         div address
         .grow
         div amount
-    li(each='{parent.addresses}')
+    li(each='{opts.addresses}')
       .flex
         div {address}
         .grow.bar
-        div {pretty(value)}
+        amount(amount='{value}', symbol='{parent.opts.symbol}', decimals='{parent.opts.decimals}')
+
+  ul
     li.accent
       .flex
         div total
         .grow
-        div {pretty(parent.total())}
+        amount(amount='{parent.total()}', symbol='{opts.symbol}', decimals='{opts.decimals}')
     li.accent
       .flex
         div your balance
         .grow
-        div {pretty(parent.balance())}
+        amount(amount='{parent.balance()}', symbol='{opts.symbol}', decimals='{opts.decimals}')
     li.accent
-      .flex(class='{negative: parent.left() < 0}')
+      .flex.fade(class='{negative: parent.left() < 0}')
         div remaining
         .grow
-        div {pretty(parent.left())}
+        amount(amount='{parent.left()}', symbol='{opts.symbol}', decimals='{opts.decimals}')
 
   style.
     .accent {
@@ -37,11 +49,11 @@ addresses
       margin: auto 0.3em;
       border-bottom: 1px #111111 solid;
     }
+    .fade {
+      transition: color .3s;
+    }
     .negative {
       color: crimson;
     }
 
   script.
-    pretty(wei) {
-      return this.parent.pretty(wei)
-    }
