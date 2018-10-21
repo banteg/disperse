@@ -3,12 +3,15 @@
 
   button + transaction status
 
-  @param {string} title   button label
-  @param {string} action  parent function to call, must return transaction promise
+  @param {string} title     button label
+  @param {string} action    parent function to call, must return transaction promise
+  @param {string} disabled  when to disable the button
+  @param {string} message   disabled message
 //
 transaction
-  input(type='submit', value='{opts.title}', onclick='{submit}')
+  input(type='submit', value='{opts.title}', onclick='{submit}', disabled='{opts.disabled}')
   .status
+    div(show='{opts.message}') {opts.message}
     div(class='{status}') {message}
     a.hash(target='_blank', href='{etherscan(hash)}') {hash}
 
