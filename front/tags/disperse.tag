@@ -7,19 +7,18 @@ disperse
   
   section(if='{step >= 2}')
     ether-or-token
-    p(show='{sending == "ether"}') you have
+    p(if='{sending == "ether"}') you have
       amount(amount='{wallet.balance}', symbol='{symbol()}', decimals='{decimals()}')
 
 
-  section(show='{step >= 2 && sending === "token"}')
+  section(if='{step >= 2 && sending === "token"}')
     h2 which token
-
-    form(ref="s1", onsubmit='{load_token}')
+    form(onsubmit='{load_token}')
       label.block token address
       .flex.shadow
         input(type='text', placeholder='0x...', value='{contracts.token}', ref='token')
         input(type='submit', value='load')
-      p.status(class='{info.token.status}') {info.token.msg}
+      p(class='{info.token.status}') {info.token.message}
       p(if='{token.balance}') you have
         amount(amount='{token.balance}', symbol='{symbol()}', decimals='{decimals()}')
         span  ({token.name})
@@ -54,8 +53,11 @@ disperse
       message='{disperse_message()}'
     )
 
+  section(if='{step >= 5}')
+    h2 thanks
+    p thanks for using this tool.
+
   script.
-    this.eth_symbol = 'ETH' // or Ξ
     this.statuses = ['approve', 'pending', 'success', 'failed']
     this.step = 1
     this.info = {
@@ -67,7 +69,7 @@ disperse
     this.network = null
     this.wallet = {
       address: null,
-      status: null,
+      status: 'connecting...',
     }
     this.token = {}
     this.erc20 = {
@@ -107,39 +109,41 @@ disperse
       this.update({step: next_steps[this.sending]})
     }
 
-    // step 2b
     async load_token(e) {
-      if (e) e.preventDefault()
+      e.preventDefault()
+      this.info.token = {message: 'loading token info...', status: 'pending'}
+      this.update({token: {}})
       try {
+        // validate address
         console.log('load token', this.refs.token.value)
         var address = ethers.utils.getAddress(this.refs.token.value)
       } catch (error) {
-        this.info.token = {msg: 'invalid address', status: 'error'}
-        this.token = {
-          address: null,
-          contract: null,
-          name: null,
-          symbol: null,
-          decimals: null,
-        }
-        this.update()
+        // invalid address
+        this.info.token = {message: 'invalid address', status: 'error'}
+        this.update({step: 2, token: {}})
         return
       }
-      // valid address, load the details
-      this.info.token = {}
-      var token =  new ethers.Contract(address, this.erc20.abi, this.provider.getSigner())
-      this.token = {
-        address: address,
-        balance: null,
-        contract: token,
-        name: await token.name(),
-        symbol: await token.symbol(),
-        decimals: await token.decimals(),
+      try {
+        // load the details
+        var token =  new ethers.Contract(address, this.erc20.abi, this.provider.getSigner())
+        this.token = {
+          address: address,
+          balance: null,
+          contract: token,
+          name: await token.name(),
+          symbol: await token.symbol(),
+          decimals: await token.decimals(),
+        }
+      } catch(error) {
+        // non-compliant interface
+        this.info.token = {message: 'non-compliant token', status: 'error'}
+        this.update({step: 2, token: {}})
+        return
       }
       console.log(this.token)
+      this.info.token = {}
       await this.update_balance()
-      this.step = 3
-      this.update()
+      this.update({step: 3})
     }
 
     async check_amounts(e) {
@@ -211,11 +215,11 @@ disperse
     // computed values
 
     symbol() {
-      return this.sending === 'ether' ? 'ETH' : this.token.symbol
+      return this.sending === 'token' ? this.token.symbol : 'ETH'
     }
 
     decimals() {
-      return this.sending == 'ether' ? 18 : this.token.decimals
+      return this.sending == 'token' ? this.token.decimals :  18 
     }
 
     total() {

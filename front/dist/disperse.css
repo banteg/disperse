@@ -136,3 +136,13 @@ input[type="text"]:focus {
 .rows > * {
     padding-bottom: 1rem;
 }
+
+.error {
+    font-style: italic;
+    color: crimson;
+}
+
+.pending {
+    font-style: italic;
+    color: rgba(0, 0, 0, .6);
+}
