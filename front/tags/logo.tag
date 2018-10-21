@@ -7,6 +7,19 @@ logo
     em verb
     span(style="font-style: normal")  distribute ether or tokens to multiple addresses
 
+  style.
+    .eth svg path {
+      transition: fill .3s !important;
+    }
+
+    .active svg path {
+      fill: aquamarine !important;
+    }
+
+    .inactive svg path {
+      fill: crimson !important;
+    }
+
   script.
     logoClass() {
       return this.parent.step > 1 ? 'active' : 'inactive'
