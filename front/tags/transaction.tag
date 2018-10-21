@@ -84,7 +84,6 @@ transaction
         let status = receipt.status ? 'success' : 'failed'
         this.update({message: `transaction ${status}`, status: status})
         await this.parent.update_balance()
-        bus.trigger('tx_success', receipt)
       } catch(error) {
         // transaction reverted
         this.update({message: 'transaction failed', status: 'failed'})

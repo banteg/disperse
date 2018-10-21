@@ -321,7 +321,7 @@ disperse
         }
         else {
           //- this.provider = ethers.getDefaultProvider('homestead')
-          this.wallet.status = `non-ethereum browser, consider installing metamask`
+          this.wallet.status = `non-ethereum browser, consider installing metamask.`
           this.update()
         }
       }
