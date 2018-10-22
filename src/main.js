@@ -10,6 +10,7 @@ import './tags/chooser.tag'
 import './tags/addresses.tag'
 import './tags/amount.tag'
 import './tags/transaction.tag'
+import './tags/token-loader.tag'
 
 window.ethers = ethers
 riot.mount('*')

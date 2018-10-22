@@ -16,17 +16,8 @@ disperse
     p(if='{sending == "ether"}') you have
       amount(amount='{wallet.balance}', symbol='{symbol()}', decimals='{decimals()}')
 
-
   section(if='{step >= 2 && sending === "token"}')
-    h2 token address
-    form(onsubmit='{load_token}')
-      .flex.shadow
-        input(type='text', placeholder='0x...', value='{contracts.token}', ref='token')
-        input(type='submit', value='load')
-      p(class='{info.token.status}') {info.token.message}
-      p(if='{token.balance}') you have
-        amount(amount='{token.balance}', symbol='{symbol()}', decimals='{decimals()}')
-        span  ({token.name})
+    token-loader
   
   section(show='{step >= 3}')
     h2 recipients and amounts
@@ -95,45 +86,6 @@ disperse
         token: this.token.contract ? 3 : 2,
       }
       this.update({step: next_steps[this.sending]})
-    }
-
-    async load_token(e) {
-      e.preventDefault()
-      this.info.token = {message: 'loading token info...', status: 'pending'}
-      this.update({token: {}})
-      try {
-        // validate address
-        console.log('load token', this.refs.token.value)
-        var address = ethers.utils.getAddress(this.refs.token.value)
-      } catch (error) {
-        // invalid address
-        this.info.token = {message: 'invalid address', status: 'error'}
-        this.update({step: 2, token: {}})
-        console.log(error)
-        return
-      }
-      try {
-        // load the details
-        var token =  new ethers.Contract(address, erc20.abi, this.provider.getSigner())
-        this.token = {
-          address: address,
-          balance: null,
-          contract: token,
-          name: await token.name(),
-          symbol: await token.symbol(),
-          decimals: await token.decimals(),
-        }
-      } catch(error) {
-        // non-compliant interface
-        this.info.token = {message: 'unsupported token', status: 'error'}
-        this.update({step: 2, token: {}})
-        console.log(error)
-        return
-      }
-      console.log(this.token)
-      this.info.token = {}
-      await this.update_balance()
-      this.update({step: 3})
     }
 
     async check_amounts(e) {
