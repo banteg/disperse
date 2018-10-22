@@ -21,11 +21,9 @@ disperse
   
   section(show='{step >= 3}')
     h2 recipients and amounts
-    form(onsubmit='{check_amounts}')
-      .shadow
-        textarea(ref='addresses', spellcheck='false', oninput='{check_amounts}')
-      input(type='submit', value='parse')
-
+    .shadow
+      textarea(ref='addresses', spellcheck='false', oninput='{check_amounts}')
+  
   section(if='{step >= 4}')
     h2 confirm
     addresses(addresses='{addresses}', symbol='{symbol()}', decimals='{decimals()}')
@@ -70,13 +68,10 @@ disperse
     this.token = {}
 
     this.sending = null
-    this.contracts = {
-      token: '0x825514093d55e89d2d38a9f86f5027d523701d0a',
-    }
 
-    async debug() {
-      this.refs.addresses.value = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0,1\n0x22d491bde2303f2f43325b2108d26f1eaba1e32b,.31\n0xe11ba2b4d45eaed5996cd0823791e0c93114882d,3.141592'
-    }
+    this.on('mount', () => {
+      this.refs.addresses.placeholder = 'supports any format\n0x314ab97b76e39d63c78d5c86c2daf8eaa306b182,3.141592\n0x271bffabd0f79b8bd4d7a1c245b7ec5b576ea98a=2.7182\n"0x141ca95b6177615fb1417cf70e930e102bf8f584": "1.41421"'
+    })
 
     // ether or token
     async choose(what) {
@@ -224,7 +219,6 @@ disperse
       this.load_disperse_contract()
       setInterval(this.watch_account, 100)
       setInterval(this.watch_network, 500)
-      this.debug()
       this.update()
     }
 
