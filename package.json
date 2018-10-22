@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "cd dist && npx browser-sync start --files * --server",
     "build": "rolluc -c",
-    "watch": "rollup -cw"
+    "watch": "rollup -cw",
+    "deploy": "npx buidler run scripts/deploy.js"
   },
   "author": "",
   "license": "MIT",
