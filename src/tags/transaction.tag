@@ -13,12 +13,12 @@ transaction
   .status
     div(show='{opts.message}') {opts.message}
     div(class='{status}') {message}
-    a.hash(target='_blank', href='{etherscan(hash)}') {hash}
+    a.hash(target='_blank', href='{explorer_tx(hash)}') {hash}
 
   script.
-    import { etherscan } from '../js/networks.js'
+    import { explorer_tx } from '../js/networks.js'
 
-    this.etherscan = etherscan
+    this.explorer_tx = explorer_tx
     this.status = null
     this.message = null
     this.hash = null
