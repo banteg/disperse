@@ -62,3 +62,15 @@ token-loader
       this.update({message: null, status: null})
       this.parent.update({step: 3})
     }
+
+  style.
+    input[type="text"] 
+      flex-grow: 1
+      border: none
+      border-bottom: 2px #111 solid
+      padding: .7rem
+      background: aquamarine
+      margin-right: 1.4rem
+
+    input[type="text"]:focus 
+      outline: none
