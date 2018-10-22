@@ -84,8 +84,7 @@ disperse
     }
 
     async check_amounts(e) {
-      if (e) e.preventDefault()
-      console.log('disperse')
+      e.preventDefault()
       const pattern = RegExp(/(0x[0-9a-fA-F]{40}).+?([0-9\.]+)/, 'g')
       this.addresses = []
       let result
@@ -95,9 +94,10 @@ disperse
           value: ethers.utils.parseUnits(result[2], this.token_decimals)
         })
       }
-      this.step = 4
-      this.update()
-      console.log(this.addresses)
+      if (this.addresses.length) {
+        this.update({step: 4})
+        console.log(this.addresses)
+      }
     }
 
     // transaction functions
