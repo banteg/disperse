@@ -13,6 +13,9 @@ chooser
     }
 
   style.
+    $color-faded: rgba(0, 0, 0, .5)
+    $color-normal: #111111
+
     .chooser
       display:block
       font-style: italic
@@ -20,19 +23,20 @@ chooser
       margin-bottom: 1.4rem
 
     label
-        margin-right: .25rem
-        font-size: 2.2rem
+      margin-right: .25rem
+      font-size: 2.2rem
 
     input[type="radio"]
-        display: none
-        color: #111111
+      display: none
+      color: $color-normal
 
-    input[type="radio"] + label
+      & + label
         display: inline-block
         font-size: 2.2rem
-        color: rgba(0, 0, 0, .5)
-        background: aquamarine
+        color: $color-faded
+        border-bottom: 2px $color-faded solid
 
-    input[type="radio"]:checked + label
-        color: #111111
-        box-shadow: 6px 6px crimson
+      &:checked + label
+        color: $color-normal
+        border-bottom: 2px $color-normal solid
+        background: aquamarine
