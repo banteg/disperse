@@ -2,7 +2,7 @@ token-loader
   h2 token address
   form(onsubmit='{load_token}')
     .flex
-      input(type='text', placeholder='0x...', ref='token')
+      input(type='text', ref='token')
       input(type='submit', value='load')
     p(class='{status}') {message}
     p(if='{parent.token.balance}') you have
@@ -16,9 +16,8 @@ token-loader
     this.status = null
     this.message = null
 
-    // populate with default test token
     this.on('mount', () => {
-      this.refs.token.value = '0x825514093d55e89d2d38a9f86f5027d523701d0a'
+      this.refs.token.placeholder = '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359'
     })
 
     async load_token(e) {
@@ -27,6 +26,10 @@ token-loader
       console.log('load token', address)
       this.update({message: 'loading token info...', status: 'pending'})
       this.parent.update({token: {}})
+      if (!address) {
+        this.update({message: 'input token address', status: 'error'})
+        return
+      }
       try {
         // validate address
         address = ethers.utils.getAddress(address)
