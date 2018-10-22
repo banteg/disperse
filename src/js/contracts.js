@@ -5,6 +5,7 @@ export const disperse = {
     'function disperseTokenSimple(address token, address[] recipients, uint256[] values)',
   ],
   address: {
+    1: '0xD152f549545093347A162Dce210e7293f1452150',     // mainnet
     3: '0xD152f549545093347A162Dce210e7293f1452150',     // ropsten
     4: '0xD152f549545093347A162Dce210e7293f1452150',     // rinkeby
     42: '0xD152f549545093347A162Dce210e7293f1452150',    // kovan
