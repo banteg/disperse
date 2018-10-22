@@ -35,3 +35,7 @@ export const networks = {
     explorer: tx => "#"
   }
 };
+
+export function etherscan(tx) {
+  return networks[web3.version.network].explorer(tx)
+}

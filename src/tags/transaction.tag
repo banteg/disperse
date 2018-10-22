@@ -16,6 +16,9 @@ transaction
     a.hash(target='_blank', href='{etherscan(hash)}') {hash}
 
   script.
+    import { etherscan } from '../js/networks.js'
+
+    this.etherscan = etherscan
     this.status = null
     this.message = null
     this.hash = null
@@ -50,10 +53,6 @@ transaction
         this.update({message: 'transaction failed', status: 'failed'})
         console.log('reverted', error)
       }
-    }
-
-    etherscan(hash) {
-      return `https://etherscan.io/tx/${hash}`
     }
 
   style.
