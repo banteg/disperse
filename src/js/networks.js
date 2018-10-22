@@ -49,8 +49,14 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  77: {
+    name: "poa sokol",
+    symbol: "SPOA",
+    explorer: {
+      name: 'blockscout',
+      base: 'https://blockscout.com/poa/sokol/',
       tx: tx => `tx/${tx}`,
-      addr: addr => `addr/${addr}`,
+      addr: addr => `address/${addr}`,
     },
   },
   99: {
@@ -59,6 +65,16 @@ export const networks = {
     explorer: {
       name: 'blockscout',
       base: 'https://blockscout.com/poa/core/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
+  99: {
+    name: "xdai chain",
+    symbol: "xDAI",
+    explorer: {
+      name: 'blockscout',
+      base: 'https://blockscout.com/poa/dai/',
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
     },

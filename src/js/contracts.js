@@ -11,6 +11,7 @@ export const disperse = {
     42: '0xD152f549545093347A162Dce210e7293f1452150',    // kovan
     77: '0xD152f549545093347A162Dce210e7293f1452150',    // poa sokol
     99: '0xD152f549545093347A162Dce210e7293f1452150',    // poa network
+    100: '0xD152f549545093347A162Dce210e7293f1452150',   // xdai chain
     5777: '0x634ad8bf795655b3d855be5e7cc97a0cdcdb6497',  // ganache-cli
   },
 }
