@@ -3,6 +3,7 @@ export const networks = {
     name: "mainnet",
     unit: "ETH",
     explorer: {
+      name: 'etherscan',
       base: 'https://etherscan.io/',
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
@@ -12,6 +13,7 @@ export const networks = {
     name: "ropsten",
     unit: "ETH",
     explorer: {
+      name: 'etherscan',
       base: 'https://ropsten.etherscan.io/',
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
@@ -21,6 +23,7 @@ export const networks = {
     name: "kovan",
     unit: "KETH",
     explorer: {
+      name: 'etherscan',
       base: 'https://kovan.etherscan.io/',
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
@@ -30,6 +33,7 @@ export const networks = {
     name: "rinkeby",
     unit: "ETH",
     explorer: {
+      name: 'etherscan',
       base: 'https://rinkeby.etherscan.io/',
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
@@ -39,6 +43,7 @@ export const networks = {
     name: "etc mainnet",
     unit: "ETC",
     explorer: {
+      name: 'gastracker',
       base: 'https://gastracker.io/',
       tx: tx => `tx/${tx}`,
       addr: addr => `addr/${addr}`,
@@ -48,6 +53,7 @@ export const networks = {
     name: "poa network",
     unit: "POA",
     explorer: {
+      name: 'blockscout',
       base: 'https://blockscout.com/poa/core/',
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
@@ -73,8 +79,15 @@ export function explorer_addr(addr) {
   }
 }
 
+export function explorer_name() {
+  let network = networks[web3.version.network]
+  if (network && network.explorer) {
+    return network.explorer.name
+  }
+}
+
 export function network_name() {
-  let network = web3.version.network
+  let network = networks[web3.version.network]
   if (!network) return
-  return networks[network] ? networks[network].name : '🤔'
+  return network ? network.name : '🤔'
 }
