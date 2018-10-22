@@ -6,7 +6,7 @@ logo
       sup {network_name()}
     .expand
     div
-      a(href='{opts.etherscan}', target='_blank') etherscan
+      a(href='{contract_link()}', class='{unavailable: !parent.disperse.address}', target='_blank') etherscan
       a(href='https://github.com/banteg/disperse', target='_blank') github
       a(href='https://t.me/disperse', target='_blank') telegram
   p
@@ -14,16 +14,16 @@ logo
     span(style="font-style: normal")  distribute ether or tokens to multiple addresses
 
   script.
-    import {networks} from '../js/networks.js'
+    import {network_name, explorer_addr} from '../js/networks.js'
+
+    this.network_name = network_name
 
     logoClass() {
       return this.parent.step > 1 ? 'active' : 'inactive'
     }
 
-    network_name() {
-      let network = web3.version.network
-      if (!network) return
-      return networks[network] ? networks[network].name : '🤔'
+    contract_link() {
+      if (this.parent.disperse.address) return explorer_addr(this.parent.disperse.address)
     }
 
   style.
@@ -48,3 +48,6 @@ logo
 
     .inactive svg path
       fill: crimson !important
+
+    .unavailable
+      color: rgba(0, 0, 0, .5)
