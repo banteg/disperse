@@ -49,6 +49,7 @@ disperse
 
   script.
     import {disperse, erc20} from '../js/contracts.js'
+    import {native_symbol} from '../js/networks.js'
 
     this.step = 1
     this.info = {
@@ -139,7 +140,7 @@ disperse
     // computed values
 
     symbol() {
-      return this.sending === 'token' ? this.token.symbol : 'ETH'
+      return this.sending === 'token' ? this.token.symbol : native_symbol()
     }
 
     decimals() {

@@ -1,7 +1,7 @@
 export const networks = {
   1: {
     name: "mainnet",
-    unit: "ETH",
+    symbol: "ETH",
     explorer: {
       name: 'etherscan',
       base: 'https://etherscan.io/',
@@ -11,7 +11,7 @@ export const networks = {
   },
   3: {
     name: "ropsten",
-    unit: "ETH",
+    symbol: "ETH",
     explorer: {
       name: 'etherscan',
       base: 'https://ropsten.etherscan.io/',
@@ -21,7 +21,7 @@ export const networks = {
   },
   42: {
     name: "kovan",
-    unit: "KETH",
+    symbol: "KETH",
     explorer: {
       name: 'etherscan',
       base: 'https://kovan.etherscan.io/',
@@ -31,7 +31,7 @@ export const networks = {
   },
   4: {
     name: "rinkeby",
-    unit: "ETH",
+    symbol: "ETH",
     explorer: {
       name: 'etherscan',
       base: 'https://rinkeby.etherscan.io/',
@@ -41,7 +41,7 @@ export const networks = {
   },
   61: {
     name: "etc mainnet",
-    unit: "ETC",
+    symbol: "ETC",
     explorer: {
       name: 'gastracker',
       base: 'https://gastracker.io/',
@@ -51,7 +51,7 @@ export const networks = {
   },
   99: {
     name: "poa network",
-    unit: "POA",
+    symbol: "POA",
     explorer: {
       name: 'blockscout',
       base: 'https://blockscout.com/poa/core/',
@@ -61,7 +61,7 @@ export const networks = {
   },
   5777: {
     name: "ganache",
-    unit: "ETH",
+    symbol: "ETH",
   }
 };
 
@@ -87,7 +87,12 @@ export function explorer_name() {
 }
 
 export function network_name() {
-  let network = networks[web3.version.network]
+  let network = web3.version.network
   if (!network) return
-  return network ? network.name : '🤔'
+  return networks[network] ? networks[network].name : '🤔'
+}
+
+export function native_symbol() {
+  let network = networks[web3.version.network]
+  return network ? network.symbol : 'ETH'
 }
