@@ -5,8 +5,9 @@ export const disperse = {
     'function disperseTokenSimple(address token, address[] recipients, uint256[] values)',
   ],
   address: {
-    3: '0xD152f549545093347A162Dce210e7293f1452150',
-    5777: '0x634ad8bf795655b3d855be5e7cc97a0cdcdb6497',
+    3: '0xD152f549545093347A162Dce210e7293f1452150',     // ropsten
+    4: '0xD152f549545093347A162Dce210e7293f1452150',     // rinkeby
+    5777: '0x634ad8bf795655b3d855be5e7cc97a0cdcdb6497',  // ganache-cli
   },
 }
 
