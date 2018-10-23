@@ -5691,10 +5691,10 @@ openurl@1.1.1:
   resolved "https://registry.yarnpkg.com/openurl/-/openurl-1.1.1.tgz#3875b4b0ef7a52c156f0db41d4609dbb0f94b387"
   integrity sha1-OHW0sO96UsFW8NtB1GCduw+Us4c=
 
-openzeppelin-solidity@^1.12.0:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-1.12.0.tgz#7b9c55975e73370d4541e3442b30cb3d91ac973a"
-  integrity sha512-WlorzMXIIurugiSdw121RVD5qA3EfSI7GybTn+/Du0mPNgairjt29NpVTAaH8eLjAeAwlw46y7uQKy0NYem/gA==
+openzeppelin-solidity@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.0.0.tgz#b45dddbdae090f89577598c1a7e7518df61b7ba2"
+  integrity sha512-SolpxQFArtiYnlSNg3dZ9sz0WVlKtPqSOcJkXRllaZp4+Lpfqz3vxF0yoh7g75TszKPyadqoJmU7+GM/vwh9SA==
 
 opn@5.3.0:
   version "5.3.0"
