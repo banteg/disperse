@@ -69,7 +69,7 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
-  99: {
+  100: {
     name: "xdai chain",
     symbol: "xDAI",
     explorer: {
