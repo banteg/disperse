@@ -238,11 +238,14 @@ disperse
       this.load_disperse_contract()
       setInterval(this.watch_account, 100)
       setInterval(this.watch_network, 500)
-      this.update({state: this.states.UNLOCK_METAMASK})
+      if (this.state !== this.states.NETWORK_UNAVAILABLE) {
+        this.update({state: this.states.UNLOCK_METAMASK})
+      }
     }
 
     load_disperse_contract() {
       this.network = web3.version.network
+      console.log(this.network)
       this.disperse.address = disperse.address[this.network]
       if (this.disperse.address) {
         this.disperse.contract = new ethers.Contract(
