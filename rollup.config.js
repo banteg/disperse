@@ -3,6 +3,28 @@ import nodeResolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import buble from 'rollup-plugin-buble'
 import postcss from 'rollup-plugin-postcss'
+import { terser } from 'rollup-plugin-terser'
+import bundleSize from 'rollup-plugin-bundle-size'
+
+const plugins = [
+  riot({
+    style: 'sass',
+    template: 'pug'
+  }),
+  postcss({
+    extensions: ['.css']
+  }),
+  nodeResolve({ jsnext: true }),
+  commonjs(),
+  buble(),
+  bundleSize(),
+]
+
+if (process.env.BUILD === 'production') {
+  plugins.push(
+    terser()
+  )
+}
 
 export default {
   input: 'src/main.js',
@@ -12,16 +34,5 @@ export default {
     name: 'app',
     sourcemap: true
   },
-  plugins: [
-    riot({
-      style: 'sass',
-      template: 'pug'
-    }),
-    postcss({
-      extensions: ['.css']
-    }),
-    nodeResolve({ jsnext: true }),
-    commonjs(),
-    buble()
-  ],
+  plugins: plugins,
 }
