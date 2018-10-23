@@ -2,34 +2,38 @@ disperse
   section
     logo
 
-  section(if='{network_unavailable}')
+  section(if='{state === states.METAMASK_REQUIRED}')
+    h2 metamask required
+    p non-ethereum browser, consider installing metamask.
+
+  section(if='{state === states.NETWORK_UNAVAILABLE}')
     h2 network not yet supported
     p let us know on telegram or open an issue on gitub and we'll deploy the contract on this network.
     p network id: {network}
 
-  section(if='{step >= 1}')
+  section(if='{state >= states.UNLOCK_METAMASK}')
     h2 connect to wallet
     p {wallet.status}
 
-  section(if='{step >= 2}')
+  section(if='{state >= states.CONNECTED_TO_WALLET}')
     chooser
     p(if='{sending == "ether"}') you have
       amount(amount='{wallet.balance}', symbol='{symbol()}', decimals='{decimals()}')
 
-  section(if='{step >= 2 && sending === "token"}')
+  section(if='{state >= states.CONNECTED_TO_WALLET && sending === "token"}')
     token-loader
   
-  section(show='{step >= 3}')
+  section(show='{state >= states.SELECTED_CURRENCY}')
     h2 recipients and amounts
     .shadow
       textarea(ref='addresses', spellcheck='false', oninput='{check_amounts}')
   
-  section(if='{step >= 4}')
+  section(if='{state >= states.ENTERED_AMOUNTS}')
     h2 confirm
     addresses(addresses='{addresses}', symbol='{symbol()}', decimals='{decimals()}')
     transaction(show='{sending === "ether"}', disabled='{left() < 0}' title='disperse ether', action='disperseEther')
 
-  div(if='{sending == "token" && step >= 4}')
+  div(if='{state >= states.ENTERED_AMOUNTS && sending == "token"}')
     h2 allowance
     p(show='{token.allowance.lt(total())}') allow smart contract to transfer tokens on your behalf.
     //- learn more about token allowance <a href="https://tokenallowance.io/" target="_blank">here</a>.
@@ -51,7 +55,16 @@ disperse
     import {disperse, erc20} from '../js/contracts.js'
     import {native_symbol} from '../js/networks.js'
 
-    this.step = 1
+    this.states = Object.freeze({
+      METAMASK_REQUIRED: 1,
+      NETWORK_UNAVAILABLE: 2,
+      UNLOCK_METAMASK: 3,
+      CONNECTED_TO_WALLET: 4,
+      SELECTED_CURRENCY: 5,
+      ENTERED_AMOUNTS: 6,
+    })
+    this.state = 0
+
     this.info = {
       debug: {},
       token: {},
@@ -77,15 +90,36 @@ disperse
     // ether or token
     async choose(what) {
       this.sending = what
-      let next_steps = {
-        ether: 3,
-        token: this.token.contract ? 3 : 2,
+      if (this.sending == 'ether') {
+        this.update({state: this.states.SELECTED_CURRENCY})
+        this.parse_amounts()
       }
-      this.update({step: next_steps[this.sending]})
+      else if (this.sending == 'token') {
+        if (this.token.contract) {
+          this.token_loaded()
+        } else {
+          this.reset_token()
+        }
+      }
+    }
+    
+    async reset_token() {
+      this.update({state: this.states.CONNECTED_TO_WALLET, token: {}})
+    }
+
+    async token_loaded() {
+      this.update({state: this.states.SELECTED_CURRENCY})
+      await this.update_balance()
+      this.parse_amounts()
+      console.log(`loaded token ${this.token.address}`)
     }
 
     async check_amounts(e) {
       e.preventDefault()
+      this.parse_amounts()
+    }
+
+    async parse_amounts() {
       const pattern = RegExp(/(0x[0-9a-fA-F]{40}).+?([0-9\.]+)/, 'g')
       this.addresses = []
       let result
@@ -96,8 +130,7 @@ disperse
         })
       }
       if (this.addresses.length) {
-        this.update({step: 4})
-        console.log(this.addresses)
+        this.update({state: this.states.ENTERED_AMOUNTS})
       }
     }
 
@@ -157,13 +190,6 @@ disperse
       }
     }
 
-    show_send() {
-      switch (this.sending) {
-        case 'token': return this.step >= 4 && this.token.allowance.gte(this.total())
-        case 'ether': return this.step >= 4
-      }
-    }
-
     disperse_message() {
       if (this.token.allowance.lt(this.total())) return 'needs allowance'
       if (this.left() < 0) return 'total exceeds balance'
@@ -187,9 +213,11 @@ disperse
         this.wallet.status = account ? `logged in as ${account}` : 'please unlock metamask'
         if (account) {
           await this.update_balance()
-          this.step = this.step === 1 ? 2 : this.step  // advance to step 2
+          if (this.state === this.states.UNLOCK_METAMASK) {
+            this.state = this.states.CONNECTED_TO_WALLET
+          }
         } else {
-          this.step = 1
+          this.state = this.states.UNLOCK_METAMASK
         }
         this.update()
       }
@@ -210,7 +238,7 @@ disperse
       this.load_disperse_contract()
       setInterval(this.watch_account, 100)
       setInterval(this.watch_network, 500)
-      this.update()
+      this.update({state: this.states.UNLOCK_METAMASK})
     }
 
     load_disperse_contract() {
@@ -224,7 +252,7 @@ disperse
         )
         console.log(`Disperse contract initialized at ${this.disperse.address}`)
       } else {
-        this.update({network_unavailable: true, step: 0})
+        this.update({state: this.states.NETWORK_UNAVAILABLE})
       }
     }
 
@@ -245,8 +273,7 @@ disperse
             this.afterWeb3()
         }
         else {
-          this.wallet.status = `non-ethereum browser, consider installing metamask.`
-          this.update()
+          this.update({state: this.states.METAMASK_REQUIRED})
         }
       }
 

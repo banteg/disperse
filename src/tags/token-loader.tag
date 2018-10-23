@@ -2,7 +2,7 @@ token-loader
   h2 token address
   form(onsubmit='{load_token}')
     .flex
-      input(type='text', ref='token')
+      input(type='text', ref='token', placeholder='0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359')
       input(type='submit', value='load')
     p(class='{status}') {message}
     p(if='{parent.token.balance}') you have
@@ -17,7 +17,7 @@ token-loader
     this.message = null
 
     this.on('mount', () => {
-      this.refs.token.placeholder = '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359'
+      this.refs.token.value = this.parent.token.address ? this.parent.token.address : ''
     })
 
     async load_token(e) {
@@ -25,7 +25,7 @@ token-loader
       let address = this.refs.token.value
       console.log('load token', address)
       this.update({message: 'loading token info...', status: 'pending'})
-      this.parent.update({token: {}})
+      this.parent.reset_token()
       if (!address) {
         this.update({message: 'input token address', status: 'error'})
         return
@@ -36,7 +36,7 @@ token-loader
       } catch (error) {
         // invalid address
         this.update({message: 'invalid address', status: 'error'})
-        this.parent.update({step: 2, token: {}})
+        this.parent.reset_token()
         console.log(error)
         return
       }
@@ -54,13 +54,12 @@ token-loader
       } catch(error) {
         // non-compliant interface
         this.update({message: 'unsupported token', status: 'error'})
-        this.parent.update({step: 2, token: {}})
+        this.parent.reset_token()
         console.log(error)
         return
       }
-      await this.parent.update_balance()
+      await this.parent.token_loaded()
       this.update({message: null, status: null})
-      this.parent.update({step: 3})
     }
 
   style.
