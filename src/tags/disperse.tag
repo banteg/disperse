@@ -116,24 +116,14 @@ disperse
       let recipients = this.addresses.map(e => e.address)
       let values = this.addresses.map(e => e.value)
       console.log('disperseEther', recipients, values, this.total().toString())
-      console.log(this.disperse)
-      let gas = await this.disperse.contract.estimate.disperseEther(recipients, values, {value: this.total()})
-      return this.disperse.contract.disperseEther(
-          recipients, values,
-          {value: this.total(), gasLimit: gas * 2}
-      )
+      return this.disperse.contract.disperseEther(recipients, values, {value: this.total()})
     }
 
     async disperseToken() {
       let recipients = this.addresses.map(e => e.address)
       let values = this.addresses.map(e => e.value)
       console.log('disperseToken', this.token.address, recipients, values, this.total().toString())
-      console.log(this.disperse)
-      let gas = await this.disperse.contract.estimate.disperseToken(this.token.address, recipients, values)
-      let transaction = this.disperse.contract.disperseToken(
-        this.token.address, recipients, values,
-        {gasLimit: gas * 2}
-      )
+      let transaction = this.disperse.contract.disperseToken(this.token.address, recipients, values)
       return transaction
     }
 
