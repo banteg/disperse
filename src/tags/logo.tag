@@ -20,7 +20,7 @@ logo
     this.explorer_name = explorer_name
 
     logoClass() {
-      return this.parent.step > 1 ? 'active' : 'inactive'
+      return this.parent.state >= this.parent.states.CONNECTED_TO_WALLET ? 'active' : 'inactive'
     }
 
     contract_link() {
