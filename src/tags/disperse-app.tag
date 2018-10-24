@@ -21,12 +21,12 @@ disperse-app
     p {wallet.status}
 
   section(if='{state >= states.CONNECTED_TO_WALLET}')
-    disperse-currency(on-choose='{select_currency}')
+    disperse-currency(on-select='{select_currency}')
     p(if='{sending == "ether"}') you have
       disperse-amount(amount='{wallet.balance}', symbol='{symbol()}', decimals='{decimals()}')
 
   section(if='{state >= states.CONNECTED_TO_WALLET && sending === "token"}')
-    disperse-token-loader
+    disperse-token-loader(on-select='{select_token}', on-error='{reset_token}')
   
   section(show='{state >= states.SELECTED_CURRENCY}')
     h2 recipients and amounts
@@ -119,7 +119,7 @@ disperse-app
       this.update({state: this.states.CONNECTED_TO_WALLET, token: {}})
     }
 
-    async token_loaded() {
+    async select_token() {
       this.update({state: this.states.SELECTED_CURRENCY})
       await this.update_balance()
       this.parse_amounts()

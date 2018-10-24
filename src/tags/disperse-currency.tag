@@ -1,10 +1,10 @@
 disperse-currency
   .chooser
     label send
-    input(type='radio', value='ether', name='what', id='ether', onchange='{opts.onChoose}')
+    input(type='radio', value='ether', name='what', id='ether', onchange='{opts.onSelect}')
     label(for='ether') ether
     label or
-    input(type='radio', value='token', name='what', id='token', onchange='{opts.onChoose}')
+    input(type='radio', value='token', name='what', id='token', onchange='{opts.onSelect}')
     label(for='token') token
 
   script.

@@ -1,4 +1,14 @@
-token-loader
+//- 
+  dipserse-token-loader
+
+  a form to select a token and load it
+
+  @param {func} on-select  called when token is loaded
+  @param {func} on-error   called when token is reset
+//
+
+
+disperse-token-loader
   h2 token address
   form(onsubmit='{load_token}')
     .flex
@@ -10,7 +20,7 @@ token-loader
       span  ({parent.token.name})
 
   script.
-    import { erc20 } from '../js/contracts.js'
+    import { erc20 } from '../../js/contracts.js'
 
     this.token = null
     this.status = null
@@ -25,7 +35,7 @@ token-loader
       let address = this.refs.token.value
       console.log('load token', address)
       this.update({message: 'loading token info...', status: 'pending'})
-      this.parent.reset_token()
+      await this.opts.onError()
       if (!address) {
         this.update({message: 'input token address', status: 'error'})
         return
@@ -35,9 +45,9 @@ token-loader
         address = ethers.utils.getAddress(address)
       } catch (error) {
         // invalid address
-        this.update({message: 'invalid address', status: 'error'})
-        this.parent.reset_token()
         console.log(error)
+        this.update({message: 'invalid address', status: 'error'})
+        await this.opts.onError()
         return
       }
       try {
@@ -53,12 +63,12 @@ token-loader
         }
       } catch(error) {
         // non-compliant interface
-        this.update({message: 'unsupported token', status: 'error'})
-        this.parent.reset_token()
         console.log(error)
+        this.update({message: 'unsupported token', status: 'error'})
+        await this.opts.onError()
         return
       }
-    await this.parent.token_loaded()
+      await this.opts.onSelect()
       this.update({message: null, status: null})
     }
 
