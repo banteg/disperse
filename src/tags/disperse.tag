@@ -30,7 +30,14 @@ disperse
   
   section(if='{state >= states.ENTERED_AMOUNTS}')
     h2 confirm
-    addresses(addresses='{addresses}', symbol='{symbol()}', decimals='{decimals()}', balance='{balance()}', left='{left()}', total='{total()}')
+    disperse-addresses(
+      addresses='{addresses}',
+      symbol='{symbol()}',
+      decimals='{decimals()}',
+      balance='{balance()}',
+      left='{left()}',
+      total='{total()}'
+    )
     transaction(show='{sending === "ether"}', disabled='{left() < 0}' title='disperse ether', action='{disperseEther}')
 
   div(if='{state >= states.ENTERED_AMOUNTS && sending == "token"}')

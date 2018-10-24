@@ -11,18 +11,18 @@
   @param total      total
 //
 
-addresses
+disperse-addresses
   ul
     li.accent
       .flex
         div address
         .expand
         div amount
-    li(each='{opts.addresses}')
+    li(each='{addr in opts.addresses}')
       .flex
-        div {address}
+        div {addr.address}
         .expand.bar
-        amount(amount='{value}', symbol='{parent.opts.symbol}', decimals='{parent.opts.decimals}')
+        amount(amount='{addr.value}', symbol='{parent.opts.symbol}', decimals='{parent.opts.decimals}')
 
   ul
     li.accent
