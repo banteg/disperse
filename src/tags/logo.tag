@@ -7,7 +7,7 @@ logo
     .expand
     div
       a(href='{contract_link()}', class='{unavailable: !parent.disperse.address}', target='_blank') {explorer_name()}
-      a(href='https://github.com/banteg/disperse', target='_blank') github
+      a(if='{false}', href='https://github.com/banteg/disperse', target='_blank') github
       a(href='https://t.me/disperse', target='_blank') telegram
   p
     em verb
