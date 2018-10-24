@@ -10,7 +10,7 @@ import './tags/disperse-currency.tag'
 import './tags/disperse-addresses.tag'
 import './tags/disperse-amount.tag'
 import './tags/disperse-transaction.tag'
-import './tags/token-loader.tag'
+import './tags/token-loader/disperse-token-loader.tag'
 
 window.ethers = ethers
 riot.mount('*')

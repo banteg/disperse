@@ -6,7 +6,7 @@ token-loader
       input(type='submit', value='load')
     p(class='{status}') {message}
     p(if='{parent.token.balance}') you have
-      amount(amount='{parent.token.balance}', symbol='{parent.symbol()}', decimals='{parent.decimals()}')
+      disperse-amount(amount='{parent.token.balance}', symbol='{parent.symbol()}', decimals='{parent.decimals()}')
       span  ({parent.token.name})
 
   script.
@@ -58,7 +58,7 @@ token-loader
         console.log(error)
         return
       }
-      await this.parent.token_loaded()
+    await this.parent.token_loaded()
       this.update({message: null, status: null})
     }
 

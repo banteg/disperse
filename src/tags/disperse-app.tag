@@ -26,7 +26,7 @@ disperse-app
       disperse-amount(amount='{wallet.balance}', symbol='{symbol()}', decimals='{decimals()}')
 
   section(if='{state >= states.CONNECTED_TO_WALLET && sending === "token"}')
-    token-loader
+    disperse-token-loader
   
   section(show='{state >= states.SELECTED_CURRENCY}')
     h2 recipients and amounts
