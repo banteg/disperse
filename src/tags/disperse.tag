@@ -1,6 +1,6 @@
 disperse
   section
-    logo
+    logo(state='{state}', disperse='{disperse}')
 
   section(if='{state === states.METAMASK_REQUIRED}')
     h2 metamask required
@@ -54,15 +54,9 @@ disperse
   script.
     import {disperse, erc20} from '../js/contracts.js'
     import {native_symbol} from '../js/networks.js'
+    import {states} from '../js/state.js'
 
-    this.states = Object.freeze({
-      METAMASK_REQUIRED: 1,
-      NETWORK_UNAVAILABLE: 2,
-      UNLOCK_METAMASK: 3,
-      CONNECTED_TO_WALLET: 4,
-      SELECTED_CURRENCY: 5,
-      ENTERED_AMOUNTS: 6,
-    })
+    this.states = states
     this.state = 0
 
     this.info = {

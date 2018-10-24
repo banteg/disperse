@@ -1,0 +1,8 @@
+export const states = Object.freeze({
+    METAMASK_REQUIRED: 1,
+    NETWORK_UNAVAILABLE: 2,
+    UNLOCK_METAMASK: 3,
+    CONNECTED_TO_WALLET: 4,
+    SELECTED_CURRENCY: 5,
+    ENTERED_AMOUNTS: 6,
+})
