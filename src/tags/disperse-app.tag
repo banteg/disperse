@@ -13,7 +13,7 @@ disperse-app
 
   section(if='{state === states.NETWORK_UNAVAILABLE}')
     h2 network not yet supported
-    p let us know on telegram or open an issue on gitub and we'll deploy the contract on this network.
+    p let us know on telegram and we'll deploy the contract on this network.
     p network id: {network}
 
   section(if='{state >= states.UNLOCK_METAMASK && wallet.status}')
