@@ -66,7 +66,9 @@ disperse-transaction
       font-style: italic
   
     .status .pending 
-      color: rgba(0, 0, 0, .6)  
+      animation: pulse 1.5s infinite
+      animation-direction: alternate
+      animation-timing-function: ease-in-out
 
     .status .success 
       color: #28bd14
@@ -85,3 +87,8 @@ disperse-transaction
         background: none
         border: 1px crimson solid
     
+    @keyframes pulse
+      0%
+        color: rgba(0, 0, 0, .2)
+      100%
+        color: rgba(0, 0, 0, .5)
