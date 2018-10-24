@@ -1,6 +1,11 @@
-disperse
+//- 
+  disperse-app
+
+  main app layout and logic goes here
+//
+disperse-app
   section
-    logo(state='{state}', disperse='{disperse}')
+    disperse-logo(state='{state}', disperse='{disperse}')
 
   section(if='{state === states.METAMASK_REQUIRED}')
     h2 metamask required
@@ -38,19 +43,25 @@ disperse
       left='{left()}',
       total='{total()}'
     )
-    transaction(show='{sending === "ether"}', disabled='{left() < 0}' title='disperse ether', action='{disperseEther}')
+    disperse-transaction(
+      show='{sending === "ether"}',
+      disabled='{left() < 0}',
+      title='disperse ether',
+      action='{disperseEther}',
+      message='{disperse_message()}'
+    )
 
   div(if='{state >= states.ENTERED_AMOUNTS && sending == "token"}')
     h2 allowance
     p(show='{token.allowance.lt(total())}') allow smart contract to transfer tokens on your behalf.
     //- learn more about token allowance <a href="https://tokenallowance.io/" target="_blank">here</a>.
     p(show='{token.allowance.gte(total())}') disperse contract has allowance, you can send tokens now.
-    transaction(
+    disperse-transaction(
       title='{token.allowance.lt(total()) ? "approve" : "revoke"}',
       action='{token.allowance.lt(total()) ? approve : deny}',
       class='{secondary: token.allowance.gte(total())}'
     )
-    transaction(
+    disperse-transaction(
       show='{sending === "token"}',
       disabled='{left() < 0 || token.allowance.lt(total())}',
       title='disperse token',
@@ -190,7 +201,7 @@ disperse
     }
 
     disperse_message() {
-      if (this.token.allowance.lt(this.total())) return 'needs allowance'
+      if (this.sending === 'token' && this.token.allowance.lt(this.total())) return 'needs allowance'
       if (this.left() < 0) return 'total exceeds balance'
     }
 

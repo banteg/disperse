@@ -1,5 +1,5 @@
 //-
-  transaction
+  disperse-transaction
 
   button + transaction status
 
@@ -8,7 +8,7 @@
   @param {string} disabled  when to disable the button
   @param {string} message   disabled message
 //
-transaction
+disperse-transaction
   input(type='submit', value='{opts.title}', onclick='{submit}', disabled='{opts.disabled}')
   .status
     div(show='{opts.message}') {opts.message}
@@ -55,7 +55,7 @@ transaction
     }
 
   style.
-    transaction 
+    disperse-transaction 
       font-size: 1.4rem
       display: flex
       align-items: baseline
@@ -81,7 +81,7 @@ transaction
     input[type="submit"]:disabled 
         opacity: .4
   
-    transaction.secondary input 
+    disperse-transaction.secondary input 
         background: none
         border: 1px crimson solid
     

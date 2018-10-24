@@ -4,12 +4,12 @@ import './css/disperse.sass'
 
 import riot from 'riot'
 import ethers from 'ethers/dist/ethers.min.js'
-import './tags/disperse.tag'
-import './tags/logo.tag'
+import './tags/disperse-app.tag'
+import './tags/disperse-logo.tag'
 import './tags/disperse-currency.tag'
 import './tags/disperse-addresses.tag'
 import './tags/amount.tag'
-import './tags/transaction.tag'
+import './tags/disperse-transaction.tag'
 import './tags/token-loader.tag'
 
 window.ethers = ethers
