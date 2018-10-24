@@ -22,24 +22,24 @@ disperse-addresses
       .flex
         div {addr.address}
         .expand.bar
-        amount(amount='{addr.value}', symbol='{parent.opts.symbol}', decimals='{parent.opts.decimals}')
+        disperse-amount(amount='{addr.value}', symbol='{parent.opts.symbol}', decimals='{parent.opts.decimals}')
 
   ul
     li.accent
       .flex
         div total
         .expand
-        amount(amount='{opts.total}', symbol='{opts.symbol}', decimals='{opts.decimals}')
+        disperse-amount(amount='{opts.total}', symbol='{opts.symbol}', decimals='{opts.decimals}')
     li.accent
       .flex
         div your balance
         .expand
-        amount(amount='{opts.balance}', symbol='{opts.symbol}', decimals='{opts.decimals}')
+        disperse-amount(amount='{opts.balance}', symbol='{opts.symbol}', decimals='{opts.decimals}')
     li.accent
       .flex.fade(class='{negative: opts.left < 0}')
         div remaining
         .expand
-        amount(amount='{opts.left}', symbol='{opts.symbol}', decimals='{opts.decimals}')
+        disperse-amount(amount='{opts.left}', symbol='{opts.symbol}', decimals='{opts.decimals}')
 
   style.
     .accent

@@ -1,5 +1,5 @@
 //-
-  amount
+  disperse-amount
 
   nicely formats ether and token amounts
 
@@ -8,7 +8,7 @@
   @param decimals
 //
 
-amount
+disperse-amount
   span {amount()} 
   span.sc {opts.symbol}
   

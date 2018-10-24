@@ -23,7 +23,7 @@ disperse-app
   section(if='{state >= states.CONNECTED_TO_WALLET}')
     disperse-currency(on-choose='{select_currency}')
     p(if='{sending == "ether"}') you have
-      amount(amount='{wallet.balance}', symbol='{symbol()}', decimals='{decimals()}')
+      disperse-amount(amount='{wallet.balance}', symbol='{symbol()}', decimals='{decimals()}')
 
   section(if='{state >= states.CONNECTED_TO_WALLET && sending === "token"}')
     token-loader

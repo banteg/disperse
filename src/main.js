@@ -8,7 +8,7 @@ import './tags/disperse-app.tag'
 import './tags/disperse-logo.tag'
 import './tags/disperse-currency.tag'
 import './tags/disperse-addresses.tag'
-import './tags/amount.tag'
+import './tags/disperse-amount.tag'
 import './tags/disperse-transaction.tag'
 import './tags/token-loader.tag'
 
