@@ -1,10 +1,10 @@
 pragma solidity ^0.4.25;
 
-import "openzeppelin-solidity/contracts/token/ERC20/DetailedERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
 
 
-contract TestToken is DetailedERC20("Faux Test Token", "FTT", 18), MintableToken {
+contract TestToken is ERC20Detailed("Faux Test Token", "FTT", 18), ERC20Mintable {
     constructor() public {
         mint(msg.sender, 1000 ether);
     }
