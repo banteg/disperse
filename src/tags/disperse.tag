@@ -16,7 +16,7 @@ disperse
     p {wallet.status}
 
   section(if='{state >= states.CONNECTED_TO_WALLET}')
-    chooser
+    disperse-currency(on-choose='{select_currency}')
     p(if='{sending == "ether"}') you have
       amount(amount='{wallet.balance}', symbol='{symbol()}', decimals='{decimals()}')
 
@@ -82,8 +82,8 @@ disperse
     })
 
     // ether or token
-    async choose(what) {
-      this.sending = what
+    async select_currency(event) {
+      this.sending = event.target.value
       if (this.sending == 'ether') {
         this.update({state: this.states.SELECTED_CURRENCY})
         this.parse_amounts()

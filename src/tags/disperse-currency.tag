@@ -1,16 +1,13 @@
-chooser
+disperse-currency
   .chooser
     label send
-    input(type='radio', value='ether', name='what', id='ether', onchange='{choose}')
+    input(type='radio', value='ether', name='what', id='ether', onchange='{opts.onChoose}')
     label(for='ether') ether
     label or
-    input(type='radio', value='token', name='what', id='token', onchange='{choose}')
+    input(type='radio', value='token', name='what', id='token', onchange='{opts.onChoose}')
     label(for='token') token
 
   script.
-    choose(e) {
-      this.parent.choose(e.target.value)
-    }
 
   style.
     $color-faded: rgba(0, 0, 0, .5)
