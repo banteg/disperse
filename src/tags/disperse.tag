@@ -11,7 +11,7 @@ disperse
     p let us know on telegram or open an issue on gitub and we'll deploy the contract on this network.
     p network id: {network}
 
-  section(if='{state >= states.UNLOCK_METAMASK}')
+  section(if='{state >= states.UNLOCK_METAMASK && wallet.status}')
     h2 connect to wallet
     p {wallet.status}
 
@@ -75,7 +75,7 @@ disperse
     this.network_unavailable = false
     this.wallet = {
       address: null,
-      status: 'connecting...',
+      status: null,
     }
     // contracts
     this.disperse = {}
