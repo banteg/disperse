@@ -4,7 +4,7 @@
   button + transaction status
 
   @param {string} title     button label
-  @param {string} action    parent function to call, must return transaction promise
+  @param {func}   action    transaction promise
   @param {string} disabled  when to disable the button
   @param {string} message   disabled message
 //
@@ -25,12 +25,11 @@ transaction
     this.tx = null
 
     async submit(e) {
-      let promise = this.parent[this.opts.action]
       this.update({message: 'sign transaction with metamask', status: 'approve', hash: null, tx: null})
 
       try {
         // pass transaction to signer
-        this.tx = await promise()
+        this.tx = await this.opts.action()
         // user confirmed
         this.update({message: 'transaction pending', status: 'pending', hash: this.tx.hash})
         console.log(this.tx)

@@ -31,7 +31,7 @@ disperse
   section(if='{state >= states.ENTERED_AMOUNTS}')
     h2 confirm
     addresses(addresses='{addresses}', symbol='{symbol()}', decimals='{decimals()}', balance='{balance()}', left='{left()}', total='{total()}')
-    transaction(show='{sending === "ether"}', disabled='{left() < 0}' title='disperse ether', action='disperseEther')
+    transaction(show='{sending === "ether"}', disabled='{left() < 0}' title='disperse ether', action='{disperseEther}')
 
   div(if='{state >= states.ENTERED_AMOUNTS && sending == "token"}')
     h2 allowance
@@ -40,14 +40,14 @@ disperse
     p(show='{token.allowance.gte(total())}') disperse contract has allowance, you can send tokens now.
     transaction(
       title='{token.allowance.lt(total()) ? "approve" : "revoke"}',
-      action='{token.allowance.lt(total()) ? "approve" : "deny"}',
+      action='{token.allowance.lt(total()) ? approve : deny}',
       class='{secondary: token.allowance.gte(total())}'
     )
     transaction(
       show='{sending === "token"}',
       disabled='{left() < 0 || token.allowance.lt(total())}',
       title='disperse token',
-      action='disperseToken',
+      action='{disperseToken}',
       message='{disperse_message()}'
     )
 
