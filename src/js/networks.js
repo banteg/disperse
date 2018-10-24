@@ -86,7 +86,7 @@ export const networks = {
 };
 
 export function explorer_tx(tx) {
-  if (!addr) return
+  if (!tx) return
   let network = networks[web3.version.network]
   if (network && network.explorer) {
     return  `${network.explorer.base}${network.explorer.tx(tx)}`

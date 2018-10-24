@@ -30,7 +30,7 @@ disperse
   
   section(if='{state >= states.ENTERED_AMOUNTS}')
     h2 confirm
-    addresses(addresses='{addresses}', symbol='{symbol()}', decimals='{decimals()}')
+    addresses(addresses='{addresses}', symbol='{symbol()}', decimals='{decimals()}', balance='{balance()}', left='{left()}', total='{total()}')
     transaction(show='{sending === "ether"}', disabled='{left() < 0}' title='disperse ether', action='disperseEther')
 
   div(if='{state >= states.ENTERED_AMOUNTS && sending == "token"}')
@@ -165,9 +165,7 @@ disperse
     }
 
     total() {
-      if (this.addresses.length) {
-        return this.addresses.reduce((t, v) => t.add(v.value), ethers.constants.Zero)
-      }
+      return this.addresses.reduce((t, v) => t.add(v.value), ethers.constants.Zero)
     }
 
     left() {

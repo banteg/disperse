@@ -6,6 +6,9 @@
   @param addresses  list of {address, value} objects
   @param symbol     token symbol to use
   @param decimals   how far to move the decimal point
+  @param balance    available balance
+  @param left       left
+  @param total      total
 //
 
 addresses
@@ -26,17 +29,17 @@ addresses
       .flex
         div total
         .expand
-        amount(amount='{parent.total()}', symbol='{opts.symbol}', decimals='{opts.decimals}')
+        amount(amount='{opts.total}', symbol='{opts.symbol}', decimals='{opts.decimals}')
     li.accent
       .flex
         div your balance
         .expand
-        amount(amount='{parent.balance()}', symbol='{opts.symbol}', decimals='{opts.decimals}')
+        amount(amount='{opts.balance}', symbol='{opts.symbol}', decimals='{opts.decimals}')
     li.accent
-      .flex.fade(class='{negative: parent.left() < 0}')
+      .flex.fade(class='{negative: opts.left < 0}')
         div remaining
         .expand
-        amount(amount='{parent.left()}', symbol='{opts.symbol}', decimals='{opts.decimals}')
+        amount(amount='{opts.left}', symbol='{opts.symbol}', decimals='{opts.decimals}')
 
   style.
     .accent
