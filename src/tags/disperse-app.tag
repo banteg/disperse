@@ -30,6 +30,7 @@ disperse-app
   
   section(show='{state >= states.SELECTED_CURRENCY}')
     h2 recipients and amounts
+    p enter one address and amount in {symbol()} one each line. supports any format.
     .shadow
       textarea(ref='addresses', spellcheck='false', oninput='{check_amounts}')
   
@@ -96,7 +97,7 @@ disperse-app
     this.sending = null
 
     this.on('mount', () => {
-      this.refs.addresses.placeholder = 'supports any format\n0x314ab97b76e39d63c78d5c86c2daf8eaa306b182,3.141592\n0x271bffabd0f79b8bd4d7a1c245b7ec5b576ea98a=2.7182\n"0x141ca95b6177615fb1417cf70e930e102bf8f584": "1.41421"'
+      this.refs.addresses.placeholder = '0x314ab97b76e39d63c78d5c86c2daf8eaa306b182 3.141592\n0x271bffabd0f79b8bd4d7a1c245b7ec5b576ea98a,2.7182\n0x141ca95b6177615fb1417cf70e930e102bf8f584=1.41421'
     })
 
     // ether or token
@@ -108,7 +109,7 @@ disperse-app
       }
       else if (this.sending == 'token') {
         if (this.token.contract) {
-          this.token_loaded()
+          this.select_token()
         } else {
           this.reset_token()
         }

@@ -4,7 +4,7 @@
   "description": "distribute ether or tokens to multiple addresses",
   "main": "index.js",
   "scripts": {
-    "dev": "cd dist && npx browser-sync start --files * --server",
+    "dev": "cd docs && npx browser-sync start --files * --server",
     "build": "rollup -c",
     "production": "rollup -c --environment BUILD:production",
     "watch": "rollup -cw",
