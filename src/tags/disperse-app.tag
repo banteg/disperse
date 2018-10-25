@@ -30,7 +30,7 @@ disperse-app
   
   section(show='{state >= states.SELECTED_CURRENCY}')
     h2 recipients and amounts
-    p enter one address and amount in {symbol()} one each line. supports any format.
+    p enter one address and amount in {symbol()} on each line. supports any format.
     .shadow
       textarea(ref='addresses', spellcheck='false', oninput='{check_amounts}')
   
