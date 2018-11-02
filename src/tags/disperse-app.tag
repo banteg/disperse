@@ -139,7 +139,7 @@ disperse-app
       while ((result = pattern.exec(this.refs.addresses.value)) !== null) {
         this.addresses.push({
           address: ethers.utils.getAddress(result[1]),
-          value: ethers.utils.parseUnits(result[2], this.token_decimals)
+          value: ethers.utils.parseUnits(result[2], this.decimals())
         })
       }
       if (this.addresses.length) {

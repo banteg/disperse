@@ -22,7 +22,7 @@ disperse-addresses
       .flex
         div {addr.address}
         .expand.bar
-        disperse-amount(amount='{addr.value}', symbol='{parent.opts.symbol}', decimals='{parent.opts.decimals}')
+        disperse-amount(amount='{addr.value}', symbol='{opts.symbol}', decimals='{opts.decimals}')
 
   ul
     li.accent
