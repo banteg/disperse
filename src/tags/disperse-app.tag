@@ -258,6 +258,14 @@ disperse-app
       this.network = web3.version.network
       console.log(this.network)
       this.disperse.address = disperse.address[this.network]
+      if ('disperse' in localStorage) {
+        try {
+          this.disperse.address = ethers.utils.getAddress(localStorage.getItem('disperse'))
+          console.log('disperse address override')
+        } catch (e) {
+          console.error('failed to override address')
+        }
+      }
       if (this.disperse.address) {
         this.disperse.contract = new ethers.Contract(
           this.disperse.address,
