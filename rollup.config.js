@@ -16,7 +16,7 @@ const plugins = [
   }),
   nodeResolve({ jsnext: true }),
   commonjs(),
-  buble(),
+  buble({transforms: { asyncAwait: false }}),
   bundleSize(),
 ]
 
