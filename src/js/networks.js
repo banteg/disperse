@@ -79,6 +79,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  163: {
+    name: "lightstreams",
+    symbol: "PHT",
+    explorer: {
+      name: 'explorer',
+      base: 'https://explorer.lightstreams.io/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `addr/${addr}`,
+    },
+  },
   5777: {
     name: "ganache",
     symbol: "ETH",
