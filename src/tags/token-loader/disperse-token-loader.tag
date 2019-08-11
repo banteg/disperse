@@ -20,7 +20,7 @@ disperse-token-loader
       span  ({parent.token.name})
 
   script.
-    import { erc20 } from '../../js/contracts.js'
+    import { erc20, ds_token } from '../../js/contracts.js'
 
     this.token = null
     this.status = null
@@ -52,7 +52,7 @@ disperse-token-loader
       }
       try {
         // load the details
-        let token =  new ethers.Contract(address, erc20.abi, this.parent.provider.getSigner())
+        let token = new ethers.Contract(address, erc20.abi, this.parent.provider.getSigner())
         this.parent.token = {
           address: address,
           contract: token,
@@ -61,12 +61,26 @@ disperse-token-loader
           symbol: await token.symbol(),
           decimals: await token.decimals(),
         }
-      } catch(error) {
-        // non-compliant interface
-        console.log(error)
-        this.update({message: 'unsupported token', status: 'error'})
-        await this.opts.onError()
-        return
+      } catch (error) {
+        console.log('token is not erc-20 compatible, assuming ds-token...')
+        // assume ds-token
+        try {
+          let token = new ethers.Contract(address, ds_token.abi, this.parent.provider.getSigner())
+          this.parent.token = {
+            address: address,
+            contract: token,
+            balance: null,
+            name: ethers.utils.parseBytes32String(await token.name()),
+            symbol: ethers.utils.parseBytes32String(await token.symbol()),
+            decimals: await token.decimals(),
+          }
+        } catch (error) {
+          // non-compliant interface
+          console.log(error)
+          this.update({message: 'unsupported token', status: 'error'})
+          await this.opts.onError()
+          return
+        }
       }
       await this.opts.onSelect()
       this.update({message: null, status: null})
