@@ -39,6 +39,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  5: {
+    name: "görli",
+    symbol: "ETH",
+    explorer: {
+      name: 'etherscan',
+      base: 'https://goerli.etherscan.io/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
   61: {
     name: "etc mainnet",
     symbol: "ETC",
