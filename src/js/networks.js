@@ -29,6 +29,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  56: {
+    name: "bsc mainnet",
+    symbol: "BNB",
+    explorer: {
+      name: 'bscscan',
+      base: 'https://bscscan.com/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
   4: {
     name: "rinkeby",
     symbol: "ETH",
