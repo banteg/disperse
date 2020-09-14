@@ -3211,6 +3211,16 @@
         addr: function (addr) { return ("address/" + addr); },
       },
     },
+    56: {
+      name: "bsc mainnet",
+      symbol: "BNB",
+      explorer: {
+        name: 'bscscan',
+        base: 'https://bscscan.com/',
+        tx: function (tx) { return ("tx/" + tx); },
+        addr: function (addr) { return ("address/" + addr); },
+      },
+    },
     4: {
       name: "rinkeby",
       symbol: "ETH",
