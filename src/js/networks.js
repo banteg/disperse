@@ -99,6 +99,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  137: {
+    name: "matic network",
+    symbol: "MATIC",
+    explorer: {
+      name: 'matic explorer',
+      base: 'https://explorer.matic.network/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
   163: {
     name: "lightstreams",
     symbol: "PHT",
