@@ -3155,6 +3155,7 @@
       77: '0xD152f549545093347A162Dce210e7293f1452150',    // poa sokol
       99: '0xD152f549545093347A162Dce210e7293f1452150',    // poa network
       100: '0xD152f549545093347A162Dce210e7293f1452150',   // xdai chain
+      136: '0xD152f549545093347A162Dce210e7293f1452150',   // matic
       163: '0xD152f549545093347A162Dce210e7293f1452150',   // lightstreams
       5777: '0x5b1869d9a4c187f2eaa108f3062412ecf0526b24',  // ganache-cli
     },
@@ -3277,6 +3278,16 @@
       explorer: {
         name: 'blockscout',
         base: 'https://blockscout.com/poa/dai/',
+        tx: function (tx) { return ("tx/" + tx); },
+        addr: function (addr) { return ("address/" + addr); },
+      },
+    },
+    137: {
+      name: "matic network",
+      symbol: "MATIC",
+      explorer: {
+        name: 'matic explorer',
+        base: 'https://explorer.matic.network/',
         tx: function (tx) { return ("tx/" + tx); },
         addr: function (addr) { return ("address/" + addr); },
       },
