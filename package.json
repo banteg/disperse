@@ -13,6 +13,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@metamask/legacy-web3": "^2.0.0",
     "ethers": "^4.0.33",
     "riot": "^3.13.2"
   },

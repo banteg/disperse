@@ -4,6 +4,7 @@ import './css/disperse.sass'
 
 import riot from 'riot'
 import ethers from 'ethers/dist/ethers.min.js'
+import '@metamask/legacy-web3'
 import './tags/disperse-app.tag'
 import './tags/disperse-logo.tag'
 import './tags/disperse-currency.tag'
