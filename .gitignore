@@ -5,3 +5,4 @@ docs/bundle.js.map
 .ipynb_checkpoints
 .idea
 artwork
+build
