@@ -119,6 +119,16 @@ export const networks = {
       addr: addr => `addr/${addr}`,
     },
   },
+  250: {
+    name: "fantom",
+    symbol: "FRM",
+    explorer: {
+      name: 'ftmscan',
+      base: 'https://ftmscan.io/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
   5777: {
     name: "ganache",
     symbol: "ETH",
