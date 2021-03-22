@@ -121,7 +121,7 @@ export const networks = {
   },
   250: {
     name: "fantom",
-    symbol: "FRM",
+    symbol: "FTM",
     explorer: {
       name: 'ftmscan',
       base: 'https://ftmscan.io/',
