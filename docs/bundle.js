@@ -28333,7 +28333,7 @@
       symbol: "FTM",
       explorer: {
         name: 'ftmscan',
-        base: 'https://ftmscan.io/',
+        base: 'https://ftmscan.com/',
         tx: function (tx) { return ("tx/" + tx); },
         addr: function (addr) { return ("address/" + addr); },
       },

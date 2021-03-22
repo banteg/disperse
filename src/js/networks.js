@@ -124,7 +124,7 @@ export const networks = {
     symbol: "FTM",
     explorer: {
       name: 'ftmscan',
-      base: 'https://ftmscan.io/',
+      base: 'https://ftmscan.com/',
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
     },
