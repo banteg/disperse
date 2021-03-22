@@ -28182,6 +28182,7 @@
       100: '0xD152f549545093347A162Dce210e7293f1452150',   // xdai chain
       137: '0xD152f549545093347A162Dce210e7293f1452150',   // matic
       163: '0xD152f549545093347A162Dce210e7293f1452150',   // lightstreams
+      256: '0xD152f549545093347A162Dce210e7293f1452150',   // fantom
       5777: '0x5b1869d9a4c187f2eaa108f3062412ecf0526b24',  // ganache-cli
     },
   };
@@ -28325,6 +28326,16 @@
         base: 'https://explorer.lightstreams.io/',
         tx: function (tx) { return ("tx/" + tx); },
         addr: function (addr) { return ("addr/" + addr); },
+      },
+    },
+    250: {
+      name: "fantom",
+      symbol: "FRM",
+      explorer: {
+        name: 'ftmscan',
+        base: 'https://ftmscan.io/',
+        tx: function (tx) { return ("tx/" + tx); },
+        addr: function (addr) { return ("address/" + addr); },
       },
     },
     5777: {
