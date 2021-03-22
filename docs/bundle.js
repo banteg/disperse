@@ -4339,7 +4339,7 @@
   	    You should have received a copy of the GNU Lesser General Public License
   	    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
   	*/
-  	/** 
+  	/**
   	 * @file param.js
   	 * @author Marek Kotewicz <marek@ethdev.com>
   	 * @date 2015
@@ -4358,7 +4358,7 @@
 
   	/**
   	 * This method should be used to get length of params's dynamic part
-  	 * 
+  	 *
   	 * @method dynamicPartLength
   	 * @returns {Number} length of dynamic part (in bytes)
   	 */
@@ -4386,7 +4386,7 @@
   	 * @param {SolidityParam} result of combination
   	 */
   	SolidityParam.prototype.combine = function (param) {
-  	    return new SolidityParam(this.value + param.value); 
+  	    return new SolidityParam(this.value + param.value);
   	};
 
   	/**
@@ -4418,8 +4418,8 @@
   	 */
   	SolidityParam.prototype.staticPart = function () {
   	    if (!this.isDynamic()) {
-  	        return this.value; 
-  	    } 
+  	        return this.value;
+  	    }
   	    return this.offsetAsBytes();
   	};
 
@@ -4451,7 +4451,7 @@
   	 * @returns {String}
   	 */
   	SolidityParam.encodeList = function (params) {
-  	    
+
   	    // updating offsets
   	    var totalOffset = params.length * 32;
   	    var offsetParams = params.map(function (param) {
@@ -4892,13 +4892,13 @@
 
   	/**
   	 * Utils
-  	 * 
+  	 *
   	 * @module utils
   	 */
 
   	/**
   	 * Utility functions
-  	 * 
+  	 *
   	 * @class [utils] config
   	 * @constructor
   	 */
@@ -4965,7 +4965,7 @@
   	    You should have received a copy of the GNU Lesser General Public License
   	    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
   	*/
-  	/** 
+  	/**
   	 * @file sha3.js
   	 * @author Marek Kotewicz <marek@ethdev.com>
   	 * @date 2015
@@ -5646,17 +5646,17 @@
 
   	/*
   	 * This file is part of web3.js.
-  	 * 
+  	 *
   	 * web3.js is free software: you can redistribute it and/or modify
   	 * it under the terms of the GNU Lesser General Public License as published by
   	 * the Free Software Foundation, either version 3 of the License, or
   	 * (at your option) any later version.
-  	 * 
+  	 *
   	 * web3.js is distributed in the hope that it will be useful,
   	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
   	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   	 * GNU Lesser General Public License for more details.
-  	 * 
+  	 *
   	 * You should have received a copy of the GNU Lesser General Public License
   	 * along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
   	 *
@@ -5902,7 +5902,7 @@
   	    You should have received a copy of the GNU Lesser General Public License
   	    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
   	*/
-  	/** 
+  	/**
   	 * @file batch.js
   	 * @author Marek Kotewicz <marek@ethdev.com>
   	 * @date 2015
@@ -5947,7 +5947,7 @@
   	                requests[index].callback(null, (requests[index].format ? requests[index].format(result.result) : result.result));
   	            }
   	        });
-  	    }); 
+  	    });
   	};
 
   	module.exports = Batch;
@@ -6282,7 +6282,7 @@
   	    You should have received a copy of the GNU Lesser General Public License
   	    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
   	*/
-  	/** 
+  	/**
   	 * @file errors.js
   	 * @author Marek Kotewicz <marek@ethdev.com>
   	 * @date 2015
@@ -6295,17 +6295,17 @@
   	    InvalidNumberOfRPCParams: function () {
   	        return new Error('Invalid number of input parameters to RPC method');
   	    },
-  	    InvalidConnection: function (host){
+  	    InvalidConnection: function (host) {
   	        return new Error('CONNECTION ERROR: Couldn\'t connect to node '+ host +'.');
   	    },
   	    InvalidProvider: function () {
   	        return new Error('Provider not set or invalid');
   	    },
-  	    InvalidResponse: function (result){
+  	    InvalidResponse: function (result) {
   	        var message = !!result && !!result.error && !!result.error.message ? result.error.message : 'Invalid JSON RPC response: ' + JSON.stringify(result);
-  	        return new Error(message);
+            return new Error(message);
   	    },
-  	    ConnectionTimeout: function (ms){
+  	    ConnectionTimeout: function (ms) {
   	        return new Error('CONNECTION TIMEOUT: timeout of ' + ms + ' ms achived');
   	    }
   	};
@@ -6558,7 +6558,7 @@
   	        }
   	    };
 
-  	    ex.formatters = formatters; 
+  	    ex.formatters = formatters;
   	    ex.utils = utils;
   	    ex.Method = Method;
   	    ex.Property = Property;
@@ -7576,7 +7576,7 @@
   	    You should have received a copy of the GNU Lesser General Public License
   	    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
   	*/
-  	/** 
+  	/**
   	 * @file iban.js
   	 * @author Marek Kotewicz <marek@ethdev.com>
   	 * @date 2015
@@ -7776,7 +7776,7 @@
   	        var base36 = this._iban.substr(4);
   	        var asBn = new BigNumber(base36, 36);
   	        return padLeft(asBn.toString(16), 20);
-  	    } 
+  	    }
 
   	    return '';
   	};
@@ -7798,7 +7798,7 @@
   	    var _this = this;
   	    this.responseCallbacks = {};
   	    this.path = path;
-  	    
+
   	    this.connection = net.connect({path: this.path});
 
   	    this.connection.on('error', function(e){
@@ -7808,7 +7808,7 @@
 
   	    this.connection.on('end', function(){
   	        _this._timeout();
-  	    }); 
+  	    });
 
 
   	    // LISTEN FOR CONNECTION RESPONSES
@@ -7847,7 +7847,7 @@
   	IpcProvider.prototype._parseResponse = function(data) {
   	    var _this = this,
   	        returnValues = [];
-  	    
+
   	    // DE-CHUNKER
   	    var dechunkedData = data
   	        .replace(/\}[\n\r]?\{/g,'}|--|{') // }{
@@ -7951,7 +7951,7 @@
   	        try {
   	            result = JSON.parse(data);
   	        } catch(e) {
-  	            throw errors.InvalidResponse(data);                
+  	            throw errors.InvalidResponse(data);
   	        }
 
   	        return result;
@@ -8126,7 +8126,7 @@
 
   	/**
   	 * Should be called to check if the number of arguments is correct
-  	 * 
+  	 *
   	 * @method validateArgs
   	 * @param {Array} arguments
   	 * @throws {Error} if it is not
@@ -8139,7 +8139,7 @@
 
   	/**
   	 * Should be called to format input args of method
-  	 * 
+  	 *
   	 * @method formatInput
   	 * @param {Array}
   	 * @return {Array}
@@ -8193,7 +8193,7 @@
   	        obj[name[0]] = obj[name[0]] || {};
   	        obj[name[0]][name[1]] = func;
   	    } else {
-  	        obj[name[0]] = func; 
+  	        obj[name[0]] = func;
   	    }
   	};
 
@@ -8256,8 +8256,8 @@
   	    this._requestManager = web3._requestManager;
 
   	    var self = this;
-  	    
-  	    methods().forEach(function(method) { 
+
+  	    methods().forEach(function(method) {
   	        method.attachToObject(self);
   	        method.setRequestManager(web3._requestManager);
   	    });
@@ -8658,7 +8658,7 @@
 
   	    var self = this;
 
-  	    properties().forEach(function(p) { 
+  	    properties().forEach(function(p) {
   	        p.attachToObject(self);
   	        p.setRequestManager(web3._requestManager);
   	    });
@@ -9168,7 +9168,7 @@
   	    You should have received a copy of the GNU Lesser General Public License
   	    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
   	*/
-  	/** 
+  	/**
   	 * @file namereg.js
   	 * @author Marek Kotewicz <marek@ethdev.com>
   	 * @date 2015
@@ -9355,7 +9355,7 @@
   	    You should have received a copy of the GNU Lesser General Public License
   	    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
   	*/
-  	/** 
+  	/**
   	 * @file requestmanager.js
   	 * @author Jeffrey Wilcke <jeff@ethdev.com>
   	 * @author Marek Kotewicz <marek@ethdev.com>
@@ -9396,13 +9396,13 @@
   	    }
 
   	    var payload = Jsonrpc.toPayload(data.method, data.params);
-  	    var result = this.provider.send(payload);
+  	    this.provider.send(payload, (err, result) => {
+          if (!Jsonrpc.isValidResponse(result)) {
+    	        throw errors.InvalidResponse(result);
+    	    }
+    	    return result.result;
+        });
 
-  	    if (!Jsonrpc.isValidResponse(result)) {
-  	        throw errors.InvalidResponse(result);
-  	    }
-
-  	    return result.result;
   	};
 
   	/**
@@ -9422,7 +9422,7 @@
   	        if (err) {
   	            return callback(err);
   	        }
-  	        
+
   	        if (!Jsonrpc.isValidResponse(result)) {
   	            return callback(errors.InvalidResponse(result));
   	        }
@@ -9455,7 +9455,7 @@
   	        }
 
   	        callback(err, results);
-  	    }); 
+  	    });
   	};
 
   	/**
@@ -9559,7 +9559,7 @@
   	    }
 
   	    var payload = Jsonrpc.toBatchPayload(pollsData);
-  	    
+
   	    // map the request id to they poll id
   	    var pollsIdMap = {};
   	    payload.forEach(function(load, index){
@@ -9569,8 +9569,6 @@
 
   	    var self = this;
   	    this.provider.sendAsync(payload, function (error, results) {
-
-
   	        // TODO: console log?
   	        if (error) {
   	            return;
@@ -9589,7 +9587,7 @@
   	            } else
   	                { return false; }
   	        }).filter(function (result) {
-  	            return !!result; 
+  	            return !!result;
   	        }).filter(function (result) {
   	            var valid = Jsonrpc.isValidResponse(result);
   	            if (!valid) {
@@ -9664,16 +9662,16 @@
 
   	        self.callbacks.forEach(function (callback) {
   	            if (self.lastSyncState !== sync) {
-  	                
+
   	                // call the callback with true first so the app can stop anything, before receiving the sync data
   	                if(!self.lastSyncState && utils.isObject(sync))
   	                    { callback(null, true); }
-  	                
+
   	                // call on the next CPU cycle, so the actions of the sync stop can be processes first
   	                setTimeout(function() {
   	                    callback(null, sync);
   	                }, 0);
-  	                
+
   	                self.lastSyncState = sync;
   	            }
   	        });
@@ -9728,7 +9726,7 @@
   	    You should have received a copy of the GNU Lesser General Public License
   	    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
   	*/
-  	/** 
+  	/**
   	 * @file transfer.js
   	 * @author Marek Kotewicz <marek@ethdev.com>
   	 * @date 2015
@@ -9747,7 +9745,7 @@
   	 * @param {Function} callback, callback
   	 */
   	var transfer = function (eth, from, to, value, callback) {
-  	    var iban = new Iban(to); 
+  	    var iban = new Iban(to);
   	    if (!iban.isValid()) {
   	        throw new Error('invalid iban address');
   	    }
@@ -9755,7 +9753,7 @@
   	    if (iban.isDirect()) {
   	        return transferToAddress(eth, from, iban.address(), value, callback);
   	    }
-  	    
+
   	    if (!callback) {
   	        var address = eth.icapNamereg().addr(iban.institution());
   	        return deposit(eth, from, address, value, iban.client());
@@ -9764,7 +9762,7 @@
   	    eth.icapNamereg().addr(iban.institution(), function (err, address) {
   	        return deposit(eth, from, address, value, iban.client(), callback);
   	    });
-  	    
+
   	};
 
   	/**
@@ -22966,7 +22964,7 @@
   			self.url = response.url;
   			self.statusCode = response.status;
   			self.statusMessage = response.statusText;
-  			
+
   			response.headers.forEach(function (header, key){
   				self.headers[key.toLowerCase()] = header;
   				self.rawHeaders.push(key, header);
@@ -23096,7 +23094,7 @@
   					self.push(new Buffer(response));
   					break
   				}
-  				// Falls through in IE8	
+  				// Falls through in IE8
   			case 'text':
   				try { // This will fail when readyState = 3 in IE9. Switch mode and wait for readyState = 4
   					response = xhr.responseText;
@@ -28033,7 +28031,6 @@
   	  }
 
   	  function _setupWeb3 () {
-
   	    // if used before MetaMask stops injecting window.web3
   	    if (
   	      window.ethereum &&
@@ -28062,8 +28059,9 @@
   	    if (!('autoRefreshOnNetworkChange' in window.ethereum)) {
   	      window.ethereum.autoRefreshOnNetworkChange = true;
   	    }
-
+        console.log(window.ethereum)
   	    var web3 = new Web3(window.ethereum);
+        console.log(web3)
   	    web3.setProvider = function () {
   	      console.log(getMessage('Overrode web3.setProvider.'));
   	    };
@@ -28074,6 +28072,7 @@
   	        ? accounts[0]
   	        : null;
   	    };
+        console.log(window.ethereum)
 
   	    if (window.ethereum.selectedAddress) {
   	      web3.eth.defaultAccount = window.ethereum.selectedAddress;
@@ -28101,9 +28100,11 @@
 
   	    var web3Proxy = new Proxy(web3, {
   	      get: function (_web3, key) {
+
   	        // get the time of use
   	        lastTimeUsed = Date.now();
   	        // return value normally
+
   	        return _web3[key]
   	      },
   	      set: function (_web3, key, value) {
@@ -28112,12 +28113,38 @@
   	      },
   	    });
 
+        var versionProxy = new Proxy(web3.version, {
+          get: function (_web3, key) {
+            console.log(key)
+
+            // get the time of use
+            lastTimeUsed = Date.now();
+            // return value normally
+            if (key == "network") {
+              return window.ethereum.networkVersion
+            } else {
+              return _web3[key]
+            }
+          },
+          set: function (_web3, key, value) {
+            // set value normally
+            _web3[key] = value;
+          },
+        });
+
   	    Object.defineProperty(window, 'web3', {
   	      enumerable: false,
   	      writable: true,
   	      configurable: true,
   	      value: web3Proxy,
   	    });
+
+        Object.defineProperty(window, 'web3version', {
+          enumerable: false,
+          writable: true,
+          configurable: true,
+          value: versionProxy,
+        });
 
   	    window.ethereum.on('chainChanged', function (currentChainId) {
   	      // if the auto refresh on network change is false do not
@@ -28346,7 +28373,7 @@
 
   function explorer_tx(tx) {
     if (!tx) { return }
-    var network = networks[web3.version.network];
+    var network = networks[web3version.network];
     if (network && network.explorer) {
       return  ("" + (network.explorer.base) + (network.explorer.tx(tx)))
     }
@@ -28354,27 +28381,27 @@
 
   function explorer_addr(addr) {
     if (!addr) { return }
-    var network = networks[web3.version.network];
+    var network = networks[web3version.network];
     if (network && network.explorer) {
       return  ("" + (network.explorer.base) + (network.explorer.addr(addr)))
     }
   }
 
   function explorer_name() {
-    var network = networks[web3.version.network];
+    var network = networks[web3version.network];
     if (network && network.explorer) {
       return network.explorer.name
     }
   }
 
   function network_name() {
-    var network = web3.version.network;
+    var network = web3version.network;
     if (!network) { return }
     return networks[network] ? networks[network].name : '🤔'
   }
 
   function native_symbol() {
-    var network = networks[web3.version.network];
+    var network = networks[web3version.network];
     return network ? network.symbol : 'ETH'
   }
 
@@ -28526,8 +28553,8 @@
         this.update();
       }.bind(this);
 
-      this.watch_account =async  function() {
-        var account = web3.eth.accounts[0];
+      this.watch_account = async function() {
+        var account = web3.eth.defaultAccount;
         if (this.wallet.address !== account) {
           this.wallet.address = account;
           this.wallet.status = account ? ("logged in as " + account) : 'please unlock metamask';
@@ -28544,7 +28571,7 @@
       }.bind(this);
 
       this.watch_network =async  function() {
-        var network = web3.version.network;
+        var network = web3version.network;
         if (this.network && this.network !== network) {
           location.reload();
         }
@@ -28553,7 +28580,7 @@
 
       this.afterWeb3 = function() {
         this.provider = new ethers.providers.Web3Provider(web3.currentProvider);
-        this.network = web3.version.nework;
+        this.network = web3version.nework;
         this.load_disperse_contract();
         setInterval(this.watch_account, 100);
         setInterval(this.watch_network, 500);
@@ -28563,8 +28590,7 @@
       }.bind(this);
 
       this.load_disperse_contract = function() {
-        this.network = web3.version.network;
-        console.log(this.network);
+        this.network = web3version.network;
         this.disperse.address = disperse.address[this.network];
         if ('disperse' in localStorage) {
           try {
