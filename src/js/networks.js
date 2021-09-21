@@ -142,7 +142,17 @@ export const networks = {
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
     },
-  }
+  },
+  4689: {
+    name: "iotex",
+    symbol: "IOTX",
+    explorer: {
+      name: 'iotexscout',
+      base: 'https://iotexscout.io/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
 };
 
 export function explorer_tx(tx) {
