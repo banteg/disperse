@@ -137,7 +137,7 @@ export const networks = {
 
 export function explorer_tx(tx) {
   if (!tx) return
-  let network = networks[web3.version.network]
+  let network = networks[chain_id]
   if (network && network.explorer) {
     return  `${network.explorer.base}${network.explorer.tx(tx)}`
   }
@@ -145,26 +145,25 @@ export function explorer_tx(tx) {
 
 export function explorer_addr(addr) {
   if (!addr) return
-  let network = networks[web3.version.network]
+  let network = networks[chain_id]
   if (network && network.explorer) {
     return  `${network.explorer.base}${network.explorer.addr(addr)}`
   }
 }
 
 export function explorer_name() {
-  let network = networks[web3.version.network]
+  let network = networks[chain_id]
   if (network && network.explorer) {
     return network.explorer.name
   }
 }
 
 export function network_name() {
-  let network = web3.version.network
-  if (!network) return
-  return networks[network] ? networks[network].name : '🤔'
+  if (!chain_id) return
+  return networks[chain_id] ? networks[chain_id].name : '🤔'
 }
 
 export function native_symbol() {
-  let network = networks[web3.version.network]
+  let network = networks[chain_id]
   return network ? network.symbol : 'ETH'
 }

@@ -20,7 +20,7 @@
   "devDependencies": {
     "browser-sync": "^2.26.7",
     "buidler": "^0.1.5",
-    "node-sass": "^4.9.4",
+    "node-sass": "*",
     "openzeppelin-solidity": "^2.3.0",
     "pug": "^2.0.4",
     "riot-compiler": "^3.6.0",

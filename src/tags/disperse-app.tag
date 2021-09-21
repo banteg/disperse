@@ -14,7 +14,7 @@ disperse-app
   section(if='{state === states.NETWORK_UNAVAILABLE}')
     h2 network not yet supported
     p let us know on telegram and we'll deploy the contract on this network.
-    p network id: {network}
+    p network id: {chain_id}
 
   section(if='{state >= states.UNLOCK_METAMASK && wallet.status}')
     h2 connect to wallet
@@ -74,6 +74,7 @@ disperse-app
     import {disperse, erc20} from '../js/contracts.js'
     import {native_symbol} from '../js/networks.js'
     import {states} from '../js/state.js'
+    import detectEthereumProvider from '@metamask/detect-provider'
 
     this.states = states
     this.state = 0
@@ -209,7 +210,7 @@ disperse-app
     // account utils
 
     async update_balance() {
-      this.wallet.balance = await this.provider.getBalance(this.wallet.address)
+      this.wallet.balance = await provider.getSigner().getBalance()
       if (this.token.contract) {
         this.token.balance = await this.token.contract.balanceOf(this.wallet.address)
         this.token.allowance = await this.token.contract.allowance(this.wallet.address, this.disperse.address)
@@ -218,7 +219,10 @@ disperse-app
     }
 
     async watch_account() {
-      let account = web3.eth.accounts[0]
+      let account = null
+      try {
+        account = await provider.getSigner().getAddress()
+      } catch (error) {}
       if (this.wallet.address !== account) {
         this.wallet.address = account
         this.wallet.status = account ? `logged in as ${account}` : 'please unlock metamask'
@@ -234,30 +238,18 @@ disperse-app
       }
     }
 
-    // reload on network change
-    async watch_network() {
-      let network = web3.version.network
-      if (this.network && this.network !== network) {
-        location.reload()
-      }
-      this.network = this.network ? this.network : network
-    }
-
-    afterWeb3() {
-      this.provider = new ethers.providers.Web3Provider(web3.currentProvider)
-      this.network = web3.version.nework
+    async afterWeb3() {
+      window.provider = new ethers.providers.Web3Provider(window.ethereum)
+      window.chain_id = (await provider.getNetwork()).chainId
       this.load_disperse_contract()
       setInterval(this.watch_account, 100)
-      setInterval(this.watch_network, 500)
       if (this.state !== this.states.NETWORK_UNAVAILABLE) {
         this.update({state: this.states.UNLOCK_METAMASK})
       }
     }
 
     load_disperse_contract() {
-      this.network = web3.version.network
-      console.log(this.network)
-      this.disperse.address = disperse.address[this.network]
+      this.disperse.address = disperse.address[chain_id]
       if ('disperse' in localStorage) {
         try {
           this.disperse.address = ethers.utils.getAddress(localStorage.getItem('disperse'))
@@ -270,7 +262,7 @@ disperse-app
         this.disperse.contract = new ethers.Contract(
           this.disperse.address,
           disperse.abi,
-          this.provider.getSigner()
+          provider.getSigner()
         )
         console.log(`Disperse contract initialized at ${this.disperse.address}`)
       } else {
@@ -278,23 +270,11 @@ disperse-app
       }
     }
 
-    // web3 stuff
-
     async connectWeb3() {
-        if (window.ethereum) {
-            window.web3 = new Web3(ethereum)
-            try {
-                await ethereum.enable()
-            } catch (error) {
-                this.wallet.status = 'please unlock metamask'
-            }
+        let provider = await detectEthereumProvider()
+        if (provider) {
             this.afterWeb3()
-        }
-        else if (window.web3) {
-            window.web3 = new Web3(web3.currentProvider);
-            this.afterWeb3()
-        }
-        else {
+        } else {
           this.update({state: this.states.METAMASK_REQUIRED})
         }
       }

@@ -52,7 +52,7 @@ disperse-token-loader
       }
       try {
         // load the details
-        let token = new ethers.Contract(address, erc20.abi, this.parent.provider.getSigner())
+        let token = new ethers.Contract(address, erc20.abi, provider.getSigner())
         this.parent.token = {
           address: address,
           contract: token,
@@ -65,7 +65,7 @@ disperse-token-loader
         console.log('token is not erc-20 compatible, assuming ds-token...')
         // assume ds-token
         try {
-          let token = new ethers.Contract(address, ds_token.abi, this.parent.provider.getSigner())
+          let token = new ethers.Contract(address, ds_token.abi, provider.getSigner())
           this.parent.token = {
             address: address,
             contract: token,
