@@ -18,6 +18,7 @@ export const disperse = {
     163: '0xD152f549545093347A162Dce210e7293f1452150',   // lightstreams
     250: '0xD152f549545093347A162Dce210e7293f1452150',   // fantom
     5777: '0x5b1869d9a4c187f2eaa108f3062412ecf0526b24',  // ganache-cli
+    42161: '0x692B5A7eCcCad243a07535E8C24B0E7433238C6a', // arbitrum one
   },
 }
 

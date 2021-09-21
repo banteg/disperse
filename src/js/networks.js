@@ -132,6 +132,16 @@ export const networks = {
   5777: {
     name: "ganache",
     symbol: "ETH",
+  },
+  42161: {
+    name: "arbitrum",
+    symbol: "ETH",
+    explorer: {
+      name: 'arbiscan',
+      base: 'https://arbiscan.io/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
   }
 };
 
