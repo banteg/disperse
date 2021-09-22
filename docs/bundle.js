@@ -3450,7 +3450,7 @@
   }
   var dist = detectEthereumProvider;
 
-  riot$1.tag2('disperse-app', '<section> <disperse-logo state="{state}" disperse="{disperse}"></disperse-logo> </section> <section if="{state === states.METAMASK_REQUIRED}"> <h2>metamask required</h2> <p>non-ethereum browser, consider installing metamask.</p> </section> <section if="{state === states.NETWORK_UNAVAILABLE}"> <h2>network not yet supported</h2> <p>let us know on telegram and we\'ll deploy the contract on this network.</p> <p>network id: {chain_id}</p> </section> <section if="{state &gt;= states.UNLOCK_METAMASK &amp;&amp; wallet.status}"> <h2>connect to wallet</h2> <p>{wallet.status}</p> </section> <section if="{state &gt;= states.CONNECTED_TO_WALLET}"> <disperse-currency on-select="{select_currency}"></disperse-currency> <p if="{sending == &quot;ether&quot;}">you have <disperse-amount amount="{wallet.balance}" symbol="{symbol()}" decimals="{decimals()}"></disperse-amount> </p> </section> <section if="{state &gt;= states.CONNECTED_TO_WALLET &amp;&amp; sending === &quot;token&quot;}"> <disperse-token-loader on-select="{select_token}" on-error="{reset_token}"></disperse-token-loader> </section> <section show="{state &gt;= states.SELECTED_CURRENCY}"> <h2>recipients and amounts</h2> <p>enter one address and amount in {symbol()} on each line. supports any format.</p> <div class="shadow"> <textarea ref="addresses" spellcheck="false" oninput="{check_amounts}"></textarea> </div> </section> <section if="{state &gt;= states.ENTERED_AMOUNTS}"> <h2>confirm</h2> <disperse-addresses addresses="{addresses}" symbol="{symbol()}" decimals="{decimals()}" balance="{balance()}" left="{left()}" total="{total()}"></disperse-addresses> <disperse-transaction show="{sending === &quot;ether&quot;}" disabled="{left() &lt; 0}" title="disperse ether" action="{disperseEther}" message="{disperse_message()}"></disperse-transaction> </section> <div if="{state &gt;= states.ENTERED_AMOUNTS &amp;&amp; sending == &quot;token&quot;}"> <h2>allowance</h2> <p show="{token.allowance.lt(total())}">allow smart contract to transfer tokens on your behalf.</p> <p show="{token.allowance.gte(total())}">disperse contract has allowance, you can send tokens now.</p> <disperse-transaction class="{secondary: token.allowance.gte(total())}" title="{token.allowance.lt(total()) ? &quot;approve&quot; : &quot;revoke&quot;}" action="{token.allowance.lt(total()) ? approve : deny}"></disperse-transaction> <disperse-transaction show="{sending === &quot;token&quot;}" disabled="{left() &lt; 0 || token.allowance.lt(total())}" title="disperse token" action="{disperseToken}" message="{disperse_message()}"></disperse-transaction> </div>', '', '', function(opts) {
+  riot$1.tag2('disperse-app', '<section> <disperse-logo state="{state}" disperse="{disperse}"></disperse-logo> </section> <section if="{state === states.METAMASK_REQUIRED}"> <h2>metamask required</h2> <p>non-ethereum browser, consider installing metamask.</p> </section> <section if="{state === states.NETWORK_UNAVAILABLE}"> <h2>network not yet supported</h2> <p>let us know on telegram and we\'ll deploy the contract on this network.</p> <p>network id: {chain_id}</p> </section> <section if="{state &gt;= states.UNLOCK_METAMASK}"> <h2>connect to wallet</h2> <p if="{state == states.UNLOCK_METAMASK}"> <input type="submit" value="connect wallet" onclick="{unlock_accounts}" disabled="{opts.disabled}"> </p> <p>{wallet.status}</p> </section> <section if="{state &gt;= states.CONNECTED_TO_WALLET}"> <disperse-currency on-select="{select_currency}"></disperse-currency> <p if="{sending == &quot;ether&quot;}">you have <disperse-amount amount="{wallet.balance}" symbol="{symbol()}" decimals="{decimals()}"></disperse-amount> </p> </section> <section if="{state &gt;= states.CONNECTED_TO_WALLET &amp;&amp; sending === &quot;token&quot;}"> <disperse-token-loader on-select="{select_token}" on-error="{reset_token}"></disperse-token-loader> </section> <section show="{state &gt;= states.SELECTED_CURRENCY}"> <h2>recipients and amounts</h2> <p>enter one address and amount in {symbol()} on each line. supports any format.</p> <div class="shadow"> <textarea ref="addresses" spellcheck="false" oninput="{check_amounts}"></textarea> </div> </section> <section if="{state &gt;= states.ENTERED_AMOUNTS}"> <h2>confirm</h2> <disperse-addresses addresses="{addresses}" symbol="{symbol()}" decimals="{decimals()}" balance="{balance()}" left="{left()}" total="{total()}"></disperse-addresses> <disperse-transaction show="{sending === &quot;ether&quot;}" disabled="{left() &lt; 0}" title="disperse ether" action="{disperseEther}" message="{disperse_message()}"></disperse-transaction> </section> <div if="{state &gt;= states.ENTERED_AMOUNTS &amp;&amp; sending == &quot;token&quot;}"> <h2>allowance</h2> <p show="{token.allowance.lt(total())}">allow smart contract to transfer tokens on your behalf.</p> <p show="{token.allowance.gte(total())}">disperse contract has allowance, you can send tokens now.</p> <disperse-transaction class="{secondary: token.allowance.gte(total())}" title="{token.allowance.lt(total()) ? &quot;approve&quot; : &quot;revoke&quot;}" action="{token.allowance.lt(total()) ? approve : deny}"></disperse-transaction> <disperse-transaction show="{sending === &quot;token&quot;}" disabled="{left() &lt; 0 || token.allowance.lt(total())}" title="disperse token" action="{disperseToken}" message="{disperse_message()}"></disperse-transaction> </div>', '', '', function(opts) {
       var this$1 = this;
 
 
@@ -3581,7 +3581,7 @@
       }.bind(this);
 
       this.update_balance =async  function() {
-        this.wallet.balance = await provider.getSigner().getBalance();
+        this.wallet.balance = await provider.getBalance(this.wallet.address);
         if (this.token.contract) {
           this.token.balance = await this.token.contract.balanceOf(this.wallet.address);
           this.token.allowance = await this.token.contract.allowance(this.wallet.address, this.disperse.address);
@@ -3589,34 +3589,50 @@
         this.update();
       }.bind(this);
 
-      this.watch_account =async  function() {
-        var account = null;
-        try {
-          account = await provider.getSigner().getAddress();
-        } catch (error) {}
-        if (this.wallet.address !== account) {
-          this.wallet.address = account;
-          this.wallet.status = account ? ("logged in as " + account) : 'please unlock metamask';
-          if (account) {
-            await this.update_balance();
-            if (this.state === this.states.UNLOCK_METAMASK) {
-              this.state = this.states.CONNECTED_TO_WALLET;
-            }
-          } else {
-            this.state = this.states.UNLOCK_METAMASK;
-          }
-          this.update();
-        }
-      }.bind(this);
-
       this.afterWeb3 =async  function() {
         window.provider = new ethers.providers.Web3Provider(window.ethereum);
         window.chain_id = (await provider.getNetwork()).chainId;
+        ethereum.request({ method: 'eth_accounts' }).then(this.accounts_changed);
+        ethereum.on('chainChanged', this.chain_changed);
+        ethereum.on('accountsChanged', this.accounts_changed);
         this.load_disperse_contract();
-        setInterval(this.watch_account, 100);
         if (this.state !== this.states.NETWORK_UNAVAILABLE) {
           this.update({state: this.states.UNLOCK_METAMASK});
         }
+      }.bind(this);
+
+      this.chain_changed = function(new_chain_id) {
+        window.location.reload();
+      }.bind(this);
+
+      this.accounts_changed =async  function(accounts) {
+        if (accounts.length === 0) {
+          this.wallet.address = null;
+          this.wallet.status = 'please unlock metamask';
+          this.state = this.states.UNLOCK_METAMASK;
+        } else if (accounts[0] != this.wallet.address) {
+          this.wallet.address = accounts[0];
+          this.wallet.status = "logged in as " + (this.wallet.address);
+          this.state = this.states.CONNECTED_TO_WALLET;
+          await this.update_balance();
+        }
+        this.update();
+        console.log('accounts_changed', accounts);
+      }.bind(this);
+
+      this.unlock_accounts = function() {
+        var this$1 = this;
+
+        ethereum.request({ method: 'eth_requestAccounts' })
+          .then(this.accounts_changed)
+          .catch(function (err) {
+            if (err.code === 4001) {
+              this$1.wallet.status = 'connection request rejected';
+              this$1.update();
+            } else {
+              console.error(err);
+            }
+        });
       }.bind(this);
 
       this.load_disperse_contract = function() {
