@@ -16,8 +16,10 @@ disperse-app
     p let us know on telegram and we'll deploy the contract on this network.
     p network id: {chain_id}
 
-  section(if='{state >= states.UNLOCK_METAMASK && wallet.status}')
+  section(if='{state >= states.UNLOCK_METAMASK}')
     h2 connect to wallet
+    p(if='{state == states.UNLOCK_METAMASK}')
+      input(type='submit', value='connect wallet', onclick='{unlock_accounts}', disabled='{opts.disabled}')
     p {wallet.status}
 
   section(if='{state >= states.CONNECTED_TO_WALLET}')
@@ -210,7 +212,7 @@ disperse-app
     // account utils
 
     async update_balance() {
-      this.wallet.balance = await provider.getSigner().getBalance()
+      this.wallet.balance = await provider.getBalance(this.wallet.address)
       if (this.token.contract) {
         this.token.balance = await this.token.contract.balanceOf(this.wallet.address)
         this.token.allowance = await this.token.contract.allowance(this.wallet.address, this.disperse.address)
@@ -218,34 +220,48 @@ disperse-app
       this.update()
     }
 
-    async watch_account() {
-      let account = null
-      try {
-        account = await provider.getSigner().getAddress()
-      } catch (error) {}
-      if (this.wallet.address !== account) {
-        this.wallet.address = account
-        this.wallet.status = account ? `logged in as ${account}` : 'please unlock metamask'
-        if (account) {
-          await this.update_balance()
-          if (this.state === this.states.UNLOCK_METAMASK) {
-            this.state = this.states.CONNECTED_TO_WALLET
-          }
-        } else {
-          this.state = this.states.UNLOCK_METAMASK
-        }
-        this.update()
-      }
-    }
-
     async afterWeb3() {
       window.provider = new ethers.providers.Web3Provider(window.ethereum)
       window.chain_id = (await provider.getNetwork()).chainId
+      ethereum.request({ method: 'eth_accounts' }).then(this.accounts_changed)
+      ethereum.on('chainChanged', this.chain_changed)
+      ethereum.on('accountsChanged', this.accounts_changed)
       this.load_disperse_contract()
-      setInterval(this.watch_account, 100)
       if (this.state !== this.states.NETWORK_UNAVAILABLE) {
         this.update({state: this.states.UNLOCK_METAMASK})
       }
+    }
+
+    chain_changed(new_chain_id) {
+      window.location.reload()
+    }
+
+    async accounts_changed(accounts) {
+      if (accounts.length === 0) {
+        this.wallet.address = null
+        this.wallet.status = 'please unlock metamask'
+        this.state = this.states.UNLOCK_METAMASK
+      } else if (accounts[0] != this.wallet.address) {
+        this.wallet.address = accounts[0]
+        this.wallet.status = `logged in as ${this.wallet.address}`
+        this.state = this.states.CONNECTED_TO_WALLET
+        await this.update_balance()
+      }
+      this.update()
+      console.log('accounts_changed', accounts)
+    }
+
+    unlock_accounts() {
+      ethereum.request({ method: 'eth_requestAccounts' })
+        .then(this.accounts_changed)
+        .catch((err) => {
+          if (err.code === 4001) {
+            this.wallet.status = 'connection request rejected'
+            this.update()
+          } else {
+            console.error(err)
+          }
+      })
     }
 
     load_disperse_contract() {
