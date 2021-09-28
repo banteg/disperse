@@ -153,6 +153,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  1285: {
+    name: "moonriver",
+    symbol: "MOON",
+    explorer: {
+      name: 'blockscout',
+      base: 'https://blockscout.moonriver.moonbeam.network/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
 };
 
 export function explorer_tx(tx) {
