@@ -3342,7 +3342,7 @@
     },
     1285: {
       name: "moonriver",
-      symbol: "MOON",
+      symbol: "MOVR",
       explorer: {
         name: 'blockscout',
         base: 'https://blockscout.moonriver.moonbeam.network/',
