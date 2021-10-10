@@ -203,6 +203,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  66: {
+    name: "okex",
+    symbol: "OKT",
+    explorer: {
+      name: 'oklink',
+      base: 'https://www.oklink.com/okexchain/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
 };
 
 export function explorer_tx(tx) {
