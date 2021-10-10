@@ -3162,6 +3162,11 @@
       42161: '0x692B5A7eCcCad243a07535E8C24B0E7433238C6a', // arbitrum one
       4689: '0xe3122e446Bf31036DA212375803f24b3dE96D0c9',  // iotex
       1285: '0xD152f549545093347A162Dce210e7293f1452150',  // moonriver
+      42220: '0xD152f549545093347A162Dce210e7293f1452150', // celo
+      1666600000: '0xD152f549545093347A162Dce210e7293f1452150', // harmony
+      60: '0xD152f549545093347A162Dce210e7293f1452150',    // gochain
+      128: '0xD152f549545093347A162Dce210e7293f1452150',   // huobi
+      66: '0xD152f549545093347A162Dce210e7293f1452150',    // okex
     },
   };
 
@@ -3346,6 +3351,56 @@
       explorer: {
         name: 'blockscout',
         base: 'https://blockscout.moonriver.moonbeam.network/',
+        tx: function (tx) { return ("tx/" + tx); },
+        addr: function (addr) { return ("address/" + addr); },
+      },
+    },
+    42220: {
+      name: "celo",
+      symbol: "CELO",
+      explorer: {
+        name: 'explorer',
+        base: 'https://explorer.celo.org/',
+        tx: function (tx) { return ("tx/" + tx); },
+        addr: function (addr) { return ("address/" + addr); },
+      },
+    },
+    1666600000: {
+      name: "harmony",
+      symbol: "ONE",
+      explorer: {
+        name: 'explorer',
+        base: 'https://explorer.harmony.one/',
+        tx: function (tx) { return ("tx/" + tx); },
+        addr: function (addr) { return ("address/" + addr); },
+      },
+    },
+    60: {
+      name: "gochain",
+      symbol: "GO",
+      explorer: {
+        name: 'explorer',
+        base: 'https://explorer.gochain.io/',
+        tx: function (tx) { return ("tx/" + tx); },
+        addr: function (addr) { return ("address/" + addr); },
+      },
+    },
+    128: {
+      name: "huobi",
+      symbol: "HT",
+      explorer: {
+        name: 'hecoinfo',
+        base: 'https://hecoinfo.com/',
+        tx: function (tx) { return ("tx/" + tx); },
+        addr: function (addr) { return ("address/" + addr); },
+      },
+    },
+    66: {
+      name: "okex",
+      symbol: "OKT",
+      explorer: {
+        name: 'oklink',
+        base: 'https://www.oklink.com/okexchain/',
         tx: function (tx) { return ("tx/" + tx); },
         addr: function (addr) { return ("address/" + addr); },
       },
