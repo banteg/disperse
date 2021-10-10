@@ -167,8 +167,18 @@ export const networks = {
     name: "celo",
     symbol: "CELO",
     explorer: {
-      name: 'celo explorer',
+      name: 'explorer',
       base: 'https://explorer.celo.org/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
+  1666600000: {
+    name: "harmony",
+    symbol: "ONE",
+    explorer: {
+      name: 'explorer',
+      base: 'https://explorer.harmony.one/',
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
     },
