@@ -183,6 +183,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  60: {
+    name: "gochain",
+    symbol: "GO",
+    explorer: {
+      name: 'explorer',
+      base: 'https://explorer.gochain.io/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
 };
 
 export function explorer_tx(tx) {
