@@ -163,6 +163,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  42220: {
+    name: "celo",
+    symbol: "CELO",
+    explorer: {
+      name: 'celo explorer',
+      base: 'https://explorer.celo.org/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
 };
 
 export function explorer_tx(tx) {

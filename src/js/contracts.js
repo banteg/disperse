@@ -21,6 +21,7 @@ export const disperse = {
     42161: '0x692B5A7eCcCad243a07535E8C24B0E7433238C6a', // arbitrum one
     4689: '0xe3122e446Bf31036DA212375803f24b3dE96D0c9',  // iotex
     1285: '0xD152f549545093347A162Dce210e7293f1452150',  // moonriver
+    42220: '0xD152f549545093347A162Dce210e7293f1452150', // celo
   },
 }
 
