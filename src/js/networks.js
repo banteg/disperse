@@ -193,6 +193,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  128: {
+    name: "huobi",
+    symbol: "HT",
+    explorer: {
+      name: 'hecoinfo',
+      base: 'https://hecoinfo.com/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
 };
 
 export function explorer_tx(tx) {
