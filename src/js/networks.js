@@ -153,6 +153,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  1284: {
+    name: "moonbeam",
+    symbol: "GLMR",
+    explorer: {
+      name: 'blockscout',
+      base: 'https://moonbeam.moonscan.io',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
   1285: {
     name: "moonriver",
     symbol: "MOVR",
