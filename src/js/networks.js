@@ -158,7 +158,7 @@ export const networks = {
     symbol: "GLMR",
     explorer: {
       name: 'blockscout',
-      base: 'https://moonbeam.moonscan.io',
+      base: 'https://moonbeam.moonscan.io/',
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
     },
