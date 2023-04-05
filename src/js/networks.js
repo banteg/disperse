@@ -233,6 +233,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  84531: {
+    name: "base goerli",
+    symbol: "ETH",
+    explorer: {
+      name: 'basescan',
+      base: 'https://goerli.basescan.org/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
 };
 
 export function explorer_tx(tx) {
