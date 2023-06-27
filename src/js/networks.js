@@ -243,6 +243,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  1101: {
+    name: "polygon zkevm",
+    symbol: "ETH",
+    explorer: {
+      name: 'polygonscan',
+      base: 'https://zkevm.polygonscan.com',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
 };
 
 export function explorer_tx(tx) {
