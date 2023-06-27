@@ -248,7 +248,7 @@ export const networks = {
     symbol: "ETH",
     explorer: {
       name: 'polygonscan',
-      base: 'https://zkevm.polygonscan.com',
+      base: 'https://zkevm.polygonscan.com/',
       tx: tx => `tx/${tx}`,
       addr: addr => `address/${addr}`,
     },
