@@ -30,6 +30,7 @@ export const disperse = {
     10: '0xD152f549545093347A162Dce210e7293f1452150',    // optimism
     84531: '0xD152f549545093347A162Dce210e7293f1452150', // base goerli
     1101: '0xD152f549545093347A162Dce210e7293f1452150',  // polygon zkevm
+    8453: '0xD152f549545093347A162Dce210e7293f1452150',  // base mainnet
   },
 }
 

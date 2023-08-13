@@ -253,6 +253,16 @@ export const networks = {
       addr: addr => `address/${addr}`,
     },
   },
+  8453: {
+    name: "base",
+    symbol: "ETH",
+    explorer: {
+      name: 'basescan',
+      base: 'https://basescan.org/',
+      tx: tx => `tx/${tx}`,
+      addr: addr => `address/${addr}`,
+    },
+  },
 };
 
 export function explorer_tx(tx) {
