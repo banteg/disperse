@@ -273,6 +273,16 @@ export const networks = {
       addr: (addr) => `address/${addr}`,
     },
   },
+  314: {
+    name: "filecoin",
+    symbol: "FIL",
+    explorer: {
+      name: "filfox",
+      base: "https://filfox.info/en/",
+      tx: (tx) => `tx/${tx}`,
+      addr: (addr) => `address/${addr}`,
+    },
+  },
 };
 
 export function explorer_tx(tx) {
