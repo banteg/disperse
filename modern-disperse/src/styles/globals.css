@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #7FFFD4; /* Aquamarine */
+  --accent-color: #DC143C;  /* Crimson */
+  --text-color: #333;
+  --background-color: #f5f5f5;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-color: #f5f5f5;
+    --background-color: #1a1a1a;
+  }
+  html {
+    color-scheme: dark;
+  }
+}
+
+.btn-primary {
+  @apply bg-primary text-gray-900 font-bold py-2 px-4 rounded shadow-md hover:opacity-90;
+  box-shadow: 3px 3px 0 var(--accent-color);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--accent-color);
+}
+
+.btn-primary:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.text-input {
+  @apply w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-primary;
+}
+
+.textarea {
+  @apply w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-primary;
+  min-height: 120px;
+}
