@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount, useChains } from 'wagmi';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import Header from '../components/Header';
@@ -13,7 +13,8 @@ import { DISPERSE_CONTRACT_ADDRESS } from '../contracts/contractAddresses';
 
 const Home: NextPage = () => {
   const { isConnected } = useAccount();
-  const { chain } = useNetwork();
+  const chains = useChains();
+  const chain = chains?.[0];
   const [selectedCurrency, setSelectedCurrency] = useState<'ETH' | 'TOKEN'>('ETH');
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [recipients, setRecipients] = useState<ParsedRecipient[]>([]);

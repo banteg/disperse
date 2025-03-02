@@ -1,9 +1,9 @@
 import { 
-  useContractWrite, 
+  useWriteContract,
+  useSimulateContract,
   useContractRead,
-  usePrepareContractWrite,
   useAccount,
-  useNetwork
+  useChains
 } from 'wagmi';
 import { DisperseABI } from '../contracts/DisperseABI';
 import { DISPERSE_CONTRACT_ADDRESS } from '../contracts/contractAddresses';
@@ -12,55 +12,63 @@ import { ParsedRecipient } from '../utils/parseInput';
 
 export function useDisperseContract() {
   const { address } = useAccount();
-  const { chain } = useNetwork();
+  const chains = useChains();
+  const chain = chains?.[0];
   
   const contractAddress = chain?.id 
-    ? DISPERSE_CONTRACT_ADDRESS[chain.id] 
+    ? DISPERSE_CONTRACT_ADDRESS[chain.id] as `0x${string}`
     : undefined;
 
   const {
-    config: disperseEtherConfig,
+    data: disperseEtherSimulation,
     error: disperseEtherPrepareError
-  } = usePrepareContractWrite({
+  } = useSimulateContract({
     address: contractAddress,
     abi: DisperseABI,
     functionName: 'disperseEther',
-    enabled: Boolean(contractAddress && address)
+    query: {
+      enabled: Boolean(contractAddress && address)
+    }
   });
 
   const {
-    config: disperseTokenConfig,
+    data: disperseTokenSimulation,
     error: disperseTokenPrepareError
-  } = usePrepareContractWrite({
+  } = useSimulateContract({
     address: contractAddress,
     abi: DisperseABI,
     functionName: 'disperseToken',
-    enabled: Boolean(contractAddress && address)
+    query: {
+      enabled: Boolean(contractAddress && address)
+    }
   });
 
   const {
-    write: disperseEther,
-    isLoading: isDisperseEtherLoading,
+    writeContract: disperseEther,
+    isPending: isDisperseEtherLoading,
     isSuccess: isDisperseEtherSuccess,
     error: disperseEtherError
-  } = useContractWrite(disperseEtherConfig);
+  } = useWriteContract();
 
   const {
-    write: disperseToken,
-    isLoading: isDisperseTokenLoading,
+    writeContract: disperseToken,
+    isPending: isDisperseTokenLoading,
     isSuccess: isDisperseTokenSuccess,
     error: disperseTokenError
-  } = useContractWrite(disperseTokenConfig);
+  } = useWriteContract();
 
   // Function to disperse Ether
   const disperseEtherFunction = (recipients: ParsedRecipient[], totalAmount: bigint) => {
     if (!contractAddress || !address) return;
     
     // Extract addresses and values arrays
-    const addresses = recipients.map(r => r.address);
+    const addresses = recipients.map(r => r.address as `0x${string}`);
     const values = recipients.map(r => r.amount);
     
-    disperseEther?.({
+    disperseEther({
+      address: contractAddress,
+      abi: DisperseABI,
+      functionName: 'disperseEther',
       args: [addresses, values],
       value: totalAmount
     });
@@ -74,11 +82,14 @@ export function useDisperseContract() {
     if (!contractAddress || !address) return;
     
     // Extract addresses and values arrays
-    const addresses = recipients.map(r => r.address);
+    const addresses = recipients.map(r => r.address as `0x${string}`);
     const values = recipients.map(r => r.amount);
     
-    disperseToken?.({
-      args: [tokenAddress, addresses, values]
+    disperseToken({
+      address: contractAddress,
+      abi: DisperseABI,
+      functionName: 'disperseToken',
+      args: [tokenAddress as `0x${string}`, addresses, values]
     });
   };
 

@@ -3,17 +3,20 @@ import type { AppProps } from 'next/app';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { mainnet, optimism, polygon, arbitrum, base, filecoin } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConnectKitProvider, getDefaultConfig } from 'connectkit';
+import { ConnectKitProvider } from 'connectkit';
 
-// Create wagmi config
-const config = createConfig(
-  getDefaultConfig({
-    alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_ID || '',
-    walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
-    chains: [mainnet, optimism, polygon, arbitrum, base, filecoin],
-    appName: 'Disperse App',
-  })
-);
+// Create wagmi config with custom RPC endpoints if available
+const config = createConfig({
+  chains: [mainnet, optimism, polygon, arbitrum, base, filecoin],
+  transports: {
+    [mainnet.id]: http(process.env.NEXT_PUBLIC_ETHEREUM_RPC),
+    [optimism.id]: http(process.env.NEXT_PUBLIC_OPTIMISM_RPC),
+    [polygon.id]: http(process.env.NEXT_PUBLIC_POLYGON_RPC),
+    [arbitrum.id]: http(process.env.NEXT_PUBLIC_ARBITRUM_RPC),
+    [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC),
+    [filecoin.id]: http(),
+  },
+});
 
 // Create a client
 const queryClient = new QueryClient();

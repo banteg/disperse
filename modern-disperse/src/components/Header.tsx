@@ -1,10 +1,11 @@
 import React from 'react';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount, useChains } from 'wagmi';
 import { ConnectKitButton } from 'connectkit';
 
 const Header: React.FC = () => {
   const { address, isConnected } = useAccount();
-  const { chain } = useNetwork();
+  const chains = useChains();
+  const chain = chains?.[0];
 
   return (
     <header className="flex flex-col md:flex-row justify-between items-center p-4 border-b">

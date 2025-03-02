@@ -23,7 +23,9 @@ const AddressInput: React.FC<AddressInputProps> = ({
   // Get ETH balance
   const { data: ethBalance } = useBalance({
     address,
-    enabled: selectedCurrency === 'ETH' && Boolean(address)
+    query: {
+      enabled: selectedCurrency === 'ETH' && Boolean(address)
+    }
   });
 
   useEffect(() => {

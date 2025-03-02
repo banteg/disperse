@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { 
   useContractRead, 
-  useContractWrite, 
-  usePrepareContractWrite,
+  useWriteContract,
+  useSimulateContract,
   useAccount
 } from 'wagmi';
 import { ERC20ABI } from '../contracts/ERC20ABI';
 import { DISPERSE_CONTRACT_ADDRESS } from '../contracts/contractAddresses';
 import { isAddress } from 'viem';
-import { useNetwork } from 'wagmi';
+import { useChains } from 'wagmi';
 
 export interface TokenInfo {
   address: string;
@@ -20,7 +20,8 @@ export interface TokenInfo {
 
 export function useToken() {
   const { address } = useAccount();
-  const { chain } = useNetwork();
+  const chains = useChains();
+  const chain = chains?.[0];
   const [tokenAddress, setTokenAddress] = useState<string>('');
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +36,9 @@ export function useToken() {
     address: isAddress(tokenAddress) ? tokenAddress as `0x${string}` : undefined,
     abi: ERC20ABI,
     functionName: 'name',
-    enabled: Boolean(tokenAddress && isAddress(tokenAddress))
+    query: {
+      enabled: Boolean(tokenAddress && isAddress(tokenAddress))
+    }
   });
 
   // Read token symbol
@@ -43,7 +46,9 @@ export function useToken() {
     address: isAddress(tokenAddress) ? tokenAddress as `0x${string}` : undefined,
     abi: ERC20ABI,
     functionName: 'symbol',
-    enabled: Boolean(tokenAddress && isAddress(tokenAddress))
+    query: {
+      enabled: Boolean(tokenAddress && isAddress(tokenAddress))
+    }
   });
 
   // Read token decimals
@@ -51,7 +56,9 @@ export function useToken() {
     address: isAddress(tokenAddress) ? tokenAddress as `0x${string}` : undefined,
     abi: ERC20ABI,
     functionName: 'decimals',
-    enabled: Boolean(tokenAddress && isAddress(tokenAddress))
+    query: {
+      enabled: Boolean(tokenAddress && isAddress(tokenAddress))
+    }
   });
 
   // Read token balance
@@ -60,7 +67,9 @@ export function useToken() {
     abi: ERC20ABI,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
-    enabled: Boolean(tokenAddress && isAddress(tokenAddress) && address)
+    query: {
+      enabled: Boolean(tokenAddress && isAddress(tokenAddress) && address)
+    }
   });
 
   // Read allowance
@@ -69,31 +78,38 @@ export function useToken() {
     abi: ERC20ABI,
     functionName: 'allowance',
     args: address && disperseContractAddress ? [address, disperseContractAddress] : undefined,
-    enabled: Boolean(tokenAddress && isAddress(tokenAddress) && address && disperseContractAddress),
-    watch: true
+    query: {
+      enabled: Boolean(tokenAddress && isAddress(tokenAddress) && address && disperseContractAddress),
+      refetchInterval: 5000 // Refresh every 5 seconds instead of watch
+    }
   });
 
-  // Prepare approve transaction
-  const { config: approveConfig } = usePrepareContractWrite({
+  // Simulate approve transaction
+  const { data: approveSimulation } = useSimulateContract({
     address: isAddress(tokenAddress) ? tokenAddress as `0x${string}` : undefined,
     abi: ERC20ABI,
     functionName: 'approve',
-    enabled: Boolean(tokenAddress && isAddress(tokenAddress) && address && disperseContractAddress)
+    query: {
+      enabled: Boolean(tokenAddress && isAddress(tokenAddress) && address && disperseContractAddress)
+    }
   });
 
   // Execute approve transaction
   const { 
-    write: approve, 
-    isLoading: isApproveLoading,
+    writeContract: approve, 
+    isPending: isApproveLoading,
     isSuccess: isApproveSuccess,
     error: approveError
-  } = useContractWrite(approveConfig);
+  } = useWriteContract();
 
   // Function to approve tokens
   const approveTokens = (amount: bigint) => {
     if (!disperseContractAddress || !tokenAddress || !isAddress(tokenAddress)) return;
     
-    approve?.({
+    approve({
+      address: tokenAddress as `0x${string}`,
+      abi: ERC20ABI,
+      functionName: 'approve',
       args: [disperseContractAddress, amount]
     });
   };

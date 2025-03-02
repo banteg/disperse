@@ -73,7 +73,8 @@ const TransactionButton: React.FC<TransactionButtonProps> = ({
   const needsApproval = selectedCurrency === 'TOKEN' && 
     tokenInfo && 
     allowance !== undefined && 
-    BigInt(allowance.toString()) < totalAmount;
+    allowance !== null &&
+    BigInt(allowance.toString()) < totalAmount ? true : false;
 
   // Loading state
   const isLoading = isDisperseEtherLoading || 

@@ -15,7 +15,7 @@ This application allows users to distribute ETH or ERC-20 tokens to multiple add
 - Support for token allowances and approvals
 - Multi-chain support via Wagmi
 - Modern React components with TypeScript
-- Responsive design with Tailwind CSS
+- Responsive design with custom CSS
 
 ## Supported Networks
 
@@ -39,7 +39,7 @@ contract Disperse {
 }
 ```
 
-## Development
+## Quick Start
 
 ```bash
 # Install dependencies
@@ -50,8 +50,27 @@ npm run dev
 
 # Build for production
 npm run build
+
+# Start production server
+npm run start
+```
+
+## Environment Variables
+
+Create a `.env.local` file with the following variables:
+
+```
+# Optional: RPC endpoints for each chain
+NEXT_PUBLIC_ETHEREUM_RPC=https://eth-mainnet.alchemyapi.io/v2/YOUR_API_KEY
+NEXT_PUBLIC_OPTIMISM_RPC=https://opt-mainnet.g.alchemy.com/v2/YOUR_API_KEY
+NEXT_PUBLIC_POLYGON_RPC=https://polygon-mainnet.g.alchemy.com/v2/YOUR_API_KEY
+NEXT_PUBLIC_ARBITRUM_RPC=https://arb-mainnet.g.alchemy.com/v2/YOUR_API_KEY
+NEXT_PUBLIC_BASE_RPC=https://mainnet.base.org
+
+# Required for WalletConnect
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=YOUR_PROJECT_ID
 ```
 
 ## Credits
 
-This is a modern rewrite of the original [Disperse](https://github.com/banteg/disperse) application, using current web3 best practices and libraries.
+This is a modern rewrite of the original [Disperse](https://github.com/banteg/disperse) application, using current web3 development standards and libraries.
