@@ -8,15 +8,15 @@ const Header: React.FC = () => {
   const chain = chains?.[0];
 
   return (
-    <header className="flex flex-col md:flex-row justify-between items-center p-4 border-b">
-      <div className="flex items-center mb-4 md:mb-0">
-        <div className="text-4xl font-bold mr-2 text-accent">⟡</div>
-        <h1 className="text-2xl font-bold">Disperse</h1>
+    <header className="flex justify-between items-center">
+      <div className="flex items-center">
+        <div className="text-4xl mr-2 accent">⟡</div>
+        <span className="text-2xl">disperse</span>
       </div>
       
-      <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+      <div className="flex items-center">
         {isConnected && chain && (
-          <div className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+          <div className="pr accent">
             {chain.name}
           </div>
         )}

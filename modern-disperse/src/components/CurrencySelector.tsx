@@ -17,7 +17,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
 
   return (
     <div className="chooser">
-      <label>select currency</label>
+      <span>select currency </span>
       <div className="flex">
         <input
           type="radio"
@@ -29,11 +29,10 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         <label
           htmlFor="eth"
           onClick={() => onSelectCurrency('ETH')}
-          className={selectedCurrency === 'ETH' ? 'active' : ''}
         >
           native token (ETH)
         </label>
-        <div className="bar"></div>
+        <div className="end-bar"></div>
         <input
           type="radio"
           id="token"
@@ -44,10 +43,10 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         <label
           htmlFor="token"
           onClick={() => onSelectCurrency('TOKEN')}
-          className={selectedCurrency === 'TOKEN' ? 'active' : ''}
         >
           ERC-20 token
         </label>
+        <div className="end-bar"></div>
       </div>
     </div>
   );

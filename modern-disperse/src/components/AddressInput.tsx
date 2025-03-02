@@ -60,18 +60,15 @@ const AddressInput: React.FC<AddressInputProps> = ({
   return (
     <div>
       <h2>recipients</h2>
-      <p className="text-secondary accent">
-        enter one address and amount per line. supported formats: <br />
-        <span className="accent">0x2b1F577230F4D72B3818895688b8C25125A8f6c3 1.5</span> <br />
-        <span className="accent">0x2b1F577230F4D72B3818895688b8C25125A8f6c3,1.5</span> <br />
-        <span className="accent">0x2b1F577230F4D72B3818895688b8C25125A8f6c3=1.5</span>
-      </p>
       
       <textarea 
         className="textarea"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="0x2b1F577230F4D72B3818895688b8C25125A8f6c3 1.5"
+        placeholder="enter one address and amount per line. supported formats:
+0x2b1F577230F4D72B3818895688b8C25125A8f6c3 1.5
+0x2b1F577230F4D72B3818895688b8C25125A8f6c3,1.5
+0x2b1F577230F4D72B3818895688b8C25125A8f6c3=1.5"
         rows={6}
       />
       

@@ -45,8 +45,8 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Disperse App</title>
-        <meta name="description" content="Distribute ETH or tokens to multiple addresses in one transaction" />
+        <title>disperse.app</title>
+        <meta name="description" content="distribute ether or tokens to multiple addresses" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -56,25 +56,20 @@ const Home: NextPage = () => {
         <main className="flex-grow container">
           {!isConnected ? (
             <div className="text-center">
-              <h2>Welcome to Disperse</h2>
-              <p>Connect your wallet to distribute ETH or tokens to multiple addresses.</p>
-              <p className="text-secondary">Please connect your wallet to continue.</p>
+              <h2>welcome to disperse</h2>
+              <p><em>verb</em> distribute ether or tokens to multiple addresses</p>
+              <p className="text-secondary">please connect your wallet to continue</p>
             </div>
           ) : !isNetworkSupported ? (
             <div className="text-center">
-              <h2>Unsupported Network</h2>
+              <h2>unsupported network</h2>
               <p className="text-secondary">
-                Please switch to a supported network to use Disperse.
+                please switch to a supported network to use disperse
               </p>
             </div>
           ) : (
             <>
-              <div>
-                <h1>Disperse.app</h1>
-                <p>
-                  Distribute ETH or tokens to multiple addresses in one transaction.
-                </p>
-              </div>
+              <h1>disperse.app</h1>
               
               <CurrencySelector
                 selectedCurrency={selectedCurrency}
@@ -108,7 +103,7 @@ const Home: NextPage = () => {
         <footer>
           <div className="container">
             <p>
-              Disperse.app · <a href="https://github.com/banteg/disperse" target="_blank" rel="noopener noreferrer">GitHub</a>
+              disperse.app · <a href="https://github.com/banteg/disperse" target="_blank" rel="noopener noreferrer">github</a>
             </p>
           </div>
         </footer>
