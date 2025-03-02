@@ -21,31 +21,28 @@ const CurrencySelector = ({ onSelect }: CurrencySelectorProps) => {
   }
 
   return (
-    <>
-      <h2>what are you sending?</h2>
-      <div className="flex">
-        <label className="pr">
-          <input 
-            type="radio" 
-            name="currency" 
-            value="ether" 
-            checked={selectedCurrency === 'ether'}
-            onChange={handleChange} 
-          />
-          <span style={{ marginLeft: '5px' }}>ether</span>
-        </label>
-        <label>
-          <input 
-            type="radio" 
-            name="currency" 
-            value="token" 
-            checked={selectedCurrency === 'token'}
-            onChange={handleChange} 
-          />
-          <span style={{ marginLeft: '5px' }}>token</span>
-        </label>
-      </div>
-    </>
+    <div className="chooser">
+      <label>send</label>
+      <input
+        type="radio"
+        id="ether"
+        name="what"
+        value="ether"
+        checked={selectedCurrency === 'ether'}
+        onChange={handleChange}
+      />
+      <label htmlFor="ether">ether</label>
+      <label>or</label>
+      <input
+        type="radio"
+        id="token"
+        name="what"
+        value="token"
+        checked={selectedCurrency === 'token'}
+        onChange={handleChange}
+      />
+      <label htmlFor="token">token</label>
+    </div>
   )
 }
 

@@ -145,3 +145,117 @@ input[type="submit"]:focus {
 .negative {
   color: crimson;
 }
+
+/* Transaction button styles from disperse-transaction.tag */
+.transaction-button {
+  font-size: 1.4rem;
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 1.4rem;
+}
+
+.status {
+  margin-left: 1.4rem;
+  font-style: italic;
+}
+
+.status .pending {
+  animation: pulse 1.5s infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+}
+
+.status .success {
+  color: #28bd14;
+}
+
+.status .failed {
+  color: #d43939;
+}
+
+.hash {
+  font-style: normal;
+  font-size: 1rem;
+}
+
+input[type="submit"]:disabled {
+  opacity: .4;
+}
+
+.secondary input {
+  background: none;
+  border: 1px crimson solid;
+}
+
+@keyframes pulse {
+  0% {
+    color: rgba(0, 0, 0, .2);
+  }
+  100% {
+    color: rgba(0, 0, 0, .5);
+  }
+}
+
+/* Amount formatting from disperse-amount.tag */
+.sc {
+  font-variant: all-small-caps;
+}
+
+/* Currency selector styles from disperse-currency.tag */
+.chooser {
+  display: block;
+  font-style: italic;
+  margin-top: 2.1rem;
+  margin-bottom: 1.4rem;
+}
+
+.chooser label {
+  margin-right: .25rem;
+  font-size: 2.2rem;
+}
+
+.chooser input[type="radio"] {
+  display: none;
+}
+
+.chooser input[type="radio"] + label {
+  display: inline-block;
+  font-size: 2.2rem;
+  color: rgba(0, 0, 0, .5);
+  border-bottom: 2px rgba(0, 0, 0, .5) solid;
+}
+
+.chooser input[type="radio"]:checked + label {
+  color: #111111;
+  border-bottom: 2px #111111 solid;
+  background: aquamarine;
+}
+
+/* Logo styles from disperse-logo.tag */
+header {
+  display: flex;
+  align-items: baseline;
+}
+
+header sup {
+  font-size: 1.4rem;
+  margin-left: .7rem;
+  top: -1.4rem;
+}
+
+header a {
+  font-size: 1.4rem;
+  margin-right: 1.4rem;
+}
+
+.eth svg path {
+  transition: fill .3s !important;
+}
+
+.active svg path {
+  fill: aquamarine !important;
+}
+
+.inactive svg path {
+  fill: crimson !important;
+}

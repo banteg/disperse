@@ -145,24 +145,25 @@ const TransactionButton = ({
   }
 
   return (
-    <div className="row">
+    <div className="transaction-button">
       <input
         type="submit"
         value={title}
         onClick={handleClick}
         disabled={disabled || isWritePending || isConfirming}
       />
-      {message && <span className="error"> {message}</span>}
-      {isWritePending && <span className="pending"> waiting for wallet confirmation...</span>}
-      {isConfirming && <span className="pending"> waiting for transaction...</span>}
-      {isConfirmed && (
-        <span>
-          <a href={explorerTx(txHash || undefined, chainId)} target="_blank" rel="noopener noreferrer">
-            transaction confirmed
+      <div className="status">
+        {message && <div>{message}</div>}
+        {isWritePending && <div className="pending">sign transaction with metamask</div>}
+        {isConfirming && <div className="pending">transaction pending</div>}
+        {isConfirmed && <div className="success">transaction success</div>}
+        {errorMessage && <div className="failed">{errorMessage}</div>}
+        {txHash && (
+          <a className="hash" href={explorerTx(txHash, chainId)} target="_blank" rel="noopener noreferrer">
+            {txHash}
           </a>
-        </span>
-      )}
-      {errorMessage && <span className="error"> {errorMessage}</span>}
+        )}
+      </div>
     </div>
   )
 }

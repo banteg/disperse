@@ -12,7 +12,9 @@ interface DisperseAddressesProps {
 
 const DisperseAmount = ({ amount, symbol, decimals }: { amount: bigint, symbol: string, decimals: number }) => {
   return (
-    <div>{formatUnits(amount, decimals)} {symbol}</div>
+    <div>
+      {formatUnits(amount, decimals)} <span className="sc">{symbol}</span>
+    </div>
   )
 }
 
