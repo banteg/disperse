@@ -44,8 +44,8 @@ const TransactionButton: React.FC<TransactionButtonProps> = ({
 
   // Format currency text
   const currencyText = selectedCurrency === 'ETH'
-    ? 'ETH'
-    : tokenInfo ? tokenInfo.symbol : 'tokens';
+    ? 'ether'
+    : tokenInfo ? tokenInfo.symbol.toLowerCase() : 'tokens';
 
   // Format amount
   const formattedAmount = formatAmount(
@@ -92,57 +92,57 @@ const TransactionButton: React.FC<TransactionButtonProps> = ({
     approveError;
 
   return (
-    <div className="my-6">
-      <div className="p-4 border border-gray-200 rounded-lg dark:border-gray-700">
-        <h2 className="text-xl font-semibold mb-4">Transaction Summary</h2>
-        
-        <div className="mb-4">
-          <div className="grid grid-cols-2 gap-2 mb-2">
-            <div className="text-gray-600 dark:text-gray-400">Currency:</div>
-            <div>{currencyText}</div>
-            
-            <div className="text-gray-600 dark:text-gray-400">Recipients:</div>
-            <div>{recipients.length}</div>
-            
-            <div className="text-gray-600 dark:text-gray-400">Total Amount:</div>
-            <div>{formattedAmount} {currencyText}</div>
-          </div>
-        </div>
-        
-        {needsApproval ? (
-          <button 
-            className="btn-primary w-full"
-            onClick={handleApprove}
-            disabled={isLoading || isSuccess}
-          >
-            {isApproveLoading ? 'Approving...' : 
-             isApproveSuccess ? 'Approved!' : 
-             `Approve ${formattedAmount} ${tokenInfo?.symbol || 'tokens'}`}
-          </button>
-        ) : (
-          <button 
-            className="btn-primary w-full"
-            onClick={handleDisperse}
-            disabled={isLoading || isSuccess || (selectedCurrency === 'TOKEN' && needsApproval)}
-          >
-            {isLoading ? 'Processing...' : 
-             isSuccess ? 'Success!' : 
-             `Disperse ${formattedAmount} ${currencyText}`}
-          </button>
-        )}
-        
-        {error && (
-          <div className="mt-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded text-sm dark:bg-red-900 dark:border-red-700 dark:text-red-100">
-            Error: {error.message || String(error)}
-          </div>
-        )}
-        
-        {isSuccess && (
-          <div className="mt-4 p-2 bg-green-100 border border-green-400 text-green-700 rounded text-sm dark:bg-green-900 dark:border-green-700 dark:text-green-100">
-            Transaction successful!
-          </div>
-        )}
+    <div>
+      <h2>transaction summary</h2>
+      
+      <div className="row">
+        <span className="accent">currency:</span>
+        <span>{currencyText}</span>
       </div>
+      
+      <div className="row">
+        <span className="accent">recipients:</span>
+        <span>{recipients.length}</span>
+      </div>
+      
+      <div className="row pb">
+        <span className="accent">total amount:</span>
+        <span>{formattedAmount} {currencyText}</span>
+      </div>
+      
+      {needsApproval ? (
+        <button 
+          className="btn-primary"
+          onClick={handleApprove}
+          disabled={isLoading || isSuccess}
+        >
+          {isApproveLoading ? 'approving...' : 
+           isApproveSuccess ? 'approved!' : 
+           `approve ${formattedAmount} ${tokenInfo?.symbol || 'tokens'}`}
+        </button>
+      ) : (
+        <button 
+          className="btn-primary"
+          onClick={handleDisperse}
+          disabled={isLoading || isSuccess || (selectedCurrency === 'TOKEN' && needsApproval)}
+        >
+          {isLoading ? 'processing...' : 
+           isSuccess ? 'success!' : 
+           `disperse ${formattedAmount} ${currencyText}`}
+        </button>
+      )}
+      
+      {error && (
+        <div className="error">
+          error: {error.message || String(error)}
+        </div>
+      )}
+      
+      {isSuccess && (
+        <div className="success">
+          transaction successful!
+        </div>
+      )}
     </div>
   );
 };
