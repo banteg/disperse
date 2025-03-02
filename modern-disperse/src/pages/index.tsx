@@ -53,25 +53,25 @@ const Home: NextPage = () => {
       <div className="min-h-screen flex flex-col">
         <Header />
         
-        <main className="flex-grow container mx-auto px-4 py-8 max-w-3xl">
+        <main className="flex-grow container">
           {!isConnected ? (
-            <div className="text-center my-20">
-              <h2 className="text-2xl font-bold mb-6">Welcome to Disperse</h2>
-              <p className="mb-8">Connect your wallet to distribute ETH or tokens to multiple addresses.</p>
-              <p className="text-gray-500 dark:text-gray-400">Please connect your wallet to continue.</p>
+            <div className="text-center">
+              <h2>Welcome to Disperse</h2>
+              <p>Connect your wallet to distribute ETH or tokens to multiple addresses.</p>
+              <p className="text-secondary">Please connect your wallet to continue.</p>
             </div>
           ) : !isNetworkSupported ? (
-            <div className="text-center my-20">
-              <h2 className="text-2xl font-bold mb-6">Unsupported Network</h2>
-              <p className="text-gray-500 dark:text-gray-400">
+            <div className="text-center">
+              <h2>Unsupported Network</h2>
+              <p className="text-secondary">
                 Please switch to a supported network to use Disperse.
               </p>
             </div>
           ) : (
             <>
-              <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Disperse App</h1>
-                <p className="text-gray-600 dark:text-gray-400">
+              <div>
+                <h1>Disperse.app</h1>
+                <p>
                   Distribute ETH or tokens to multiple addresses in one transaction.
                 </p>
               </div>
@@ -105,10 +105,10 @@ const Home: NextPage = () => {
           )}
         </main>
         
-        <footer className="py-6 text-center border-t text-sm text-gray-500 dark:text-gray-400">
-          <div className="container mx-auto">
+        <footer>
+          <div className="container">
             <p>
-              Disperse App · <a href="https://github.com/banteg/disperse" target="_blank" rel="noopener noreferrer" className="underline">GitHub</a>
+              Disperse.app · <a href="https://github.com/banteg/disperse" target="_blank" rel="noopener noreferrer">GitHub</a>
             </p>
           </div>
         </footer>

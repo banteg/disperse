@@ -16,29 +16,38 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
   }
 
   return (
-    <div className="mt-6 mb-4">
-      <h2 className="text-xl font-semibold mb-4">Select Currency</h2>
-      <div className="flex space-x-4">
-        <button
-          className={`px-4 py-2 rounded-md border transition-colors ${
-            selectedCurrency === 'ETH'
-              ? 'bg-primary border-accent text-gray-900'
-              : 'bg-gray-100 border-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700'
-          }`}
+    <div className="chooser">
+      <label>select currency</label>
+      <div className="flex">
+        <input
+          type="radio"
+          id="eth"
+          name="currency"
+          checked={selectedCurrency === 'ETH'}
+          onChange={() => onSelectCurrency('ETH')}
+        />
+        <label
+          htmlFor="eth"
           onClick={() => onSelectCurrency('ETH')}
+          className={selectedCurrency === 'ETH' ? 'active' : ''}
         >
-          Native Token (ETH)
-        </button>
-        <button
-          className={`px-4 py-2 rounded-md border transition-colors ${
-            selectedCurrency === 'TOKEN'
-              ? 'bg-primary border-accent text-gray-900'
-              : 'bg-gray-100 border-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700'
-          }`}
+          native token (ETH)
+        </label>
+        <div className="bar"></div>
+        <input
+          type="radio"
+          id="token"
+          name="currency"
+          checked={selectedCurrency === 'TOKEN'}
+          onChange={() => onSelectCurrency('TOKEN')}
+        />
+        <label
+          htmlFor="token"
           onClick={() => onSelectCurrency('TOKEN')}
+          className={selectedCurrency === 'TOKEN' ? 'active' : ''}
         >
-          ERC-20 Token
-        </button>
+          ERC-20 token
+        </label>
       </div>
     </div>
   );

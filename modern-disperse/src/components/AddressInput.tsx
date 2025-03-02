@@ -58,13 +58,13 @@ const AddressInput: React.FC<AddressInputProps> = ({
     : (tokenInfo?.symbol || 'tokens');
 
   return (
-    <div className="my-6">
-      <h2 className="text-xl font-semibold mb-2">Recipients</h2>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-        Enter one address and amount per line. Supported formats: <br />
-        <code>0x2b1F577230F4D72B3818895688b8C25125A8f6c3 1.5</code> <br />
-        <code>0x2b1F577230F4D72B3818895688b8C25125A8f6c3,1.5</code> <br />
-        <code>0x2b1F577230F4D72B3818895688b8C25125A8f6c3=1.5</code>
+    <div>
+      <h2>recipients</h2>
+      <p className="text-secondary accent">
+        enter one address and amount per line. supported formats: <br />
+        <span className="accent">0x2b1F577230F4D72B3818895688b8C25125A8f6c3 1.5</span> <br />
+        <span className="accent">0x2b1F577230F4D72B3818895688b8C25125A8f6c3,1.5</span> <br />
+        <span className="accent">0x2b1F577230F4D72B3818895688b8C25125A8f6c3=1.5</span>
       </p>
       
       <textarea 
@@ -72,13 +72,13 @@ const AddressInput: React.FC<AddressInputProps> = ({
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="0x2b1F577230F4D72B3818895688b8C25125A8f6c3 1.5"
-        rows={10}
+        rows={6}
       />
       
       {errors.length > 0 && (
-        <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded dark:bg-red-900 dark:border-red-700 dark:text-red-100">
-          <p className="font-semibold">Errors:</p>
-          <ul className="list-disc list-inside text-sm">
+        <div className="error">
+          <p>errors:</p>
+          <ul>
             {errors.map((error, index) => (
               <li key={index}>{error}</li>
             ))}
@@ -87,9 +87,9 @@ const AddressInput: React.FC<AddressInputProps> = ({
       )}
       
       {/* Current balance info */}
-      <div className="mt-4 flex justify-between text-sm">
-        <div>
-          Your balance: {formatAmount(currentBalance, selectedCurrency === 'ETH' ? 18 : (tokenInfo?.decimals || 18))} {currencySymbol}
+      <div className="flex justify-between">
+        <div className="accent">
+          your balance: {formatAmount(currentBalance, selectedCurrency === 'ETH' ? 18 : (tokenInfo?.decimals || 18))} {currencySymbol}
         </div>
         
         {/* Show total amount being sent if input is valid */}
@@ -104,8 +104,8 @@ const AddressInput: React.FC<AddressInputProps> = ({
               const isOverBalance = totalAmount > currentBalance;
               
               return (
-                <span className={isOverBalance ? 'text-red-500 font-bold' : ''}>
-                  Total: {formattedTotal} {currencySymbol}
+                <span className={isOverBalance ? 'negative' : 'accent'}>
+                  total: {formattedTotal} {currencySymbol}
                   {isOverBalance && ' (exceeds balance)'}
                 </span>
               );
