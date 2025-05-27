@@ -1,8 +1,8 @@
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { type BaseError, isAddress } from "viem";
-import { useBytecode, useReadContract } from "wagmi";
+import { useReadContract } from "wagmi";
 import { erc20 } from "../contracts";
-import { disperseAddress } from "../generated";
+import { disperse_legacy } from "../deploy";
 import type { TokenInfo } from "../types";
 
 // Debug function to log TokenLoader events
@@ -16,14 +16,17 @@ interface TokenLoaderProps {
   chainId?: number;
   account?: `0x${string}`;
   token?: TokenInfo; // Pass the current token to preserve state
+  contractAddress?: `0x${string}`; // Optional prop for disperse contract address
 }
 
-const TokenLoader = ({ onSelect, onError, chainId, account, token }: TokenLoaderProps) => {
+const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddress }: TokenLoaderProps) => {
   // Initialize tokenAddress with token.address if available
   const [tokenAddress, setTokenAddress] = useState<`0x${string}` | "">(token?.address || "");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const disperseContractAddress = contractAddress || (disperse_legacy.address as `0x${string}`);
 
   // Update tokenAddress if token prop changes
   useEffect(() => {
@@ -32,22 +35,6 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token }: TokenLoader
     }
   }, [token?.address]);
 
-  const disperseContractAddress = chainId
-    ? ((disperseAddress as any)[chainId] as `0x${string}` | undefined)
-    : undefined;
-
-  // Check if contract is deployed by looking for bytecode
-  const { data: bytecode, isLoading: isBytecodeLoading } = useBytecode({
-    address: disperseContractAddress,
-    chainId,
-    query: {
-      enabled: !!disperseContractAddress && !!chainId,
-    },
-  });
-
-  // Check if the contract has code
-  const isContractDeployed = !!bytecode && bytecode !== "0x";
-
   debug("Component rendered", {
     tokenAddress,
     isLoading,
@@ -55,9 +42,6 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token }: TokenLoader
     chainId,
     account,
     disperseContractAddress,
-    bytecodeFound: isContractDeployed,
-    bytecodeLength: bytecode ? bytecode.length : 0,
-    isBytecodeLoading,
   });
 
   // Use wagmi's hooks to read token data
@@ -257,21 +241,6 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token }: TokenLoader
 
     if (!account || !chainId) {
       setErrorMessage("wallet not connected");
-      return;
-    }
-
-    if (!disperseContractAddress) {
-      setErrorMessage("disperse contract address not available on this network");
-      return;
-    }
-
-    if (!isContractDeployed && !isBytecodeLoading) {
-      setErrorMessage("disperse contract code not found at the expected address");
-      return;
-    }
-
-    if (isBytecodeLoading) {
-      setErrorMessage("checking if disperse contract is deployed...");
       return;
     }
 

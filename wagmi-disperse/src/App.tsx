@@ -620,6 +620,7 @@ function App() {
             chainId={realChainId}
             account={address}
             token={token}
+            contractAddress={verifiedAddress?.address}
           />
           {token.symbol && (
             <p className="mt">
