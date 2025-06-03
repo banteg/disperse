@@ -3,11 +3,11 @@
     "enabled": true,
     "indentStyle": "space",
     "lineWidth": 120,
-    "ignore": ["dist/**", "node_modules/**", "src/css/*.css"]
+    "ignore": ["dist/**", "node_modules/**", "src/css/*.css", "coverage/**"]
   },
   "linter": {
     "enabled": true,
-    "ignore": ["dist/**", "node_modules/**", "src/css/*.css"],
+    "ignore": ["dist/**", "node_modules/**", "src/css/*.css", "coverage/**"],
     "rules": {
       "recommended": true,
       "suspicious": {
@@ -24,8 +24,20 @@
       }
     }
   },
+  "overrides": [
+    {
+      "include": ["**/__tests__/**", "**/*.test.*", "**/*.spec.*"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    }
+  ],
   "organizeImports": {
     "enabled": true,
-    "ignore": ["dist/**", "node_modules/**"]
+    "ignore": ["dist/**", "node_modules/**", "coverage/**"]
   }
 }

@@ -85,7 +85,8 @@ describe("useContractVerification", () => {
       if (address === "0x1111111111111111111111111111111111111111") {
         // Legacy address check - no contract
         return { data: "0x", isLoading: false } as any;
-      } else if (address === "0x2222222222222222222222222222222222222222") {
+      }
+      if (address === "0x2222222222222222222222222222222222222222") {
         // CreateX address check - has contract
         return {
           data: "0x608060405234801561001057600080fd5b50",
@@ -101,12 +102,15 @@ describe("useContractVerification", () => {
 
     const { result } = renderHook(() => useContractVerification(1, true));
 
-    await waitFor(() => {
-      expect(result.current.verifiedAddress).toEqual({
-        address: "0x2222222222222222222222222222222222222222",
-        label: "createx",
-      });
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(result.current.verifiedAddress).toEqual({
+          address: "0x2222222222222222222222222222222222222222",
+          label: "createx",
+        });
+      },
+      { timeout: 2000 },
+    );
   });
 
   it("should check custom address when provided", async () => {
@@ -150,7 +154,7 @@ describe("useContractVerification", () => {
       data: undefined,
       isLoading: false,
     } as any);
-    
+
     rerender({ chainId: 137, isConnected: true });
 
     // The verification should be reset immediately upon chain change
@@ -227,7 +231,7 @@ describe("useContractVerification", () => {
     const { result } = renderHook(() => useContractVerification(1, true));
 
     expect(typeof result.current.handleContractDeployed).toBe("function");
-    
+
     // Test the callback doesn't throw
     expect(() => {
       result.current.handleContractDeployed("0x4444444444444444444444444444444444444444" as `0x${string}`);

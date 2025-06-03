@@ -48,15 +48,15 @@ describe("isDisperseContract", () => {
 
   it("should cache results for performance", () => {
     const bytecode = "0x608060405234801561001057600080fd5b50";
-    
+
     // First call
     const result1 = isDisperseContract(bytecode);
     expect(result1).toBe(true);
-    
+
     // Second call should use cache
     const result2 = isDisperseContract(bytecode);
     expect(result2).toBe(true);
-    
+
     // Check cache exists
     const func = isDisperseContract as typeof isDisperseContract & { cache?: Map<string, boolean> };
     expect(func.cache?.has(bytecode)).toBe(true);
@@ -77,7 +77,7 @@ describe("isDisperseContract", () => {
 describe("getDisperseAddresses", () => {
   it("should return both legacy and createx addresses", () => {
     const addresses = getDisperseAddresses();
-    
+
     expect(addresses).toHaveLength(2);
     expect(addresses[0]).toEqual({
       address: "0x1111111111111111111111111111111111111111",

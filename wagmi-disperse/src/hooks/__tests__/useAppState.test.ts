@@ -1,8 +1,8 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { AppState } from "../../constants";
-import { useAppState } from "../useAppState";
 import type { TokenInfo } from "../../types";
+import { useAppState } from "../useAppState";
 
 // Mock console.log to avoid noise in tests
 vi.spyOn(console, "log").mockImplementation(() => {});
@@ -22,9 +22,7 @@ describe("useAppState", () => {
   });
 
   it("should return UNLOCK_WALLET when disconnected", () => {
-    const { result } = renderHook(() =>
-      useAppState(createMockProps({ status: "disconnected", isConnected: false })),
-    );
+    const { result } = renderHook(() => useAppState(createMockProps({ status: "disconnected", isConnected: false })));
 
     expect(result.current.appState).toBe(AppState.UNLOCK_WALLET);
   });
@@ -38,9 +36,7 @@ describe("useAppState", () => {
   });
 
   it("should return NETWORK_UNAVAILABLE when contract not deployed", () => {
-    const { result } = renderHook(() =>
-      useAppState(createMockProps({ isContractDeployed: false })),
-    );
+    const { result } = renderHook(() => useAppState(createMockProps({ isContractDeployed: false })));
 
     expect(result.current.appState).toBe(AppState.NETWORK_UNAVAILABLE);
   });
@@ -72,9 +68,7 @@ describe("useAppState", () => {
       symbol: "TEST",
     };
 
-    const { result } = renderHook(() =>
-      useAppState(createMockProps({ sending: "token", token: mockToken })),
-    );
+    const { result } = renderHook(() => useAppState(createMockProps({ sending: "token", token: mockToken })));
 
     expect(result.current.appState).toBe(AppState.SELECTED_CURRENCY);
   });
@@ -85,9 +79,7 @@ describe("useAppState", () => {
       // missing decimals and symbol
     };
 
-    const { result } = renderHook(() =>
-      useAppState(createMockProps({ sending: "token", token: incompleteToken })),
-    );
+    const { result } = renderHook(() => useAppState(createMockProps({ sending: "token", token: incompleteToken })));
 
     expect(result.current.appState).toBe(AppState.CONNECTED_TO_WALLET);
   });
@@ -99,35 +91,27 @@ describe("useAppState", () => {
       symbol: "TEST",
     };
 
-    const { result } = renderHook(() =>
-      useAppState(createMockProps({ sending: "token", token: tokenNoDecimals })),
-    );
+    const { result } = renderHook(() => useAppState(createMockProps({ sending: "token", token: tokenNoDecimals })));
 
     expect(result.current.appState).toBe(AppState.CONNECTED_TO_WALLET);
   });
 
   it("should handle reconnecting status", () => {
-    const { result } = renderHook(() =>
-      useAppState(createMockProps({ status: "reconnecting" })),
-    );
+    const { result } = renderHook(() => useAppState(createMockProps({ status: "reconnecting" })));
 
     // Should remain in initial state
     expect(result.current.appState).toBe(AppState.UNLOCK_WALLET);
   });
 
   it("should handle connecting status", () => {
-    const { result } = renderHook(() =>
-      useAppState(createMockProps({ status: "connecting" })),
-    );
+    const { result } = renderHook(() => useAppState(createMockProps({ status: "connecting" })));
 
     // Should remain in initial state
     expect(result.current.appState).toBe(AppState.UNLOCK_WALLET);
   });
 
   it("should handle null sending value", () => {
-    const { result } = renderHook(() =>
-      useAppState(createMockProps({ sending: null })),
-    );
+    const { result } = renderHook(() => useAppState(createMockProps({ sending: null })));
 
     // Should remain in initial state
     expect(result.current.appState).toBe(AppState.UNLOCK_WALLET);
@@ -148,12 +132,9 @@ describe("useAppState", () => {
   });
 
   it("should update state when dependencies change", () => {
-    const { result, rerender } = renderHook(
-      (props) => useAppState(props),
-      {
-        initialProps: createMockProps({ status: "disconnected", isConnected: false }),
-      },
-    );
+    const { result, rerender } = renderHook((props) => useAppState(props), {
+      initialProps: createMockProps({ status: "disconnected", isConnected: false }),
+    });
 
     expect(result.current.appState).toBe(AppState.UNLOCK_WALLET);
 
@@ -166,11 +147,11 @@ describe("useAppState", () => {
     const { result } = renderHook(() => useAppState(createMockProps()));
 
     expect(typeof result.current.setAppState).toBe("function");
-    
+
     // Test manual state change wrapped in act
     // The hook will set to SELECTED_CURRENCY based on the default props
     expect(result.current.appState).toBe(AppState.SELECTED_CURRENCY);
-    
+
     // Now test manual state change
     act(() => {
       result.current.setAppState(AppState.UNLOCK_WALLET);

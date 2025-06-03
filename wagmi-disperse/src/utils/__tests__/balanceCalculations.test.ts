@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { Recipient, TokenInfo } from "../../types";
 import {
   formatBalance,
   getBalance,
@@ -9,7 +10,6 @@ import {
   getSymbol,
   getTotalAmount,
 } from "../balanceCalculations";
-import type { Recipient, TokenInfo } from "../../types";
 
 describe("getTotalAmount", () => {
   it("should return 0 for empty recipients", () => {
@@ -17,9 +17,7 @@ describe("getTotalAmount", () => {
   });
 
   it("should calculate total for single recipient", () => {
-    const recipients: Recipient[] = [
-      { address: "0x1234567890123456789012345678901234567890", value: 1000n },
-    ];
+    const recipients: Recipient[] = [{ address: "0x1234567890123456789012345678901234567890", value: 1000n }];
     expect(getTotalAmount(recipients)).toBe(1000n);
   });
 
@@ -64,9 +62,7 @@ describe("getBalance", () => {
 });
 
 describe("getLeftAmount", () => {
-  const recipients: Recipient[] = [
-    { address: "0x1234567890123456789012345678901234567890", value: 3000n },
-  ];
+  const recipients: Recipient[] = [{ address: "0x1234567890123456789012345678901234567890", value: 3000n }];
 
   const mockToken: TokenInfo = {
     balance: 5000n,
@@ -85,17 +81,13 @@ describe("getLeftAmount", () => {
   });
 
   it("should return negative when total exceeds balance", () => {
-    const largeRecipients: Recipient[] = [
-      { address: "0x1234567890123456789012345678901234567890", value: 15000n },
-    ];
+    const largeRecipients: Recipient[] = [{ address: "0x1234567890123456789012345678901234567890", value: 15000n }];
     expect(getLeftAmount(largeRecipients, "ether", mockToken, mockBalanceData)).toBe(-5000n);
   });
 });
 
 describe("getDisperseMessage", () => {
-  const recipients: Recipient[] = [
-    { address: "0x1234567890123456789012345678901234567890", value: 3000n },
-  ];
+  const recipients: Recipient[] = [{ address: "0x1234567890123456789012345678901234567890", value: 3000n }];
 
   const mockToken: TokenInfo = {
     balance: 5000n,
@@ -111,12 +103,8 @@ describe("getDisperseMessage", () => {
   });
 
   it("should return exceeds balance message when total exceeds balance", () => {
-    const largeRecipients: Recipient[] = [
-      { address: "0x1234567890123456789012345678901234567890", value: 15000n },
-    ];
-    expect(getDisperseMessage(largeRecipients, "ether", mockToken, mockBalanceData)).toBe(
-      "total exceeds balance",
-    );
+    const largeRecipients: Recipient[] = [{ address: "0x1234567890123456789012345678901234567890", value: 15000n }];
+    expect(getDisperseMessage(largeRecipients, "ether", mockToken, mockBalanceData)).toBe("total exceeds balance");
   });
 
   it("should return undefined when everything is valid", () => {
@@ -126,9 +114,7 @@ describe("getDisperseMessage", () => {
 
   it("should handle undefined allowance as 0", () => {
     const tokenNoAllowance: TokenInfo = { ...mockToken, allowance: undefined };
-    expect(getDisperseMessage(recipients, "token", tokenNoAllowance, mockBalanceData)).toBe(
-      "needs allowance",
-    );
+    expect(getDisperseMessage(recipients, "token", tokenNoAllowance, mockBalanceData)).toBe("needs allowance");
   });
 });
 
