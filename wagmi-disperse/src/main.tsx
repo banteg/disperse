@@ -1,4 +1,4 @@
-import { Buffer } from "buffer";
+import { Buffer as BufferPolyfill } from "buffer";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -13,11 +13,11 @@ import "./css/disperse.css";
 
 // Add Buffer to globalThis with proper type declaration
 declare global {
-  var Buffer: typeof Buffer;
+  var Buffer: typeof BufferPolyfill;
 }
 
 // Now we can set Buffer on globalThis
-globalThis.Buffer = Buffer;
+globalThis.Buffer = BufferPolyfill;
 
 const queryClient = new QueryClient();
 
