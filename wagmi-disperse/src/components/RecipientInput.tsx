@@ -1,16 +1,12 @@
 import { memo, useCallback, useRef } from "react";
-import type { Recipient, TokenInfo } from "../types";
+import { AppState } from "../constants";
+import { useStore } from "../store";
 import { getDecimals } from "../utils/balanceCalculations";
 import { parseRecipients } from "../utils/parseRecipients";
 
-interface RecipientInputProps {
-  sending: "ether" | "token" | null;
-  token: TokenInfo;
-  onRecipientsChange: (recipients: Recipient[]) => void;
-}
-
-const RecipientInput = ({ sending, token, onRecipientsChange }: RecipientInputProps) => {
+const RecipientInput = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { sending, token, setRecipients, setAppState } = useStore();
   const symbol = sending === "token" ? token.symbol || "???" : "ETH";
 
   const parseAmounts = useCallback(() => {
@@ -20,8 +16,15 @@ const RecipientInput = ({ sending, token, onRecipientsChange }: RecipientInputPr
     const decimals = getDecimals(sending, token);
     const newRecipients = parseRecipients(text, decimals);
 
-    onRecipientsChange(newRecipients);
-  }, [sending, token, onRecipientsChange]);
+    setRecipients(newRecipients);
+
+    if (
+      newRecipients.length &&
+      (sending === "ether" || (sending === "token" && token.address && token.decimals !== undefined))
+    ) {
+      setAppState(AppState.ENTERED_AMOUNTS);
+    }
+  }, [sending, token, setRecipients, setAppState]);
 
   return (
     <section>

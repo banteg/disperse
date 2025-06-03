@@ -1,60 +1,59 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { useStore } from "../../store";
+import { resetStore, setStoreState } from "../../test/mockStore";
 import RecipientInput from "../RecipientInput";
 
 describe("RecipientInput", () => {
-  const mockOnRecipientsChange = vi.fn();
-
-  const defaultProps = {
-    sending: "ether" as const,
-    token: {},
-    onRecipientsChange: mockOnRecipientsChange,
-  };
-
   beforeEach(() => {
-    mockOnRecipientsChange.mockClear();
+    resetStore();
+  });
+
+  afterEach(() => {
+    resetStore();
   });
 
   it("should render with correct title and instructions", () => {
-    render(<RecipientInput {...defaultProps} />);
+    setStoreState({ sending: "ether", token: {} });
+    render(<RecipientInput />);
 
     expect(screen.getByText("recipients and amounts")).toBeInTheDocument();
     expect(screen.getByText(/enter one address and amount/)).toBeInTheDocument();
   });
 
   it("should display ETH symbol for ether sending", () => {
-    render(<RecipientInput {...defaultProps} />);
+    setStoreState({ sending: "ether" });
+    render(<RecipientInput />);
 
     expect(screen.getByText(/in ETH on each line/)).toBeInTheDocument();
   });
 
   it("should display token symbol when sending tokens", () => {
-    render(<RecipientInput {...defaultProps} sending="token" token={{ symbol: "USDC", decimals: 6 }} />);
+    setStoreState({ sending: "token", token: { symbol: "USDC", decimals: 6 } });
+    render(<RecipientInput />);
 
     expect(screen.getByText(/in USDC on each line/)).toBeInTheDocument();
   });
 
   it("should display ??? when token symbol is missing", () => {
-    render(<RecipientInput {...defaultProps} sending="token" token={{ decimals: 18 }} />);
+    setStoreState({ sending: "token", token: { decimals: 18 } });
+    render(<RecipientInput />);
 
     expect(screen.getByText(/in \?\?\? on each line/)).toBeInTheDocument();
   });
 
-  it("should call onRecipientsChange when input changes", async () => {
+  it("should update recipients in store when input changes", async () => {
     const user = userEvent.setup();
-    render(<RecipientInput {...defaultProps} />);
+    setStoreState({ sending: "ether" });
+    render(<RecipientInput />);
 
     const textarea = screen.getByRole("textbox");
     await user.type(textarea, "0x314ab97b76e39d63c78d5c86c2daf8eaa306b182 1");
 
-    // Should be called multiple times (once per character typed)
-    expect(mockOnRecipientsChange).toHaveBeenCalled();
-
-    // Check the last call
-    const lastCall = mockOnRecipientsChange.mock.calls[mockOnRecipientsChange.mock.calls.length - 1];
-    expect(lastCall[0]).toHaveLength(1);
-    expect(lastCall[0][0]).toEqual({
+    const { recipients } = useStore.getState();
+    expect(recipients).toHaveLength(1);
+    expect(recipients[0]).toEqual({
       address: "0x314ab97b76e39d63c78d5c86c2daf8eaa306b182",
       value: 1000000000000000000n,
     });
@@ -62,7 +61,8 @@ describe("RecipientInput", () => {
 
   it("should parse multiple recipients", async () => {
     const user = userEvent.setup();
-    render(<RecipientInput {...defaultProps} />);
+    setStoreState({ sending: "ether" });
+    render(<RecipientInput />);
 
     const textarea = screen.getByRole("textbox");
     const input = `0x314ab97b76e39d63c78d5c86c2daf8eaa306b182 1
@@ -71,32 +71,43 @@ describe("RecipientInput", () => {
     await user.clear(textarea);
     await user.type(textarea, input);
 
-    const lastCall = mockOnRecipientsChange.mock.calls[mockOnRecipientsChange.mock.calls.length - 1];
-    expect(lastCall[0]).toHaveLength(2);
-    expect(lastCall[0][0].value).toBe(1000000000000000000n);
-    expect(lastCall[0][1].value).toBe(2000000000000000000n);
+    const { recipients } = useStore.getState();
+    expect(recipients).toHaveLength(2);
+    expect(recipients[0]).toEqual({
+      address: "0x314ab97b76e39d63c78d5c86c2daf8eaa306b182",
+      value: 1000000000000000000n,
+    });
+    expect(recipients[1]).toEqual({
+      address: "0x271bffabd0f79b8bd4d7a1c245b7ec5b576ea98a",
+      value: 2000000000000000000n,
+    });
   });
 
   it("should handle different token decimals", async () => {
     const user = userEvent.setup();
-    render(<RecipientInput {...defaultProps} sending="token" token={{ symbol: "USDC", decimals: 6 }} />);
+    setStoreState({ sending: "token", token: { symbol: "USDC", decimals: 6 } });
+    render(<RecipientInput />);
 
     const textarea = screen.getByRole("textbox");
     await user.type(textarea, "0x314ab97b76e39d63c78d5c86c2daf8eaa306b182 100");
 
-    const lastCall = mockOnRecipientsChange.mock.calls[mockOnRecipientsChange.mock.calls.length - 1];
-    expect(lastCall[0][0].value).toBe(100000000n); // 100 * 10^6
+    const { recipients } = useStore.getState();
+    expect(recipients).toHaveLength(1);
+    expect(recipients[0]).toEqual({
+      address: "0x314ab97b76e39d63c78d5c86c2daf8eaa306b182",
+      value: 100000000n, // 100 USDC with 6 decimals
+    });
   });
 
   it("should have correct placeholder text", () => {
-    render(<RecipientInput {...defaultProps} />);
+    render(<RecipientInput />);
 
     const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
     expect(textarea.placeholder).toContain("0x314ab97b76e39d63c78d5c86c2daf8eaa306b182");
   });
 
   it("should have spellCheck disabled", () => {
-    render(<RecipientInput {...defaultProps} />);
+    render(<RecipientInput />);
 
     const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
     expect(textarea.getAttribute("spellcheck")).toBe("false");

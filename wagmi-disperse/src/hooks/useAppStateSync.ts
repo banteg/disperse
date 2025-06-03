@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { AppState } from "../constants";
-import type { TokenInfo } from "../types";
+import { useStore } from "../store";
 
 const debug = (message: string, data?: unknown) => {
   console.log(`[DEBUG] ${message}`, data || "");
 };
 
-interface UseAppStateProps {
+interface UseAppStateSyncProps {
   status: string;
   isConnected: boolean;
   realChainId: number | undefined;
@@ -14,11 +14,9 @@ interface UseAppStateProps {
   isContractDeployed: boolean;
   isBytecodeLoading: boolean;
   hasContractAddress: boolean;
-  sending: "ether" | "token" | null;
-  token: TokenInfo;
 }
 
-export function useAppState({
+export function useAppStateSync({
   status,
   isConnected,
   realChainId,
@@ -26,18 +24,11 @@ export function useAppState({
   isContractDeployed,
   isBytecodeLoading,
   hasContractAddress,
-  sending,
-  token,
-}: UseAppStateProps) {
-  const [appState, setAppState] = useState<AppState>(AppState.UNLOCK_WALLET);
-
-  useEffect(() => {
-    debug(`AppState changed to: ${AppState[appState]}`);
-  }, [appState]);
+}: UseAppStateSyncProps) {
+  const { sending, token, setAppState } = useStore();
 
   useEffect(() => {
     if (status === "reconnecting" || status === "connecting") return;
-    if (sending === null) return;
 
     debug(
       `Wallet status: ${status}, isConnected: ${isConnected}, chainId: ${realChainId}, supported: ${isChainSupported}, contract: ${isContractDeployed}`,
@@ -88,7 +79,6 @@ export function useAppState({
     hasContractAddress,
     sending,
     token,
+    setAppState,
   ]);
-
-  return { appState, setAppState };
 }
