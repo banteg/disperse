@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useBytecode } from "wagmi";
 import { disperse_createx, disperse_legacy } from "../deploy";
 import type { AddressInfo, VerifiedAddress } from "../types";
@@ -20,11 +20,15 @@ export function useContractVerification(
   const legacyDisperseAddress = disperse_legacy.address as `0x${string}`;
   const createxDisperseAddress = disperse_createx.address as `0x${string}`;
 
-  const potentialAddresses = [
-    { address: legacyDisperseAddress, label: "legacy" },
-    { address: createxDisperseAddress, label: "createx" },
-    { address: customContractAddress, label: "custom" },
-  ].filter((item) => !!item.address) as AddressInfo[];
+  const potentialAddresses = useMemo(
+    () =>
+      [
+        { address: legacyDisperseAddress, label: "legacy" },
+        { address: createxDisperseAddress, label: "createx" },
+        { address: customContractAddress, label: "custom" },
+      ].filter((item) => !!item.address) as AddressInfo[],
+    [legacyDisperseAddress, createxDisperseAddress, customContractAddress],
+  );
 
   const addressToCheck = potentialAddresses[currentCheckIndex]?.address;
 
