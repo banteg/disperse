@@ -14,6 +14,7 @@ import { useRealChainId } from "./hooks/useRealChainId";
 import { useContractVerification } from "./hooks/useContractVerification";
 import { useAppState } from "./hooks/useAppState";
 import { useCurrencySelection } from "./hooks/useCurrencySelection";
+import { useTokenAllowance } from "./hooks/useTokenAllowance";
 import { networkName } from "./networks";
 import type { Recipient, TokenInfo } from "./types";
 import { canDeployToNetwork } from "./utils/contractVerify";
@@ -146,10 +147,21 @@ function App() {
     [setToken, setSending, setAppState, parseAmounts],
   );
 
+  // Use reactive allowance hook
+  const { allowance: currentAllowance } = useTokenAllowance({
+    tokenAddress: token.address,
+    account: address,
+    spender: verifiedAddress?.address,
+    chainId: realChainId,
+  });
+
+  // Use the reactive allowance if available, otherwise fall back to the stored token allowance
+  const effectiveAllowance = currentAllowance ?? token.allowance ?? 0n;
+
   const totalAmount = getTotalAmount(recipients);
   const balance = getBalance(sending, token, balanceData);
   const leftAmount = getLeftAmount(recipients, sending, token, balanceData);
-  const disperseMessage = getDisperseMessage(recipients, sending, token, balanceData);
+  const disperseMessage = getDisperseMessage(recipients, sending, { ...token, allowance: effectiveAllowance }, balanceData);
   const symbol = getSymbol(sending, token, realChainId);
   const decimals = getDecimals(sending, token);
   const nativeCurrencyName = getNativeCurrencyName(realChainId);
@@ -321,23 +333,23 @@ function App() {
         <div>
           <h2>allowance</h2>
           <p>
-            {(token.allowance ?? 0n) < totalAmount
+            {effectiveAllowance < totalAmount
               ? "allow smart contract to transfer tokens on your behalf."
               : "disperse contract has allowance, you can send tokens now."}
           </p>
           <TransactionButton
-            title={(token.allowance ?? 0n) < totalAmount ? "approve" : "revoke"}
-            action={(token.allowance ?? 0n) < totalAmount ? "approve" : "deny"}
+            title={effectiveAllowance < totalAmount ? "approve" : "revoke"}
+            action={effectiveAllowance < totalAmount ? "approve" : "deny"}
             chainId={realChainId}
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}
-            className={(token.allowance ?? 0n) >= totalAmount ? "secondary" : ""}
+            className={effectiveAllowance >= totalAmount ? "secondary" : ""}
             account={address}
           />
           <TransactionButton
             show={true}
-            disabled={leftAmount < 0n || (token.allowance ?? 0n) < totalAmount}
+            disabled={leftAmount < 0n || effectiveAllowance < totalAmount}
             title="disperse token"
             action="disperseToken"
             message={disperseMessage}
