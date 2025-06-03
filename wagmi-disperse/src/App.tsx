@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { formatUnits } from "viem";
 import { useAccount, useBalance, useConfig, useConnect } from "wagmi";
 
@@ -11,11 +11,11 @@ import TokenLoader from "./components/TokenLoader";
 import TransactionSection from "./components/TransactionSection";
 const DebugPanel = lazy(() => import("./components/debug/DebugPanel"));
 import { AppState } from "./constants";
-import { useAppState } from "./hooks/useAppState";
+import { useAppStateSync } from "./hooks/useAppStateSync";
 import { useContractVerification } from "./hooks/useContractVerification";
-import { useCurrencySelection } from "./hooks/useCurrencySelection";
 import { useRealChainId } from "./hooks/useRealChainId";
 import { useTokenAllowance } from "./hooks/useTokenAllowance";
+import { useStore } from "./store";
 import type { Recipient, TokenInfo } from "./types";
 import {
   getBalance,
@@ -40,7 +40,23 @@ function App() {
   const { connectors, connect } = useConnect();
 
   const isChainSupported = realChainId ? config.chains.some((chain) => chain.id === realChainId) : false;
-  const [customContractAddress, setCustomContractAddress] = useState<`0x${string}` | undefined>(undefined);
+
+  // Get state and actions from Zustand store
+  const {
+    appState,
+    sending,
+    token,
+    recipients,
+    customContractAddress,
+    setAppState,
+    setSending,
+    setToken,
+    setRecipients,
+    setCustomContractAddress,
+    resetToken,
+    selectCurrency,
+    selectToken,
+  } = useStore();
 
   const {
     verifiedAddress,
@@ -53,17 +69,18 @@ function App() {
 
   const canDeploy = canDeployToNetwork(realChainId);
 
-  const handleContractDeployed = useCallback((address: `0x${string}`) => {
-    setCustomContractAddress(address);
-  }, []);
+  const handleContractDeployed = useCallback(
+    (address: `0x${string}`) => {
+      setCustomContractAddress(address);
+    },
+    [setCustomContractAddress],
+  );
 
-  const [recipients, setRecipients] = useState<Recipient[]>([]);
   const walletStatus = status === "connected" ? `logged in as ${address}` : "please unlock wallet";
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { sending, token, setSending, setToken } = useCurrencySelection();
-
-  const { appState, setAppState } = useAppState({
+  // Sync app state based on connection status
+  useAppStateSync({
     status,
     isConnected,
     realChainId,
@@ -71,8 +88,6 @@ function App() {
     isContractDeployed,
     isBytecodeLoading,
     hasContractAddress,
-    sending,
-    token,
   });
 
   const parseAmounts = useCallback(() => {
@@ -90,60 +105,23 @@ function App() {
     ) {
       setAppState(AppState.ENTERED_AMOUNTS);
     }
-  }, [sending, token, setAppState]);
+  }, [sending, token, setAppState, setRecipients]);
 
-  const handleRecipientsChange = useCallback(
-    (newRecipients: Recipient[]) => {
-      setRecipients(newRecipients);
-
-      if (
-        newRecipients.length &&
-        (sending === "ether" || (sending === "token" && token.address && token.decimals !== undefined))
-      ) {
-        setAppState(AppState.ENTERED_AMOUNTS);
-      }
-    },
-    [sending, token, setAppState],
-  );
-
-  const resetToken = useCallback(() => {
-    setToken({});
-    setAppState(AppState.CONNECTED_TO_WALLET);
-  }, [setToken, setAppState]);
-
-  const selectCurrency = useCallback(
+  const handleSelectCurrency = useCallback(
     (type: "ether" | "token") => {
-      setSending(type);
-
-      if (type === "ether") {
-        setAppState(AppState.SELECTED_CURRENCY);
-        requestAnimationFrame(() => {
-          if (textareaRef.current?.value) {
-            parseAmounts();
-          }
-        });
-      } else if (type === "token") {
-        if (token.address && token.decimals !== undefined && token.symbol) {
-          setAppState(AppState.SELECTED_CURRENCY);
-          requestAnimationFrame(() => {
-            if (textareaRef.current?.value) {
-              parseAmounts();
-            }
-          });
-        } else {
-          resetToken();
+      selectCurrency(type);
+      requestAnimationFrame(() => {
+        if (textareaRef.current?.value) {
+          parseAmounts();
         }
-      }
+      });
     },
-    [setSending, setAppState, token, parseAmounts, resetToken],
+    [selectCurrency, parseAmounts],
   );
 
-  const selectToken = useCallback(
+  const handleSelectToken = useCallback(
     (tokenInfo: TokenInfo) => {
-      setToken(tokenInfo);
-      setSending("token");
-      setAppState(AppState.SELECTED_CURRENCY);
-
+      selectToken(tokenInfo);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (textareaRef.current) {
@@ -155,7 +133,7 @@ function App() {
         });
       });
     },
-    [setToken, setSending, setAppState, parseAmounts],
+    [selectToken, parseAmounts],
   );
 
   // Use reactive allowance hook
@@ -233,7 +211,7 @@ function App() {
 
       {appState >= AppState.CONNECTED_TO_WALLET && (
         <section>
-          <CurrencySelector onSelect={selectCurrency} />
+          <CurrencySelector onSelect={handleSelectCurrency} />
           {sending === "ether" && (
             <p>
               you have {formatUnits(balanceData?.value || 0n, 18)} {nativeCurrencyName}
@@ -246,7 +224,7 @@ function App() {
       {appState >= AppState.CONNECTED_TO_WALLET && sending === "token" && (
         <section>
           <TokenLoader
-            onSelect={selectToken}
+            onSelect={handleSelectToken}
             onError={resetToken}
             chainId={realChainId}
             account={address}
@@ -270,9 +248,7 @@ function App() {
       {appState !== AppState.NETWORK_UNAVAILABLE &&
         ((appState >= AppState.CONNECTED_TO_WALLET && sending === "ether") ||
           appState >= AppState.SELECTED_CURRENCY ||
-          (sending === "token" && !!token.symbol)) && (
-          <RecipientInput sending={sending} token={token} onRecipientsChange={handleRecipientsChange} />
-        )}
+          (sending === "token" && !!token.symbol)) && <RecipientInput />}
 
       {appState >= AppState.ENTERED_AMOUNTS && (
         <TransactionSection
@@ -296,21 +272,16 @@ function App() {
       {/* Debug Panel */}
       <Suspense fallback={null}>
         <DebugPanel
-          appState={appState}
           realChainId={realChainId}
           isChainSupported={isChainSupported}
           hasContractAddress={hasContractAddress}
-          customContractAddress={customContractAddress}
           isContractDeployed={isContractDeployed}
           isBytecodeLoading={isBytecodeLoading}
           verifiedAddress={verifiedAddress}
           canDeploy={canDeploy}
           createxDisperseAddress={createxDisperseAddress}
           potentialAddresses={potentialAddresses}
-          sending={sending}
           isConnected={isConnected}
-          tokenSymbol={token?.symbol}
-          recipientsCount={recipients.length}
         />
       </Suspense>
     </article>
