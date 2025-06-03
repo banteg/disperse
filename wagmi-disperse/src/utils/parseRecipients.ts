@@ -13,7 +13,8 @@ export function parseRecipients(text: string, decimals: number): Recipient[] {
   let result: RegExpExecArray | null;
 
   try {
-    while ((result = pattern.exec(text)) !== null) {
+    result = pattern.exec(text);
+    while (result !== null) {
       const address = result[1].toLowerCase();
       if (isAddress(address)) {
         try {
@@ -25,6 +26,7 @@ export function parseRecipients(text: string, decimals: number): Recipient[] {
           debug(`Error parsing amount for address ${address}:`, e);
         }
       }
+      result = pattern.exec(text);
     }
   } catch (e) {
     debug("Error in regex parsing:", e);

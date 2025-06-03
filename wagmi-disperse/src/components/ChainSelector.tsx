@@ -131,7 +131,6 @@ export function ChainSelector() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="chain-selector-search"
-              autoFocus
             />
             <div className="chain-selector-options">
               {filteredChains.length > 0 ? (
