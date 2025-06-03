@@ -13,20 +13,10 @@ import "./css/disperse.css";
 
 // Add Buffer to globalThis with proper type declaration
 declare global {
-  interface Window {
-    Buffer: typeof Buffer;
-  }
-  interface globalThis {
-    Buffer: typeof Buffer;
-  }
+  var Buffer: typeof Buffer;
 }
 
 // Now we can set Buffer on globalThis
-declare global {
-  interface Window {
-    Buffer: typeof Buffer;
-  }
-}
 globalThis.Buffer = Buffer;
 
 const queryClient = new QueryClient();
