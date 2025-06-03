@@ -12,12 +12,12 @@ import TransactionButton from "./components/TransactionButton";
 import DebugPanel from "./components/debug/DebugPanel";
 import { AppState } from "./constants";
 import { disperse_createx, disperse_legacy } from "./deploy";
-import { nativeSymbol, networkName, nativeCurrencyName } from "./networks";
-import type { Recipient, TokenInfo } from "./types";
+import { nativeCurrencyName, nativeSymbol, networkName } from "./networks";
+import type { AddressInfo, DebugParam, Recipient, TokenInfo, VerifiedAddress, WindowWithEthereum } from "./types";
 import { canDeployToNetwork, isDisperseContract } from "./utils/contractVerify";
 
 // Debug function to log state changes
-const debug = (message: string, data?: any) => {
+const debug = (message: string, data?: DebugParam) => {
   console.log(`[DEBUG] ${message}`, data || "");
 };
 
@@ -33,32 +33,33 @@ function useRealChainId() {
     }
 
     // Using direct ethereum provider for more reliable chain detection across all networks
-    const handleChainChanged = (chainIdHex: string) => {
+    const handleChainChanged = (data: unknown) => {
+      const chainIdHex = data as string;
       const newChainId = Number.parseInt(chainIdHex, 16);
       console.log(`Ethereum provider detected chain change to: ${newChainId} (from hex ${chainIdHex})`);
       setChainId(newChainId);
     };
 
     // Get the initial chainId directly from ethereum provider
-    const ethereum = (window as any).ethereum;
+    const ethereum = (window as WindowWithEthereum).ethereum;
     if (ethereum) {
       try {
         // Get current chainId
         ethereum
           .request({ method: "eth_chainId" })
-          .then((chainIdHex: string) => {
-            const id = Number.parseInt(chainIdHex, 16);
+          .then((chainIdHex: unknown) => {
+            const id = Number.parseInt(chainIdHex as string, 16);
             console.log(`Initial ethereum chainId: ${id} (from hex ${chainIdHex})`);
             setChainId(id);
           })
-          .catch((err: any) => console.error("Error getting chainId:", err));
+          .catch((err: unknown) => console.error("Error getting chainId:", err));
 
         // Listen for chain changes
-        ethereum.on("chainChanged", handleChainChanged);
+        ethereum.on?.("chainChanged", handleChainChanged);
 
         // Cleanup
         return () => {
-          ethereum.removeListener("chainChanged", handleChainChanged);
+          ethereum.removeListener?.("chainChanged", handleChainChanged);
         };
       } catch (err) {
         console.error("Error accessing ethereum provider:", err);
@@ -83,7 +84,7 @@ function App() {
   const { connectors, connect } = useConnect();
 
   // Determine if the current chain is supported
-  const isChainSupported = realChainId ? config.chains.some((chain: any) => chain.id === realChainId) : false;
+  const isChainSupported = realChainId ? config.chains.some((chain) => chain.id === realChainId) : false;
 
   // Track custom deployed contract address
   const [customContractAddress, setCustomContractAddress] = useState<`0x${string}` | undefined>(undefined);
@@ -100,7 +101,7 @@ function App() {
     { address: legacyDisperseAddress, label: "legacy" },
     { address: createxDisperseAddress, label: "createx" },
     { address: customContractAddress, label: "custom" },
-  ].filter((item) => !!item.address) as { address: `0x${string}`; label: string }[];
+  ].filter((item) => !!item.address) as AddressInfo[];
 
   // For debugging - show all potential addresses we're checking
   useEffect(() => {
@@ -111,7 +112,7 @@ function App() {
   const [loadingAddresses, setLoadingAddresses] = useState<boolean>(true);
 
   // Track address verified as having a working Disperse contract
-  const [verifiedAddress, setVerifiedAddress] = useState<{ address: `0x${string}`; label: string } | null>(null);
+  const [verifiedAddress, setVerifiedAddress] = useState<VerifiedAddress | null>(null);
 
   // Track last verified chain to prevent redundant checks
   const lastCheckedChainIdRef = useRef<number | null>(null);
@@ -141,7 +142,7 @@ function App() {
           if (!addrInfo.address) continue;
 
           // Use the public client directly
-          const provider = (window as any).ethereum;
+          const provider = (window as WindowWithEthereum).ethereum;
           if (!provider) continue;
 
           debug(`Checking contract at ${addrInfo.label} address: ${addrInfo.address}`);
@@ -152,17 +153,18 @@ function App() {
               method: "eth_getCode",
               params: [addrInfo.address, "latest"],
             })
-            .catch((err: any) => {
+            .catch((err: unknown) => {
               console.warn(`Error checking bytecode for ${addrInfo.address}:`, err);
               return null;
             });
 
+          const codeString = code as string | null;
           console.log(
-            `[DEBUG-CODE] Chain ${realChainId}, Address ${addrInfo.address}, Code length: ${code ? code.length : 0}`,
+            `[DEBUG-CODE] Chain ${realChainId}, Address ${addrInfo.address}, Code length: ${codeString ? codeString.length : 0}`,
           );
-          console.log(`[DEBUG-CODE] Code sample: ${code ? code.substring(0, 100) : "empty"}`);
+          console.log(`[DEBUG-CODE] Code sample: ${codeString ? codeString.substring(0, 100) : "empty"}`);
 
-          if (code && code !== "0x" && isDisperseContract(code)) {
+          if (codeString && codeString !== "0x" && isDisperseContract(codeString)) {
             debug(`Found valid Disperse contract at ${addrInfo.label} address:`, addrInfo.address);
             setVerifiedAddress(addrInfo);
             setLoadingAddresses(false);

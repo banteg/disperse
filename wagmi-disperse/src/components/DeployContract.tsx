@@ -20,7 +20,7 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
   const [deployedAddress, setDeployedAddress] = useState<`0x${string}` | null>(null);
 
   // Use CreateX to deploy the contract - use generic writeContract to set address for any chain
-  const { writeContract, isPending, isError, error } = useWriteContract();
+  const { writeContract, isPending, isError, error, data: contractWriteData } = useWriteContract();
 
   // Handle errors from writeContract hook
   useEffect(() => {
@@ -32,15 +32,12 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
     }
   }, [isError, error, isDeploying]);
 
-  const deployCreate2 = (config: any) => {
-    return writeContract({
-      abi: createXAbi,
-      address: CREATEX_ADDRESS as `0x${string}`,
-      functionName: "deployCreate2",
-      args: config.args,
-      ...config,
-    });
-  };
+  // Set txHash when write operation completes
+  useEffect(() => {
+    if (contractWriteData) {
+      setTxHash(contractWriteData);
+    }
+  }, [contractWriteData]);
 
   // Pre-compute expected address for verification
   const expectedAddress = disperse_createx.address as `0x${string}`;
@@ -101,7 +98,7 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
     // Check if CreateX is deployed
     if (!isCreateXDeployed) {
       setErrorMessage(
-        "CreateX factory not deployed on this network. Visit github.com/pcaversaccio/createx to deploy it first."
+        "CreateX factory not deployed on this network. Visit github.com/pcaversaccio/createx to deploy it first.",
       );
       setIsDeploying(false);
       return;
@@ -109,28 +106,15 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
 
     try {
       // Deploy using CreateX's deployCreate2 for deterministic address
-      deployCreate2({
-        // Use the salt and initcode from deploy.ts
+      writeContract({
+        abi: createXAbi,
+        address: CREATEX_ADDRESS as `0x${string}`,
+        functionName: "deployCreate2",
         args: [disperse_createx.salt as `0x${string}`, disperse_createx.initcode as `0x${string}`],
-        onSuccess(hash: `0x${string}`) {
-          setTxHash(hash);
-        },
-        onError(error: Error) {
-          setErrorMessage((error as BaseError).shortMessage || error.message || "Deployment failed");
-          setIsDeploying(false);
-        },
-        onSettled(data: unknown) {
-          // The contract address is deterministic for Create2 deployments
-          if (data) {
-            setDeployedAddress(expectedAddress);
-            onSuccess?.(expectedAddress);
-          }
-          setIsDeploying(false);
-        },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Deployment error:", error);
-      setErrorMessage((error as BaseError)?.shortMessage || error?.message || "Deployment failed");
+      setErrorMessage((error as BaseError)?.shortMessage || (error as Error)?.message || "Deployment failed");
       setIsDeploying(false);
     }
   };
@@ -168,8 +152,8 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
       ) : !isCreateXDeployed ? (
         <div>
           <p>
-            cannot deploy disperse on {networkName(chainId)?.toLowerCase() || "this network"} because the CreateX factory
-            is not deployed.
+            cannot deploy disperse on {networkName(chainId)?.toLowerCase() || "this network"} because the CreateX
+            factory is not deployed.
           </p>
           <div className="failed">
             you need to deploy CreateX first. visit{" "}

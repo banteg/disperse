@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AppState } from "../../constants";
 import { networkName } from "../../networks";
+import type { AddressInfo, VerifiedAddress, WindowWithEthereum } from "../../types";
 
 interface DebugPanelProps {
   appState: AppState;
@@ -10,10 +11,10 @@ interface DebugPanelProps {
   customContractAddress?: `0x${string}`;
   isContractDeployed: boolean;
   isBytecodeLoading: boolean;
-  verifiedAddress: { address: `0x${string}`; label: string } | null;
+  verifiedAddress: VerifiedAddress | null;
   canDeploy: boolean;
   createxDisperseAddress: string;
-  potentialAddresses: { address: string; label: string }[];
+  potentialAddresses: AddressInfo[];
   sending: string | null;
   isConnected: boolean;
   tokenSymbol?: string;
@@ -48,7 +49,13 @@ const DebugPanel = ({
     setShowDebug(isDev);
 
     // Add a global function to toggle debug panel
-    (window as any).toggleDisperseDebug = () => {
+    const windowExt = window as WindowWithEthereum & {
+      toggleDisperseDebug?: () => void;
+      enableDisperseDebug?: () => void;
+      disableDisperseDebug?: () => void;
+    };
+
+    windowExt.toggleDisperseDebug = () => {
       setShowDebug((prevState) => {
         const newState = !prevState;
         console.log(`Debug panel ${newState ? "enabled" : "disabled"}`);
@@ -57,22 +64,22 @@ const DebugPanel = ({
     };
 
     // Add a global function to enable debug panel
-    (window as any).enableDisperseDebug = () => {
+    windowExt.enableDisperseDebug = () => {
       setShowDebug(true);
       console.log("Debug panel enabled");
     };
 
     // Add a global function to disable debug panel
-    (window as any).disableDisperseDebug = () => {
+    windowExt.disableDisperseDebug = () => {
       setShowDebug(false);
       console.log("Debug panel disabled");
     };
 
     return () => {
       // Clean up global functions
-      delete (window as any).toggleDisperseDebug;
-      delete (window as any).enableDisperseDebug;
-      delete (window as any).disableDisperseDebug;
+      delete windowExt.toggleDisperseDebug;
+      delete windowExt.enableDisperseDebug;
+      delete windowExt.disableDisperseDebug;
     };
   }, []);
 

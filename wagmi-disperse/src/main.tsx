@@ -16,6 +16,9 @@ declare global {
   interface Window {
     Buffer: typeof Buffer;
   }
+  interface globalThis {
+    Buffer: typeof Buffer;
+  }
 }
 
 // Now we can set Buffer on globalThis

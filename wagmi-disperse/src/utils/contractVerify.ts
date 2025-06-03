@@ -22,13 +22,15 @@ export function isDisperseContract(bytecode: string | undefined): boolean {
 
   // Skip verification if we've already checked this bytecode
   // Use a static cache to avoid repeated checks during rendering
-  const bytecodeCache = (isDisperseContract as any).cache || new Map();
-  (isDisperseContract as any).cache = bytecodeCache;
+  const bytecodeCache =
+    (isDisperseContract as typeof isDisperseContract & { cache?: Map<string, boolean> }).cache ||
+    new Map<string, boolean>();
+  (isDisperseContract as typeof isDisperseContract & { cache: Map<string, boolean> }).cache = bytecodeCache;
 
   if (bytecode && bytecodeCache.has(bytecode)) {
     const result = bytecodeCache.get(bytecode);
     debug(`Using cached result for bytecode: ${result ? "✅ VALID" : "❌ INVALID"}`);
-    return result;
+    return result ?? false;
   }
 
   // Check if bytecode is empty or undefined

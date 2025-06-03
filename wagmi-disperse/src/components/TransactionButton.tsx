@@ -3,9 +3,9 @@ import type { BaseError } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { erc20 } from "../contracts";
 import { disperse_legacy } from "../deploy";
+import { disperseAbi } from "../generated";
 import { explorerTx } from "../networks";
 import type { Recipient, TokenInfo } from "../types";
-import { disperseAbi } from "../generated";
 
 interface TransactionButtonProps {
   show?: boolean;
@@ -137,10 +137,7 @@ const TransactionButton = ({
             address: token.address,
             abi: erc20.abi,
             functionName: "approve",
-            args: [
-              contractAddress,
-              0n,
-            ],
+            args: [contractAddress, 0n],
           },
           {
             onSuccess(hash) {
@@ -152,9 +149,9 @@ const TransactionButton = ({
           },
         );
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Transaction error:", error);
-      setErrorMessage((error as BaseError)?.shortMessage || error?.message || "Transaction failed");
+      setErrorMessage((error as BaseError)?.shortMessage || (error as Error)?.message || "Transaction failed");
     }
   };
 
@@ -168,13 +165,7 @@ const TransactionButton = ({
         type="submit"
         value={title}
         onClick={handleClick}
-        disabled={
-          disabled ||
-          isWritePending ||
-          isConfirming ||
-          isBytecodeLoading ||
-          !isContractDeployed
-        }
+        disabled={disabled || isWritePending || isConfirming || isBytecodeLoading || !isContractDeployed}
       />
       <div className="status">
         {message && <div>{message}</div>}
@@ -182,9 +173,7 @@ const TransactionButton = ({
         {!isBytecodeLoading && !isContractDeployed && !errorMessage && (
           <div className="failed">disperse contract not deployed</div>
         )}
-        {isWritePending && (
-          <div className="pending">sign transaction with wallet</div>
-        )}
+        {isWritePending && <div className="pending">sign transaction with wallet</div>}
         {isConfirming && <div className="pending">transaction pending</div>}
         {isConfirmed && <div className="success">transaction success</div>}
         {errorMessage && <div className="failed">{errorMessage}</div>}

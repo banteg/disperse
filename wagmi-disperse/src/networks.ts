@@ -1,6 +1,4 @@
-import {
-  type Chain
-} from "wagmi/chains";
+import type { Chain } from "wagmi/chains";
 
 // Import all chains from wagmi
 import * as allWagmiChains from "wagmi/chains";

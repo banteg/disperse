@@ -116,12 +116,12 @@ input[type="submit"]:focus {
   align-items: baseline;
 }
 
-.info>div {
+.info > div {
   font-size: 1.4rem;
   margin-left: 1.4rem;
 }
 
-.rows>* {
+.rows > * {
   padding-bottom: 1rem;
 }
 
@@ -252,14 +252,14 @@ input[type="submit"]:disabled {
   display: none;
 }
 
-.chooser input[type="radio"]+label {
+.chooser input[type="radio"] + label {
   display: inline-block;
   font-size: 2.2rem;
   color: rgba(0, 0, 0, 0.5);
   border-bottom: 2px rgba(0, 0, 0, 0.5) solid;
 }
 
-.chooser input[type="radio"]:checked+label {
+.chooser input[type="radio"]:checked + label {
   color: #111111;
   border-bottom: 2px #111111 solid;
   background: aquamarine;
@@ -378,7 +378,7 @@ h1 sup {
 }
 
 h1 sup::after {
-  content: '▼';
+  content: "▼";
   position: absolute;
   font-size: 0.6em;
   right: 0;

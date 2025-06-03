@@ -3,10 +3,10 @@ import { type BaseError, isAddress } from "viem";
 import { useReadContract } from "wagmi";
 import { erc20 } from "../contracts";
 import { disperse_legacy } from "../deploy";
-import type { TokenInfo } from "../types";
+import type { DebugParam, TokenInfo } from "../types";
 
 // Debug function to log TokenLoader events
-const debug = (message: string, data?: any) => {
+const debug = (message: string, data?: DebugParam) => {
   console.log(`[TOKEN-LOADER] ${message}`, data || "");
 };
 
