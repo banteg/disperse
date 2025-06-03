@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { BaseError } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { erc20 } from "../contracts";
@@ -18,6 +19,7 @@ interface TransactionButtonProps {
   token: TokenInfo;
   contractAddress?: `0x${string}`; // Optional contract address override
   className?: string; // Additional class names for styling
+  account?: `0x${string}`; // User account for query invalidation
 }
 
 const TransactionButton = ({
@@ -31,9 +33,11 @@ const TransactionButton = ({
   token,
   contractAddress: customAddress,
   className = "",
+  account,
 }: TransactionButtonProps) => {
   const [txHash, setTxHash] = useState<`0x${string}` | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const queryClient = useQueryClient();
 
   // Use the contract address from props, falling back to legacy address if not provided
   const contractAddress = customAddress || (disperse_legacy.address as `0x${string}`);
@@ -56,6 +60,55 @@ const TransactionButton = ({
       setErrorMessage((writeError as BaseError).shortMessage || writeError.message || "Transaction failed");
     }
   }, [isWriteError, writeError]);
+
+  // Invalidate queries after successful transactions
+  useEffect(() => {
+    if (isConfirmed && account) {
+      if (action === "approve" || action === "deny") {
+        // Invalidate allowance queries to refetch fresh data
+        if (token.address && contractAddress) {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "readContract",
+              {
+                address: token.address,
+                functionName: "allowance",
+                args: [account, contractAddress],
+                chainId,
+              },
+            ],
+          });
+          console.log(`[TransactionButton] Invalidated allowance queries for ${action} transaction`);
+        }
+      }
+
+      if (action === "disperseToken" || action === "approve" || action === "deny") {
+        // Invalidate balance queries for token transactions
+        if (token.address) {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "readContract", 
+              {
+                address: token.address,
+                functionName: "balanceOf",
+                args: [account],
+                chainId,
+              },
+            ],
+          });
+          console.log(`[TransactionButton] Invalidated token balance queries for ${action} transaction`);
+        }
+      }
+
+      if (action === "disperseEther") {
+        // Invalidate ETH balance queries for ether transactions
+        queryClient.invalidateQueries({
+          queryKey: ["balance", { address: account, chainId }],
+        });
+        console.log(`[TransactionButton] Invalidated ETH balance queries for ${action} transaction`);
+      }
+    }
+  }, [isConfirmed, action, token.address, account, contractAddress, chainId, queryClient]);
 
   const handleClick = async () => {
     setErrorMessage("");

@@ -311,6 +311,7 @@ function App() {
               recipients={recipients}
               token={token}
               contractAddress={verifiedAddress?.address}
+              account={address}
             />
           )}
         </section>
@@ -332,6 +333,7 @@ function App() {
             token={token}
             contractAddress={verifiedAddress?.address}
             className={(token.allowance ?? 0n) >= totalAmount ? "secondary" : ""}
+            account={address}
           />
           <TransactionButton
             show={true}
@@ -343,6 +345,7 @@ function App() {
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}
+            account={address}
           />
         </div>
       )}
