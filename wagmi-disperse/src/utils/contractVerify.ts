@@ -15,10 +15,10 @@ export function isDisperseContract(bytecode: string | undefined): boolean {
   debug("------------------------------------------------------------");
   debug(`Bytecode type: ${typeof bytecode}`);
   debug(`Bytecode length: ${bytecode ? bytecode.length : "undefined"}`);
-  debug(`Bytecode sample: ${bytecode ? bytecode.substring(0, 50) + "..." : "undefined"}`);
+  debug(`Bytecode sample: ${bytecode ? `${bytecode.substring(0, 50)}...` : "undefined"}`);
   debug(`Runtime type: ${typeof disperse_runtime}`);
   debug(`Runtime length: ${disperse_runtime ? disperse_runtime.length : "undefined"}`);
-  debug(`Runtime sample: ${disperse_runtime ? disperse_runtime.substring(0, 50) + "..." : "undefined"}`);
+  debug(`Runtime sample: ${disperse_runtime ? `${disperse_runtime.substring(0, 50)}...` : "undefined"}`);
 
   // Skip verification if we've already checked this bytecode
   // Use a static cache to avoid repeated checks during rendering

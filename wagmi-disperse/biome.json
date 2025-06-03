@@ -3,11 +3,26 @@
     "enabled": true,
     "indentStyle": "space",
     "lineWidth": 120,
-    "ignore": ["dist/**", "node_modules/**"]
+    "ignore": ["dist/**", "node_modules/**", "src/css/*.css"]
   },
   "linter": {
     "enabled": true,
-    "ignore": ["dist/**", "node_modules/**"]
+    "ignore": ["dist/**", "node_modules/**", "src/css/*.css"],
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "warn"
+      },
+      "style": {
+        "noNonNullAssertion": "warn"
+      },
+      "performance": {
+        "noDelete": "warn"
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "warn"
+      }
+    }
   },
   "organizeImports": {
     "enabled": true,

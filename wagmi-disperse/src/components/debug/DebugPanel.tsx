@@ -77,9 +77,9 @@ const DebugPanel = ({
 
     return () => {
       // Clean up global functions
-      delete windowExt.toggleDisperseDebug;
-      delete windowExt.enableDisperseDebug;
-      delete windowExt.disableDisperseDebug;
+      windowExt.toggleDisperseDebug = undefined;
+      windowExt.enableDisperseDebug = undefined;
+      windowExt.disableDisperseDebug = undefined;
     };
   }, []);
 

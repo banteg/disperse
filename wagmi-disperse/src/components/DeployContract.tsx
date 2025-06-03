@@ -146,7 +146,9 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
             contract address: <span className="contract-address">{expectedAddress}</span>
           </div>
           <div className="deployed-info">
-            <button type="button" onClick={() => window.location.reload()}>reload page</button>
+            <button type="button" onClick={() => window.location.reload()}>
+              reload page
+            </button>
           </div>
         </div>
       ) : !isCreateXDeployed ? (
@@ -204,7 +206,9 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
                 contract deployed successfully! you can now use disperse on this network. reload the page to start using
                 the app with your newly deployed contract.
               </p>
-              <button type="button" onClick={() => window.location.reload()}>reload page</button>
+              <button type="button" onClick={() => window.location.reload()}>
+                reload page
+              </button>
             </div>
           )}
         </>

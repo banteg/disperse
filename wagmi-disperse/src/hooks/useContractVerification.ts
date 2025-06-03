@@ -38,7 +38,7 @@ export function useContractVerification(
 
   useEffect(() => {
     debug("Potential Disperse addresses:", potentialAddresses);
-  }, [potentialAddresses, customContractAddress]);
+  }, [potentialAddresses]);
 
   useEffect(() => {
     if (lastCheckedChainIdRef.current !== realChainId) {

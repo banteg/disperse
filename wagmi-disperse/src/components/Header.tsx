@@ -54,7 +54,9 @@ const Header = ({ chainId, address }: HeaderProps) => {
               <a href={explorerAddr(address, chainId)} target="_blank" rel="noopener noreferrer">
                 {ensName || `${address.substring(0, 6)}...${address.substring(38)}`}
               </a>
-              <button type="button" onClick={() => disconnect()} className="link-button">disconnect</button>
+              <button type="button" onClick={() => disconnect()} className="link-button">
+                disconnect
+              </button>
             </div>
           </div>
         )}
