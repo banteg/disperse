@@ -24,7 +24,7 @@ const CurrencySelector = ({ onSelect }: CurrencySelectorProps) => {
 
   return (
     <div className="chooser">
-      <label>send</label>
+      <span>send</span>
       <input
         type="radio"
         id="ether"
@@ -34,7 +34,7 @@ const CurrencySelector = ({ onSelect }: CurrencySelectorProps) => {
         onChange={handleChange}
       />
       <label htmlFor="ether">{nativeCurrency}</label>
-      <label>or</label>
+      <span>or</span>
       <input
         type="radio"
         id="token"

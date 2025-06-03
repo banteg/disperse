@@ -65,9 +65,9 @@ describe("DisperseAddresses", () => {
 
     const symbolElements = container.querySelectorAll(".sc");
     expect(symbolElements).toHaveLength(5); // 2 recipients + total + balance + remaining
-    Array.from(symbolElements).forEach((el) => {
+    for (const el of Array.from(symbolElements)) {
       expect(el.textContent).toBe("USDC");
-    });
+    }
   });
 
   it("should handle different decimals correctly", () => {

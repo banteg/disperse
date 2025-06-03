@@ -10,11 +10,11 @@ export function isValidChain(chain: unknown): chain is Chain {
     typeof chain === "object" &&
     chain !== null &&
     "id" in chain &&
-    typeof (chain as any).id === "number" &&
+    typeof (chain as Record<string, unknown>).id === "number" &&
     "name" in chain &&
-    typeof (chain as any).name === "string" &&
+    typeof (chain as Record<string, unknown>).name === "string" &&
     "nativeCurrency" in chain &&
-    typeof (chain as any).nativeCurrency === "object"
+    typeof (chain as Record<string, unknown>).nativeCurrency === "object"
   );
 }
 

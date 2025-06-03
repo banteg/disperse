@@ -30,8 +30,8 @@ const DisperseAddresses = ({ recipients, symbol, decimals, balance, left, total 
             <div>amount</div>
           </div>
         </li>
-        {recipients.map((addr, index) => (
-          <li key={index}>
+        {recipients.map((addr) => (
+          <li key={addr.address}>
             <div className="flex">
               <div>{addr.address}</div>
               <div className="expand bar" />

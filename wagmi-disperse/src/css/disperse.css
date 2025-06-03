@@ -282,6 +282,19 @@ header a {
   margin-right: 1.4rem;
 }
 
+/* Link button styles */
+.link-button {
+  font-size: 1.4rem;
+  margin-right: 1.4rem;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+}
+
 .eth svg path {
   transition: fill .3s !important;
 }

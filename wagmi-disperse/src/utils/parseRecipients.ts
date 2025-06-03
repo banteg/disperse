@@ -10,7 +10,7 @@ export function parseRecipients(text: string, decimals: number): Recipient[] {
 
   const pattern = /(0x[0-9a-fA-F]{40})[,\s=:;]+([0-9]+(?:\.[0-9]+)?)/g;
   const newRecipients: Recipient[] = [];
-  let result;
+  let result: RegExpExecArray | null;
 
   try {
     while ((result = pattern.exec(text)) !== null) {

@@ -33,7 +33,7 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
     if (token?.address && token.address !== tokenAddress) {
       setTokenAddress(token.address);
     }
-  }, [token?.address]);
+  }, [token?.address, tokenAddress]);
 
   debug("Component rendered", {
     tokenAddress,

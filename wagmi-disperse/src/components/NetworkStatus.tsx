@@ -34,7 +34,7 @@ export default function NetworkStatus({
           <div className="success">
             <p>valid contract address: {verifiedAddress?.address}</p>
           </div>
-          <button onClick={() => window.location.reload()}>reload page</button>
+          <button type="button" onClick={() => window.location.reload()}>reload page</button>
         </>
       ) : !isConnected ? (
         <p>connect your wallet to deploy the disperse contract on this network.</p>

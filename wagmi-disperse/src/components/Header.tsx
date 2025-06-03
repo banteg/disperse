@@ -27,6 +27,8 @@ const Header = ({ chainId, address }: HeaderProps) => {
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
             style={{ display: "block" }}
+            role="img"
+            aria-label="Ethereum logo"
           >
             <g id="svgg">
               <path
@@ -52,15 +54,7 @@ const Header = ({ chainId, address }: HeaderProps) => {
               <a href={explorerAddr(address, chainId)} target="_blank" rel="noopener noreferrer">
                 {ensName || `${address.substring(0, 6)}...${address.substring(38)}`}
               </a>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  disconnect();
-                }}
-              >
-                disconnect
-              </a>
+              <button type="button" onClick={() => disconnect()} className="link-button">disconnect</button>
             </div>
           </div>
         )}
