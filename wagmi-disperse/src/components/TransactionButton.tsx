@@ -7,6 +7,7 @@ import { disperse_legacy } from "../deploy";
 import { disperseAbi } from "../generated";
 import { explorerTx } from "../networks";
 import type { Recipient, TokenInfo } from "../types";
+import { formatError } from "../utils/errors";
 
 interface TransactionButtonProps {
   show?: boolean;
@@ -143,7 +144,7 @@ const TransactionButton = ({
               setTxHash(hash);
             },
             onError(error) {
-              setErrorMessage((error as BaseError).shortMessage || error.message || "Transaction failed");
+              setErrorMessage(formatError(error));
             },
           },
         );
@@ -160,7 +161,7 @@ const TransactionButton = ({
               setTxHash(hash);
             },
             onError(error) {
-              setErrorMessage((error as BaseError).shortMessage || error.message || "Transaction failed");
+              setErrorMessage(formatError(error));
             },
           },
         );
@@ -180,7 +181,7 @@ const TransactionButton = ({
               setTxHash(hash);
             },
             onError(error) {
-              setErrorMessage((error as BaseError).shortMessage || error.message || "Transaction failed");
+              setErrorMessage(formatError(error));
             },
           },
         );
@@ -197,7 +198,7 @@ const TransactionButton = ({
               setTxHash(hash);
             },
             onError(error) {
-              setErrorMessage((error as BaseError).shortMessage || error.message || "Transaction failed");
+              setErrorMessage(formatError(error));
             },
           },
         );

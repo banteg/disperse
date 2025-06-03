@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "biome check .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@tanstack/react-query": "5.45.1",
@@ -19,12 +22,19 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/ui": "^3.2.0",
     "@wagmi/cli": "^2.2.0",
     "buffer": "^6.0.3",
+    "jsdom": "^26.1.0",
+    "rollup-plugin-visualizer": "^6.0.1",
     "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "vite": "^5.2.11",
+    "vitest": "^3.2.0"
   }
 }

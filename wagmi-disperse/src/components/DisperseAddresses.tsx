@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { formatUnits } from "viem";
 import type { Recipient } from "../types";
 
@@ -10,13 +11,13 @@ interface DisperseAddressesProps {
   total: bigint;
 }
 
-const DisperseAmount = ({ amount, symbol, decimals }: { amount: bigint; symbol: string; decimals: number }) => {
+const DisperseAmount = memo(({ amount, symbol, decimals }: { amount: bigint; symbol: string; decimals: number }) => {
   return (
     <div>
       {formatUnits(amount, decimals)} <span className="sc">{symbol}</span>
     </div>
   );
-};
+});
 
 const DisperseAddresses = ({ recipients, symbol, decimals, balance, left, total }: DisperseAddressesProps) => {
   return (
@@ -67,4 +68,4 @@ const DisperseAddresses = ({ recipients, symbol, decimals, balance, left, total 
   );
 };
 
-export default DisperseAddresses;
+export default memo(DisperseAddresses);

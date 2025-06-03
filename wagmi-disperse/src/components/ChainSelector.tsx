@@ -29,7 +29,7 @@ export function ChainSelector() {
         }
         return acc;
       },
-      [] as Array<typeof chains[number]>,
+      [] as Array<(typeof chains)[number]>,
     );
 
     const searchableChains = uniqueChains.map((chain) => ({

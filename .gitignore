@@ -4,6 +4,7 @@ docs/bundle.js.map
 .vscode
 .ipynb_checkpoints
 .idea
+.claude
 artwork
 build
 .hypothesis

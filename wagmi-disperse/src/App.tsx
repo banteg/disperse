@@ -1,21 +1,21 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { formatUnits } from "viem";
 import { useAccount, useBalance, useConfig, useConnect } from "wagmi";
 
+import { Suspense, lazy } from "react";
 import CurrencySelector from "./components/CurrencySelector";
-import DeployContract from "./components/DeployContract";
-import DisperseAddresses from "./components/DisperseAddresses";
 import Header from "./components/Header";
+import NetworkStatus from "./components/NetworkStatus";
+import RecipientInput from "./components/RecipientInput";
 import TokenLoader from "./components/TokenLoader";
-import TransactionButton from "./components/TransactionButton";
-import DebugPanel from "./components/debug/DebugPanel";
+import TransactionSection from "./components/TransactionSection";
+const DebugPanel = lazy(() => import("./components/debug/DebugPanel"));
 import { AppState } from "./constants";
 import { useAppState } from "./hooks/useAppState";
 import { useContractVerification } from "./hooks/useContractVerification";
 import { useCurrencySelection } from "./hooks/useCurrencySelection";
 import { useRealChainId } from "./hooks/useRealChainId";
 import { useTokenAllowance } from "./hooks/useTokenAllowance";
-import { networkName } from "./networks";
 import type { Recipient, TokenInfo } from "./types";
 import {
   getBalance,
@@ -92,6 +92,20 @@ function App() {
     }
   }, [sending, token, setAppState]);
 
+  const handleRecipientsChange = useCallback(
+    (newRecipients: Recipient[]) => {
+      setRecipients(newRecipients);
+
+      if (
+        newRecipients.length &&
+        (sending === "ether" || (sending === "token" && token.address && token.decimals !== undefined))
+      ) {
+        setAppState(AppState.ENTERED_AMOUNTS);
+      }
+    },
+    [sending, token, setAppState],
+  );
+
   const resetToken = useCallback(() => {
     setToken({});
     setAppState(AppState.CONNECTED_TO_WALLET);
@@ -155,18 +169,20 @@ function App() {
   // Use the reactive allowance if available, otherwise fall back to the stored token allowance
   const effectiveAllowance = currentAllowance ?? token.allowance ?? 0n;
 
-  const totalAmount = getTotalAmount(recipients);
-  const balance = getBalance(sending, token, balanceData);
-  const leftAmount = getLeftAmount(recipients, sending, token, balanceData);
-  const disperseMessage = getDisperseMessage(
-    recipients,
-    sending,
-    { ...token, allowance: effectiveAllowance },
-    balanceData,
+  // Memoize expensive calculations
+  const totalAmount = useMemo(() => getTotalAmount(recipients), [recipients]);
+  const balance = useMemo(() => getBalance(sending, token, balanceData), [sending, token, balanceData]);
+  const leftAmount = useMemo(
+    () => getLeftAmount(recipients, sending, token, balanceData),
+    [recipients, sending, token, balanceData],
   );
-  const symbol = getSymbol(sending, token, realChainId);
-  const decimals = getDecimals(sending, token);
-  const nativeCurrencyName = getNativeCurrencyName(realChainId);
+  const disperseMessage = useMemo(
+    () => getDisperseMessage(recipients, sending, { ...token, allowance: effectiveAllowance }, balanceData),
+    [recipients, sending, token, effectiveAllowance, balanceData],
+  );
+  const symbol = useMemo(() => getSymbol(sending, token, realChainId), [sending, token, realChainId]);
+  const decimals = useMemo(() => getDecimals(sending, token), [sending, token]);
+  const nativeCurrencyName = useMemo(() => getNativeCurrencyName(realChainId), [realChainId]);
 
   // Display all wallet connectors
   const renderConnectors = () => {
@@ -197,47 +213,14 @@ function App() {
       )}
 
       {appState === AppState.NETWORK_UNAVAILABLE && (
-        <section>
-          <h2>unsupported network</h2>
-          {isBytecodeLoading ? (
-            <p>
-              <span className="checking">checking if disperse contract is deployed on any address...</span>
-            </p>
-          ) : isContractDeployed ? (
-            <>
-              <p>
-                disperse contract found at {verifiedAddress?.label} address, but this network isn't configured yet in
-                our app. reload the page to try again.
-              </p>
-              <div className="success">
-                <p>valid contract address: {verifiedAddress?.address}</p>
-              </div>
-              <button onClick={() => window.location.reload()}>reload page</button>
-            </>
-          ) : !isConnected ? (
-            <p>connect your wallet to deploy the disperse contract on this network.</p>
-          ) : (
-            <>
-              <p>
-                no disperse contract found on <em>{networkName(realChainId)?.toLowerCase() || "this network"}</em>. you
-                can deploy it yourself.
-              </p>
-              <DeployContract chainId={realChainId} onSuccess={handleContractDeployed} />
-            </>
-          )}
-
-          <div className="network-info">
-            <p>
-              network: {networkName(realChainId)?.toLowerCase() || "unknown"} (id: {realChainId})
-            </p>
-            {verifiedAddress && (
-              <p>
-                verified contract: {verifiedAddress.address}
-                <span className="badge">{verifiedAddress.label}</span>
-              </p>
-            )}
-          </div>
-        </section>
+        <NetworkStatus
+          realChainId={realChainId}
+          isBytecodeLoading={isBytecodeLoading}
+          isContractDeployed={isContractDeployed}
+          isConnected={isConnected}
+          verifiedAddress={verifiedAddress}
+          onContractDeployed={handleContractDeployed}
+        />
       )}
 
       {appState >= AppState.UNLOCK_WALLET && !isConnected && (
@@ -288,100 +271,48 @@ function App() {
         ((appState >= AppState.CONNECTED_TO_WALLET && sending === "ether") ||
           appState >= AppState.SELECTED_CURRENCY ||
           (sending === "token" && !!token.symbol)) && (
-          <section>
-            <h2>recipients and amounts</h2>
-            <p>enter one address and amount in {symbol} on each line. supports any format.</p>
-            <div className="shadow">
-              <textarea
-                ref={textareaRef}
-                spellCheck="false"
-                onChange={parseAmounts}
-                id="recipients-textarea"
-                placeholder="0x314ab97b76e39d63c78d5c86c2daf8eaa306b182 3.141592&#10;0x271bffabd0f79b8bd4d7a1c245b7ec5b576ea98a,2.7182&#10;0x141ca95b6177615fb1417cf70e930e102bf8f584=1.41421"
-              />
-            </div>
-          </section>
+          <RecipientInput sending={sending} token={token} onRecipientsChange={handleRecipientsChange} />
         )}
 
       {appState >= AppState.ENTERED_AMOUNTS && (
-        <section>
-          <h2>confirm</h2>
-          <DisperseAddresses
-            recipients={recipients}
-            symbol={symbol}
-            decimals={decimals}
-            balance={balance}
-            left={leftAmount}
-            total={totalAmount}
-          />
-          {sending === "ether" && (
-            <TransactionButton
-              show={true}
-              disabled={leftAmount < 0n}
-              title={`disperse ${nativeCurrencyName}`}
-              action="disperseEther"
-              message={disperseMessage}
-              chainId={realChainId}
-              recipients={recipients}
-              token={token}
-              contractAddress={verifiedAddress?.address}
-              account={address}
-            />
-          )}
-        </section>
-      )}
-
-      {appState >= AppState.ENTERED_AMOUNTS && sending === "token" && (
-        <div>
-          <h2>allowance</h2>
-          <p>
-            {effectiveAllowance < totalAmount
-              ? "allow smart contract to transfer tokens on your behalf."
-              : "disperse contract has allowance, you can send tokens now."}
-          </p>
-          <TransactionButton
-            title={effectiveAllowance < totalAmount ? "approve" : "revoke"}
-            action={effectiveAllowance < totalAmount ? "approve" : "deny"}
-            chainId={realChainId}
-            recipients={recipients}
-            token={token}
-            contractAddress={verifiedAddress?.address}
-            className={effectiveAllowance >= totalAmount ? "secondary" : ""}
-            account={address}
-          />
-          <TransactionButton
-            show={true}
-            disabled={leftAmount < 0n || effectiveAllowance < totalAmount}
-            title="disperse token"
-            action="disperseToken"
-            message={disperseMessage}
-            chainId={realChainId}
-            recipients={recipients}
-            token={token}
-            contractAddress={verifiedAddress?.address}
-            account={address}
-          />
-        </div>
+        <TransactionSection
+          sending={sending}
+          recipients={recipients}
+          token={token}
+          symbol={symbol}
+          decimals={decimals}
+          balance={balance}
+          leftAmount={leftAmount}
+          totalAmount={totalAmount}
+          disperseMessage={disperseMessage}
+          realChainId={realChainId}
+          verifiedAddress={verifiedAddress}
+          account={address}
+          nativeCurrencyName={nativeCurrencyName}
+          effectiveAllowance={effectiveAllowance}
+        />
       )}
 
       {/* Debug Panel */}
-      <DebugPanel
-        appState={appState}
-        realChainId={realChainId}
-        isChainSupported={isChainSupported}
-        hasContractAddress={hasContractAddress}
-        customContractAddress={customContractAddress}
-        isContractDeployed={isContractDeployed}
-        isBytecodeLoading={isBytecodeLoading}
-        verifiedAddress={verifiedAddress}
-        canDeploy={canDeploy}
-        createxDisperseAddress={createxDisperseAddress}
-        potentialAddresses={potentialAddresses}
-        sending={sending}
-        isConnected={isConnected}
-        tokenSymbol={token?.symbol}
-        recipientsCount={recipients.length}
-      />
+      <Suspense fallback={null}>
+        <DebugPanel
+          appState={appState}
+          realChainId={realChainId}
+          isChainSupported={isChainSupported}
+          hasContractAddress={hasContractAddress}
+          customContractAddress={customContractAddress}
+          isContractDeployed={isContractDeployed}
+          isBytecodeLoading={isBytecodeLoading}
+          verifiedAddress={verifiedAddress}
+          canDeploy={canDeploy}
+          createxDisperseAddress={createxDisperseAddress}
+          potentialAddresses={potentialAddresses}
+          sending={sending}
+          isConnected={isConnected}
+          tokenSymbol={token?.symbol}
+          recipientsCount={recipients.length}
+        />
+      </Suspense>
     </article>
   );
 }

@@ -2,12 +2,15 @@
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-    "lineWidth": 120
+    "lineWidth": 120,
+    "ignore": ["dist/**", "node_modules/**"]
   },
   "linter": {
-    "enabled": true
+    "enabled": true,
+    "ignore": ["dist/**", "node_modules/**"]
   },
   "organizeImports": {
-    "enabled": true
+    "enabled": true,
+    "ignore": ["dist/**", "node_modules/**"]
   }
 }
