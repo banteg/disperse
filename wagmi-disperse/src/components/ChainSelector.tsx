@@ -22,14 +22,14 @@ export function ChainSelector() {
   // Setup Fuse.js for fuzzy search
   const fuse = useMemo(() => {
     // Remove duplicate chains based on chainId
-    const uniqueChains = chains.reduce(
+    const uniqueChains = Array.from(chains).reduce(
       (acc, chain) => {
         if (!acc.find((c) => c.id === chain.id)) {
           acc.push(chain);
         }
         return acc;
       },
-      [] as typeof chains,
+      [] as Array<typeof chains[number]>,
     );
 
     const searchableChains = uniqueChains.map((chain) => ({
@@ -52,7 +52,7 @@ export function ChainSelector() {
   // Get unique chains for display
   const uniqueChains = useMemo(() => {
     const seen = new Set<number>();
-    return chains.filter((chain) => {
+    return Array.from(chains).filter((chain) => {
       if (seen.has(chain.id)) return false;
       seen.add(chain.id);
       return true;
