@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import type { BaseError } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { erc20 } from "../contracts";
@@ -87,7 +87,7 @@ const TransactionButton = ({
         if (token.address) {
           queryClient.invalidateQueries({
             queryKey: [
-              "readContract", 
+              "readContract",
               {
                 address: token.address,
                 functionName: "balanceOf",

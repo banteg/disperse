@@ -10,25 +10,24 @@ import TokenLoader from "./components/TokenLoader";
 import TransactionButton from "./components/TransactionButton";
 import DebugPanel from "./components/debug/DebugPanel";
 import { AppState } from "./constants";
-import { useRealChainId } from "./hooks/useRealChainId";
-import { useContractVerification } from "./hooks/useContractVerification";
 import { useAppState } from "./hooks/useAppState";
+import { useContractVerification } from "./hooks/useContractVerification";
 import { useCurrencySelection } from "./hooks/useCurrencySelection";
+import { useRealChainId } from "./hooks/useRealChainId";
 import { useTokenAllowance } from "./hooks/useTokenAllowance";
 import { networkName } from "./networks";
 import type { Recipient, TokenInfo } from "./types";
-import { canDeployToNetwork } from "./utils/contractVerify";
-import { parseRecipients } from "./utils/parseRecipients";
 import {
-  getTotalAmount,
   getBalance,
-  getLeftAmount,
+  getDecimals,
   getDisperseMessage,
+  getLeftAmount,
   getNativeCurrencyName,
   getSymbol,
-  getDecimals,
+  getTotalAmount,
 } from "./utils/balanceCalculations";
-
+import { canDeployToNetwork } from "./utils/contractVerify";
+import { parseRecipients } from "./utils/parseRecipients";
 
 function App() {
   const config = useConfig();
@@ -58,11 +57,9 @@ function App() {
     setCustomContractAddress(address);
   }, []);
 
-
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const walletStatus = status === "connected" ? `logged in as ${address}` : "please unlock wallet";
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
 
   const { sending, token, setSending, setToken } = useCurrencySelection();
 
@@ -84,7 +81,7 @@ function App() {
     const text = textareaRef.current.value;
     const decimals = getDecimals(sending, token);
     const newRecipients = parseRecipients(text, decimals);
-    
+
     setRecipients(newRecipients);
 
     if (
@@ -161,7 +158,12 @@ function App() {
   const totalAmount = getTotalAmount(recipients);
   const balance = getBalance(sending, token, balanceData);
   const leftAmount = getLeftAmount(recipients, sending, token, balanceData);
-  const disperseMessage = getDisperseMessage(recipients, sending, { ...token, allowance: effectiveAllowance }, balanceData);
+  const disperseMessage = getDisperseMessage(
+    recipients,
+    sending,
+    { ...token, allowance: effectiveAllowance },
+    balanceData,
+  );
   const symbol = getSymbol(sending, token, realChainId);
   const decimals = getDecimals(sending, token);
   const nativeCurrencyName = getNativeCurrencyName(realChainId);

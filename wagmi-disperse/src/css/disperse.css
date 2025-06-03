@@ -359,6 +359,55 @@ header a {
   background-color: aquamarine;
 }
 
+/* Chain selector search input */
+.chain-selector-search {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+.chain-selector-search:focus {
+  outline: none;
+  border-bottom-color: #888;
+}
+
+/* Chain selector options container */
+.chain-selector-options {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Chain selector option with name and ID */
+.chain-selector-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.chain-selector-option .chain-name {
+  flex: 1;
+  text-align: left;
+}
+
+.chain-selector-option .chain-id {
+  font-size: 0.8em;
+  color: #666;
+  margin-left: 8px;
+}
+
+/* No results message */
+.chain-selector-no-results {
+  padding: 12px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
 /* Add to right side of header */
 .network-info {
   display: flex;
@@ -372,12 +421,24 @@ h1 {
 }
 
 h1 sup {
-  cursor: pointer;
   position: relative;
-  padding-right: 14px; /* Space for the dropdown arrow */
 }
 
-h1 sup::after {
+/* Style the chain selector trigger button in sup */
+h1 sup .chain-selector-trigger {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  padding: 0;
+  padding-right: 14px; /* Space for the dropdown arrow */
+  position: relative;
+  vertical-align: super;
+}
+
+h1 sup .chain-selector-trigger::after {
   content: "▼";
   position: absolute;
   font-size: 0.6em;
@@ -386,13 +447,17 @@ h1 sup::after {
   transform: translateY(-50%);
 }
 
-h1 sup:hover {
+h1 sup .chain-selector-trigger:hover {
   text-decoration: underline;
 }
 
-h1 .chain-selector-dropdown {
+/* Position dropdown relative to sup element */
+h1 sup .chain-selector-dropdown {
+  position: absolute;
   top: calc(100% + 5px);
   left: 50%;
   transform: translateX(-50%);
   right: auto;
+  z-index: 1000;
+  min-width: 250px;
 }

@@ -16,7 +16,8 @@
       "Bash(npm run lint)",
       "Bash(npm run build:*)",
       "Bash(npm run typecheck:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(pnpm biome check:*)"
     ],
     "deny": []
   }

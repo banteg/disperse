@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { useConfig, useDisconnect, useEnsName, useSwitchChain } from "wagmi";
-import { explorerAddr, networkName } from "../networks";
+import { useDisconnect, useEnsName } from "wagmi";
+import { explorerAddr } from "../networks";
+import ChainSelector from "./ChainSelector";
 
 interface HeaderProps {
   chainId?: number;
@@ -8,53 +8,11 @@ interface HeaderProps {
 }
 
 const Header = ({ chainId, address }: HeaderProps) => {
-  const [isNetworkMenuOpen, setIsNetworkMenuOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const networkNameRef = useRef<HTMLElement>(null);
   const { disconnect } = useDisconnect();
   const { data: ensName } = useEnsName({
     address,
     chainId: 1, // ENS names are on Ethereum mainnet
   });
-  const { switchChain } = useSwitchChain();
-  const config = useConfig();
-
-  // Get all chains from wagmi config
-  const chains = config.chains;
-
-  // Format chain name to reasonable length
-  const formatChainName = (name: string) => {
-    return name.replace(" Mainnet", "").replace(" Network", "").replace(" Chain", "");
-  };
-
-  // Handle network name click
-  const handleNetworkClick = () => {
-    setIsNetworkMenuOpen(!isNetworkMenuOpen);
-  };
-
-  // Add click-away listener to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        networkNameRef.current &&
-        !networkNameRef.current.contains(event.target as Node)
-      ) {
-        setIsNetworkMenuOpen(false);
-      }
-    };
-
-    // Add event listener when dropdown is open
-    if (isNetworkMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    // Cleanup
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isNetworkMenuOpen]);
 
   return (
     <>
@@ -83,27 +41,9 @@ const Header = ({ chainId, address }: HeaderProps) => {
         </div>
         <h1>
           disperse
-          <sup ref={networkNameRef} onClick={handleNetworkClick}>
-            {networkName(chainId)?.toLowerCase()}
+          <sup>
+            <ChainSelector />
           </sup>
-          {isNetworkMenuOpen && (
-            <div ref={dropdownRef} className="chain-selector-dropdown">
-              <div className="chain-selector-dropdown-inner">
-                {chains.map((chain) => (
-                  <button
-                    key={chain.id}
-                    onClick={() => {
-                      switchChain({ chainId: chain.id });
-                      setIsNetworkMenuOpen(false);
-                    }}
-                    className={`chain-selector-option ${chain.id === chainId ? "active" : ""}`}
-                  >
-                    {formatChainName(chain.name)}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </h1>
         <div className="expand" />
         {address && (
