@@ -16,7 +16,7 @@ import { useContractVerification } from "./hooks/useContractVerification";
 import { useRealChainId } from "./hooks/useRealChainId";
 import { useTokenAllowance } from "./hooks/useTokenAllowance";
 import { useStore } from "./store";
-import type { Recipient, TokenInfo } from "./types";
+import type { TokenInfo } from "./types";
 import {
   getBalance,
   getDecimals,
@@ -49,8 +49,6 @@ function App() {
     recipients,
     customContractAddress,
     setAppState,
-    setSending,
-    setToken,
     setRecipients,
     setCustomContractAddress,
     resetToken,

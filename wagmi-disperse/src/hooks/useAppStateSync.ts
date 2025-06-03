@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { AppState } from "../constants";
 import { useStore } from "../store";
-import type { TokenInfo } from "../types";
 
 const debug = (message: string, data?: unknown) => {
   console.log(`[DEBUG] ${message}`, data || "");
