@@ -91,6 +91,7 @@ export function useContractVerification(
 
   return {
     verifiedAddress,
+    contractAddress,
     hasContractAddress,
     isContractDeployed,
     isBytecodeLoading: loadingAddresses,

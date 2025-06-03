@@ -39,9 +39,9 @@ export function isDisperseContract(bytecode: string | undefined): boolean {
     return false;
   }
 
-  // Remove "0x" prefix for comparison if present
-  const cleanBytecode = bytecode.startsWith("0x") ? bytecode.substring(2) : bytecode;
-  const cleanRuntime = disperse_runtime.startsWith("0x") ? disperse_runtime.substring(2) : disperse_runtime;
+  // Remove "0x" prefix for comparison if present and convert to lowercase for case-insensitive comparison
+  const cleanBytecode = (bytecode.startsWith("0x") ? bytecode.substring(2) : bytecode).toLowerCase();
+  const cleanRuntime = (disperse_runtime.startsWith("0x") ? disperse_runtime.substring(2) : disperse_runtime).toLowerCase();
 
   debug(`Clean bytecode length: ${cleanBytecode.length}`);
   debug(`Clean runtime length: ${cleanRuntime.length}`);
