@@ -13,7 +13,13 @@ const useDisperseStore = create<DisperseStore>()(
       status: "disconnected",
       isChainSupported: false,
 
-      updateWallet: (wallet) => set((state) => ({ ...state, ...wallet }), false, 'updateWallet'),
+      updateWallet: (wallet) => set({
+        address: wallet.address,
+        chainId: wallet.chainId,
+        isConnected: wallet.isConnected,
+        status: wallet.status,
+        isChainSupported: wallet.isChainSupported,
+      }, false, 'updateWallet'),
 
       // Currency slice
       sending: null,
@@ -28,7 +34,7 @@ const useDisperseStore = create<DisperseStore>()(
       },
 
       resetToken: () => {
-        set({ token: {} });
+        set({ token: {} }, false, 'resetToken');
       },
 
       // Transaction slice
@@ -49,14 +55,18 @@ const useDisperseStore = create<DisperseStore>()(
       createxDisperseAddress: undefined,
       customContractAddress: undefined,
 
-      updateContract: (contract) => set((state) => ({ ...state, ...contract }), false, 'updateContract'),
+      updateContract: (contract) => set({
+        verifiedAddress: contract.verifiedAddress,
+        hasContractAddress: contract.hasContractAddress,
+        isContractDeployed: contract.isContractDeployed,
+        isBytecodeLoading: contract.isBytecodeLoading,
+        potentialAddresses: contract.potentialAddresses,
+        createxDisperseAddress: contract.createxDisperseAddress,
+      }, false, 'updateContract'),
 
       setCustomContractAddress: (address) => set({ customContractAddress: address }),
 
-      // App state slice
-      appState: AppState.UNLOCK_WALLET,
-
-      setAppState: (appState) => set({ appState }),
+      // App state is now derived - no longer stored
     }),
     {
       name: "disperse-store",
@@ -137,12 +147,66 @@ export const useContract = () => {
   };
 };
 
+// Derived selector for app state - eliminates race conditions
 export const useAppState = () => {
-  const appState = useDisperseStore((state) => state.appState);
-  const setAppState = useDisperseStore((state) => state.setAppState);
+  const appState = useDisperseStore((state) => {
+    // Extract all necessary state
+    const { status, isConnected, isChainSupported, isContractDeployed, isBytecodeLoading, hasContractAddress } = state;
+    const { sending, token } = state;
+    const recipients = state.recipients;
+    
+    // Disconnected or connecting states
+    if (status === "disconnected") {
+      return AppState.UNLOCK_WALLET;
+    }
+    
+    if (status === "reconnecting" || status === "connecting") {
+      return AppState.UNLOCK_WALLET;
+    }
+    
+    // Connected but network issues
+    if (isConnected && (!isContractDeployed || !isChainSupported)) {
+      // Still loading bytecode, maintain current state
+      if (isBytecodeLoading && hasContractAddress) {
+        return AppState.CONNECTED_TO_WALLET;
+      }
+      return AppState.NETWORK_UNAVAILABLE;
+    }
+    
+    // Connected and contract ready
+    if (isConnected && isContractDeployed) {
+      // No currency selected yet
+      if (sending === null) {
+        return AppState.CONNECTED_TO_WALLET;
+      }
+      
+      // Ether selected
+      if (sending === "ether") {
+        // Check if recipients entered
+        if (recipients.length > 0) {
+          return AppState.ENTERED_AMOUNTS;
+        }
+        return AppState.SELECTED_CURRENCY;
+      }
+      
+      // Token selected
+      if (sending === "token") {
+        const tokenReady = token.address && token.decimals !== undefined && token.symbol;
+        if (!tokenReady) {
+          return AppState.CONNECTED_TO_WALLET;
+        }
+        
+        // Token is ready, check recipients
+        if (recipients.length > 0) {
+          return AppState.ENTERED_AMOUNTS;
+        }
+        return AppState.SELECTED_CURRENCY;
+      }
+    }
+    
+    // Default fallback
+    return AppState.UNLOCK_WALLET;
+  });
   
-  return {
-    appState,
-    setAppState,
-  };
+  return { appState };
 };

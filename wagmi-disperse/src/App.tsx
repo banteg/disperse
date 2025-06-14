@@ -17,7 +17,8 @@ import { useTokenAllowance } from "./hooks/useTokenAllowance";
 import type { Recipient, TokenInfo } from "./types";
 
 // Import Zustand store hooks
-import { useAppState, useContract, useCurrency, useTransaction, useWallet } from "./store";
+import { useContract, useCurrency, useTransaction, useWallet } from "./store";
+import { useAppStateWithMachine } from "./hooks/useAppStateWithMachine";
 
 import {
   getBalance,
@@ -46,7 +47,14 @@ function App() {
   const { sending, token, setSending, setToken, resetToken } = useCurrency();
   const { recipients, setRecipients } = useTransaction();
   const { customContractAddress, setCustomContractAddress, updateContract } = useContract();
-  const { appState, setAppState } = useAppState();
+  const { appState, isStateMachineEnabled } = useAppStateWithMachine();
+  
+  // Log state machine status for debugging
+  useEffect(() => {
+    if (isStateMachineEnabled) {
+      console.log("[State Machine] Enabled - Current AppState:", AppState[appState]);
+    }
+  }, [isStateMachineEnabled, appState]);
 
   const isChainSupported = chainId ? config.chains.some((chain) => chain.id === chainId) : false;
 
@@ -91,67 +99,9 @@ function App() {
     createxDisperseAddress,
   ]);
 
-  // App state logic - simplified since most is now in the store
-  useEffect(() => {
-    if (status === "reconnecting" || status === "connecting") return;
+  // App state is now derived from the store - no useEffect needed!
 
-    if (status === "disconnected") {
-      setAppState(AppState.UNLOCK_WALLET);
-    } else if (isConnected && (!isContractDeployed || !isChainSupported)) {
-      if (isBytecodeLoading && hasContractAddress) {
-        return;
-      }
-
-      if (isContractDeployed) {
-        if (sending === "ether") {
-          setAppState(AppState.SELECTED_CURRENCY);
-        } else if (sending === "token") {
-          if (token.address && token.decimals !== undefined && token.symbol) {
-            setAppState(AppState.SELECTED_CURRENCY);
-          } else {
-            setAppState(AppState.CONNECTED_TO_WALLET);
-          }
-        } else if (sending === null) {
-          setAppState(AppState.CONNECTED_TO_WALLET);
-        }
-        return;
-      }
-
-      setAppState(AppState.NETWORK_UNAVAILABLE);
-    } else if (isConnected) {
-      if (sending === "ether") {
-        setAppState(AppState.SELECTED_CURRENCY);
-      } else if (sending === "token") {
-        if (token.address && token.decimals !== undefined && token.symbol) {
-          setAppState(AppState.SELECTED_CURRENCY);
-        } else {
-          setAppState(AppState.CONNECTED_TO_WALLET);
-        }
-      } else if (sending === null) {
-        setAppState(AppState.CONNECTED_TO_WALLET);
-      }
-    }
-  }, [
-    status,
-    isConnected,
-    isChainSupported,
-    isContractDeployed,
-    isBytecodeLoading,
-    hasContractAddress,
-    sending,
-    token,
-    setAppState,
-  ]);
-
-  // Handle app state transition to ENTERED_AMOUNTS
-  useEffect(() => {
-    if (
-      recipients.length &&
-      (sending === "ether" || (sending === "token" && token.address && token.decimals !== undefined))
-    ) {
-      setAppState(AppState.ENTERED_AMOUNTS);
-    }
-  }, [recipients, sending, token, setAppState]);
+  // App state transitions are now handled in the derived selector
 
   const canDeploy = canDeployToNetwork(chainId);
 
@@ -338,7 +288,7 @@ function App() {
         ((appState >= AppState.CONNECTED_TO_WALLET && sending === "ether") ||
           appState >= AppState.SELECTED_CURRENCY ||
           (sending === "token" && !!token.symbol)) && (
-          <RecipientInput sending={sending} token={token} onRecipientsChange={handleRecipientsChange} />
+          <RecipientInput onRecipientsChange={handleRecipientsChange} />
         )}
 
       {appState >= AppState.ENTERED_AMOUNTS && (

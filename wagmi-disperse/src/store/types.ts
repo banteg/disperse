@@ -1,4 +1,3 @@
-import type { AppState } from "../constants";
 import type { Recipient, TokenInfo, VerifiedAddress } from "../types";
 
 // Wallet slice state
@@ -48,13 +47,5 @@ export interface ContractSlice {
   setCustomContractAddress: (address: `0x${string}`) => void;
 }
 
-// App state slice
-export interface AppStateSlice {
-  appState: AppState;
-
-  // Actions
-  setAppState: (state: AppState) => void;
-}
-
 // Combined store type
-export interface DisperseStore extends WalletSlice, CurrencySlice, TransactionSlice, ContractSlice, AppStateSlice {}
+export interface DisperseStore extends WalletSlice, CurrencySlice, TransactionSlice, ContractSlice {}

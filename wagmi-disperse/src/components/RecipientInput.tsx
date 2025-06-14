@@ -1,13 +1,11 @@
 import { memo, useCallback, useRef } from "react";
 import { useCurrency, useTransaction } from "../store";
-import type { Recipient, TokenInfo } from "../types";
+import type { Recipient } from "../types";
 import { getDecimals } from "../utils/balanceCalculations";
 import { parseRecipients } from "../utils/parseRecipients";
 
 interface RecipientInputProps {
-  sending: "ether" | "token" | null;
-  token: TokenInfo;
-  onRecipientsChange?: (recipients: Recipient[]) => void; // Keep for compatibility but use store
+  onRecipientsChange?: (recipients: Recipient[]) => void; // Optional callback for parent component
 }
 
 const RecipientInput = ({ onRecipientsChange }: RecipientInputProps) => {
