@@ -322,9 +322,11 @@ function App() {
       )}
 
       {/* Debug Panel */}
+      {/*
       <Suspense fallback={null}>
         <DebugPanel />
       </Suspense>
+      */}
     </article>
   );
 }
