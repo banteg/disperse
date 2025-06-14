@@ -105,11 +105,11 @@ describe("TokenLoader", () => {
     // Mock error in token data loading
     mockUseReadContracts.mockReturnValue({
       data: [
-        { 
-          status: "failure", 
+        {
+          status: "failure",
           error: new BaseError("Contract read failed", {
             cause: new Error("Network error"),
-          })
+          }),
         },
       ],
       isError: true,
@@ -212,9 +212,9 @@ describe("TokenLoader", () => {
 
     mockUseReadContracts.mockReturnValue({
       data: [
-        { 
-          status: "failure", 
-          error: errorWithShortMessage
+        {
+          status: "failure",
+          error: errorWithShortMessage,
         },
       ],
       isError: true,
@@ -237,9 +237,9 @@ describe("TokenLoader", () => {
   it("should use custom contract address when provided", async () => {
     const customContractAddress = "0xD152f549545093347A162Dce210e7293f1452150";
     const user = userEvent.setup();
-    
+
     render(<TokenLoader {...defaultProps} contractAddress={customContractAddress as `0x${string}`} />);
-    
+
     const input = screen.getByPlaceholderText("0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359");
     const loadButton = screen.getByDisplayValue("load");
 
