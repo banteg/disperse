@@ -3,7 +3,7 @@ import { explorerAddr } from "../networks";
 import ChainSelector from "./ChainSelector";
 
 interface HeaderProps {
-  chainId?: number;
+  chainId: number | undefined;
   address?: `0x${string}`;
 }
 

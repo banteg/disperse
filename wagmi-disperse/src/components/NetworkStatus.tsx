@@ -2,7 +2,7 @@ import { networkName } from "../networks";
 import DeployContract from "./DeployContract";
 
 interface NetworkStatusProps {
-  realChainId?: number;
+  chainId: number | undefined;
   isBytecodeLoading: boolean;
   isContractDeployed: boolean;
   isConnected: boolean;
@@ -11,7 +11,7 @@ interface NetworkStatusProps {
 }
 
 export default function NetworkStatus({
-  realChainId,
+  chainId,
   isBytecodeLoading,
   isContractDeployed,
   isConnected,
@@ -43,16 +43,16 @@ export default function NetworkStatus({
       ) : (
         <>
           <p>
-            no disperse contract found on <em>{networkName(realChainId)?.toLowerCase() || "this network"}</em>. you can
+            no disperse contract found on <em>{networkName(chainId)?.toLowerCase() || "this network"}</em>. you can
             deploy it yourself.
           </p>
-          <DeployContract chainId={realChainId} onSuccess={onContractDeployed} />
+          <DeployContract chainId={chainId} onSuccess={onContractDeployed} />
         </>
       )}
 
       <div className="network-info">
         <p>
-          network: {networkName(realChainId)?.toLowerCase() || "unknown"} (id: {realChainId})
+          network: {networkName(chainId)?.toLowerCase() || "unknown"} (id: {chainId})
         </p>
         {verifiedAddress && (
           <p>

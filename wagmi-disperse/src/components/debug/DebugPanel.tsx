@@ -5,7 +5,7 @@ import type { AddressInfo, VerifiedAddress, WindowWithEthereum } from "../../typ
 
 interface DebugPanelProps {
   appState: AppState;
-  realChainId?: number;
+  chainId?: number;
   isChainSupported: boolean;
   hasContractAddress: boolean;
   customContractAddress?: `0x${string}`;
@@ -23,7 +23,7 @@ interface DebugPanelProps {
 
 const DebugPanel = ({
   appState,
-  realChainId,
+  chainId,
   isChainSupported,
   hasContractAddress,
   customContractAddress,

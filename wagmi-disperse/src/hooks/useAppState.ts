@@ -9,7 +9,7 @@ const debug = (message: string, data?: unknown) => {
 interface UseAppStateProps {
   status: string;
   isConnected: boolean;
-  realChainId: number | undefined;
+  chainId: number | undefined;
   isChainSupported: boolean;
   isContractDeployed: boolean;
   isBytecodeLoading: boolean;
@@ -21,7 +21,7 @@ interface UseAppStateProps {
 export function useAppState({
   status,
   isConnected,
-  realChainId,
+  chainId,
   isChainSupported,
   isContractDeployed,
   isBytecodeLoading,
@@ -40,7 +40,7 @@ export function useAppState({
     if (sending === null) return;
 
     debug(
-      `Wallet status: ${status}, isConnected: ${isConnected}, chainId: ${realChainId}, supported: ${isChainSupported}, contract: ${isContractDeployed}`,
+      `Wallet status: ${status}, isConnected: ${isConnected}, chainId: ${chainId}, supported: ${isChainSupported}, contract: ${isContractDeployed}`,
     );
 
     if (status === "disconnected") {
@@ -51,7 +51,7 @@ export function useAppState({
       }
 
       if (isContractDeployed) {
-        debug(`Chain ${realChainId} has a valid Disperse contract despite not being in our built-in list`);
+        debug(`Chain ${chainId} has a valid Disperse contract despite not being in our built-in list`);
 
         if (sending === "ether") {
           setAppState(AppState.SELECTED_CURRENCY);
@@ -65,7 +65,7 @@ export function useAppState({
         return;
       }
 
-      debug(`Chain ${realChainId} is not fully supported or contract is not valid`);
+      debug(`Chain ${chainId} is not fully supported or contract is not valid`);
       setAppState(AppState.NETWORK_UNAVAILABLE);
     } else if (isConnected) {
       if (sending === "ether") {

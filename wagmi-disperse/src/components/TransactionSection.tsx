@@ -12,7 +12,7 @@ interface TransactionSectionProps {
   leftAmount: bigint;
   totalAmount: bigint;
   disperseMessage?: string;
-  realChainId?: number;
+  chainId: number | undefined;
   verifiedAddress?: { address: `0x${string}`; label: string } | null;
   account?: `0x${string}`;
   nativeCurrencyName?: string;
@@ -29,7 +29,7 @@ export default function TransactionSection({
   leftAmount,
   totalAmount,
   disperseMessage,
-  realChainId,
+  chainId,
   verifiedAddress,
   account,
   nativeCurrencyName = "ETH",
@@ -54,7 +54,7 @@ export default function TransactionSection({
             title={`disperse ${nativeCurrencyName}`}
             action="disperseEther"
             message={disperseMessage}
-            chainId={realChainId}
+            chainId={chainId}
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}
@@ -74,7 +74,7 @@ export default function TransactionSection({
           <TransactionButton
             title={effectiveAllowance < totalAmount ? "approve" : "revoke"}
             action={effectiveAllowance < totalAmount ? "approve" : "deny"}
-            chainId={realChainId}
+            chainId={chainId}
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}
@@ -87,7 +87,7 @@ export default function TransactionSection({
             title="disperse token"
             action="disperseToken"
             message={disperseMessage}
-            chainId={realChainId}
+            chainId={chainId}
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}

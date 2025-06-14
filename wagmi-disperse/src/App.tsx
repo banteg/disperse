@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { formatUnits } from "viem";
-import { useAccount, useBalance, useConfig, useConnect } from "wagmi";
+import { useAccount, useBalance, useChainId, useConfig, useConnect } from "wagmi";
 
 import { Suspense, lazy } from "react";
 import CurrencySelector from "./components/CurrencySelector";
@@ -14,7 +14,6 @@ import { AppState } from "./constants";
 import { useAppState } from "./hooks/useAppState";
 import { useContractVerification } from "./hooks/useContractVerification";
 import { useCurrencySelection } from "./hooks/useCurrencySelection";
-import { useRealChainId } from "./hooks/useRealChainId";
 import { useTokenAllowance } from "./hooks/useTokenAllowance";
 import type { Recipient, TokenInfo } from "./types";
 import {
@@ -31,15 +30,15 @@ import { parseRecipients } from "./utils/parseRecipients";
 
 function App() {
   const config = useConfig();
-  const realChainId = useRealChainId();
+  const chainId = useChainId();
   const { address, status, isConnected } = useAccount();
   const { data: balanceData } = useBalance({
     address,
-    chainId: realChainId,
+    chainId: chainId,
   });
   const { connectors, connect } = useConnect();
 
-  const isChainSupported = realChainId ? config.chains.some((chain) => chain.id === realChainId) : false;
+  const isChainSupported = chainId ? config.chains.some((chain) => chain.id === chainId) : false;
   const [customContractAddress, setCustomContractAddress] = useState<`0x${string}` | undefined>(undefined);
 
   const {
@@ -49,9 +48,9 @@ function App() {
     isBytecodeLoading,
     potentialAddresses,
     createxDisperseAddress,
-  } = useContractVerification(realChainId, isConnected, customContractAddress);
+  } = useContractVerification(chainId, isConnected, customContractAddress);
 
-  const canDeploy = canDeployToNetwork(realChainId);
+  const canDeploy = canDeployToNetwork(chainId);
 
   const handleContractDeployed = useCallback((address: `0x${string}`) => {
     setCustomContractAddress(address);
@@ -66,7 +65,7 @@ function App() {
   const { appState, setAppState } = useAppState({
     status,
     isConnected,
-    realChainId,
+    chainId,
     isChainSupported,
     isContractDeployed,
     isBytecodeLoading,
@@ -163,7 +162,7 @@ function App() {
     tokenAddress: token.address,
     account: address,
     spender: verifiedAddress?.address,
-    chainId: realChainId,
+    chainId: chainId,
   });
 
   // Use the reactive allowance if available, otherwise fall back to the stored token allowance
@@ -180,9 +179,9 @@ function App() {
     () => getDisperseMessage(recipients, sending, { ...token, allowance: effectiveAllowance }, balanceData),
     [recipients, sending, token, effectiveAllowance, balanceData],
   );
-  const symbol = useMemo(() => getSymbol(sending, token, realChainId), [sending, token, realChainId]);
+  const symbol = useMemo(() => getSymbol(sending, token, chainId), [sending, token, chainId]);
   const decimals = useMemo(() => getDecimals(sending, token), [sending, token]);
-  const nativeCurrencyName = useMemo(() => getNativeCurrencyName(realChainId), [realChainId]);
+  const nativeCurrencyName = useMemo(() => getNativeCurrencyName(chainId), [chainId]);
 
   // Display all wallet connectors
   const renderConnectors = () => {
@@ -203,7 +202,7 @@ function App() {
 
   return (
     <article>
-      <Header chainId={realChainId} address={address} />
+      <Header chainId={chainId} address={address} />
 
       {appState === AppState.WALLET_REQUIRED && (
         <section>
@@ -214,7 +213,7 @@ function App() {
 
       {appState === AppState.NETWORK_UNAVAILABLE && (
         <NetworkStatus
-          realChainId={realChainId}
+          chainId={chainId}
           isBytecodeLoading={isBytecodeLoading}
           isContractDeployed={isContractDeployed}
           isConnected={isConnected}
@@ -248,7 +247,7 @@ function App() {
           <TokenLoader
             onSelect={selectToken}
             onError={resetToken}
-            chainId={realChainId}
+            chainId={chainId}
             account={address}
             token={token}
             contractAddress={verifiedAddress?.address}
@@ -285,7 +284,7 @@ function App() {
           leftAmount={leftAmount}
           totalAmount={totalAmount}
           disperseMessage={disperseMessage}
-          realChainId={realChainId}
+          chainId={chainId}
           verifiedAddress={verifiedAddress}
           account={address}
           nativeCurrencyName={nativeCurrencyName}
@@ -297,7 +296,7 @@ function App() {
       <Suspense fallback={null}>
         <DebugPanel
           appState={appState}
-          realChainId={realChainId}
+          chainId={chainId}
           isChainSupported={isChainSupported}
           hasContractAddress={hasContractAddress}
           customContractAddress={customContractAddress}
