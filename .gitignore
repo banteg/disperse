@@ -8,3 +8,7 @@ docs/bundle.js.map
 artwork
 build
 .hypothesis
+.pnpm-store
+.venv
+.DS_Store
+CLAUDE.local.md
