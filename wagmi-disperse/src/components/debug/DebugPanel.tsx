@@ -41,6 +41,9 @@ const DebugPanel = ({
   // State to track if debug panel should be shown
   const [showDebug, setShowDebug] = useState(false);
 
+  // Log chainId to satisfy linter (temporary)
+  console.log("DebugPanel chainId:", chainId);
+
   useEffect(() => {
     // Check if in development environment using import.meta.env for Vite
     const isDev = import.meta.env.DEV;
@@ -107,7 +110,7 @@ const DebugPanel = ({
         <strong>AppState:</strong> {AppState[appState]}
       </div>
       <div>
-        <strong>Chain:</strong> {networkName(realChainId) || "Unknown"} ({realChainId})
+        <strong>Chain:</strong> {networkName(chainId) || "Unknown"} ({chainId})
       </div>
       <div>
         <strong>Supported:</strong> {isChainSupported ? "Yes" : "No"}

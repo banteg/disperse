@@ -81,7 +81,7 @@ export function useAppState({
   }, [
     status,
     isConnected,
-    realChainId,
+    chainId,
     isChainSupported,
     isContractDeployed,
     isBytecodeLoading,

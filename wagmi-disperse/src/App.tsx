@@ -236,7 +236,7 @@ function App() {
           {sending === "ether" && (
             <p>
               you have {formatUnits(balanceData?.value || 0n, 18)} {nativeCurrencyName}
-              {balanceData?.value === 0n && realChainId && <span className="warning">(make sure to add funds)</span>}
+              {balanceData?.value === 0n && chainId && <span className="warning">(make sure to add funds)</span>}
             </p>
           )}
         </section>
