@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { formatUnits } from "viem";
 import { useAccount, useBalance, useChainId, useConfig, useConnect } from "wagmi";
 
@@ -10,12 +10,15 @@ import RecipientInput from "./components/RecipientInput";
 import TokenLoader from "./components/TokenLoader";
 import TransactionSection from "./components/TransactionSection";
 const DebugPanel = lazy(() => import("./components/debug/DebugPanel"));
+
 import { AppState } from "./constants";
-import { useAppState } from "./hooks/useAppState";
 import { useContractVerification } from "./hooks/useContractVerification";
-import { useCurrencySelection } from "./hooks/useCurrencySelection";
 import { useTokenAllowance } from "./hooks/useTokenAllowance";
 import type { Recipient, TokenInfo } from "./types";
+
+// Import Zustand store hooks
+import { useAppState, useContract, useCurrency, useTransaction, useWallet } from "./store";
+
 import {
   getBalance,
   getDecimals,
@@ -38,8 +41,25 @@ function App() {
   });
   const { connectors, connect } = useConnect();
 
+  // Zustand store hooks
+  const { updateWallet } = useWallet();
+  const { sending, token, setSending, setToken, resetToken } = useCurrency();
+  const { recipients, setRecipients } = useTransaction();
+  const { customContractAddress, setCustomContractAddress, updateContract } = useContract();
+  const { appState, setAppState } = useAppState();
+
   const isChainSupported = chainId ? config.chains.some((chain) => chain.id === chainId) : false;
-  const [customContractAddress, setCustomContractAddress] = useState<`0x${string}` | undefined>(undefined);
+
+  // Update wallet state in store when wagmi state changes
+  useEffect(() => {
+    updateWallet({
+      address,
+      chainId,
+      isConnected,
+      status,
+      isChainSupported,
+    });
+  }, [address, chainId, isConnected, status, isChainSupported, updateWallet]);
 
   const {
     verifiedAddress,
@@ -50,29 +70,86 @@ function App() {
     createxDisperseAddress,
   } = useContractVerification(chainId, isConnected, customContractAddress);
 
-  const canDeploy = canDeployToNetwork(chainId);
+  // Update contract state in store
+  useEffect(() => {
+    updateContract({
+      verifiedAddress,
+      hasContractAddress,
+      isContractDeployed,
+      isBytecodeLoading,
+      potentialAddresses,
+      createxDisperseAddress,
+    });
+  }, [
+    verifiedAddress,
+    hasContractAddress,
+    isContractDeployed,
+    isBytecodeLoading,
+    potentialAddresses,
+    createxDisperseAddress,
+    updateContract,
+  ]);
 
-  const handleContractDeployed = useCallback((address: `0x${string}`) => {
-    setCustomContractAddress(address);
-  }, []);
+  // App state logic - simplified since most is now in the store
+  useEffect(() => {
+    if (status === "reconnecting" || status === "connecting") return;
+    if (sending === null) return;
 
-  const [recipients, setRecipients] = useState<Recipient[]>([]);
-  const walletStatus = status === "connected" ? `logged in as ${address}` : "please unlock wallet";
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+    if (status === "disconnected") {
+      setAppState(AppState.UNLOCK_WALLET);
+    } else if (isConnected && (!isContractDeployed || !isChainSupported)) {
+      if (isBytecodeLoading && hasContractAddress) {
+        return;
+      }
 
-  const { sending, token, setSending, setToken } = useCurrencySelection();
+      if (isContractDeployed) {
+        if (sending === "ether") {
+          setAppState(AppState.SELECTED_CURRENCY);
+        } else if (sending === "token") {
+          if (token.address && token.decimals !== undefined && token.symbol) {
+            setAppState(AppState.SELECTED_CURRENCY);
+          } else {
+            setAppState(AppState.CONNECTED_TO_WALLET);
+          }
+        }
+        return;
+      }
 
-  const { appState, setAppState } = useAppState({
+      setAppState(AppState.NETWORK_UNAVAILABLE);
+    } else if (isConnected) {
+      if (sending === "ether") {
+        setAppState(AppState.SELECTED_CURRENCY);
+      } else if (sending === "token") {
+        if (token.address && token.decimals !== undefined && token.symbol) {
+          setAppState(AppState.SELECTED_CURRENCY);
+        } else {
+          setAppState(AppState.CONNECTED_TO_WALLET);
+        }
+      }
+    }
+  }, [
     status,
     isConnected,
-    chainId,
     isChainSupported,
     isContractDeployed,
     isBytecodeLoading,
     hasContractAddress,
     sending,
     token,
-  });
+    setAppState,
+  ]);
+
+  const canDeploy = canDeployToNetwork(chainId);
+
+  const handleContractDeployed = useCallback(
+    (address: `0x${string}`) => {
+      setCustomContractAddress(address);
+    },
+    [setCustomContractAddress],
+  );
+
+  const walletStatus = status === "connected" ? `logged in as ${address}` : "please unlock wallet";
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const parseAmounts = useCallback(() => {
     if (!textareaRef.current) return;
@@ -82,40 +159,20 @@ function App() {
     const newRecipients = parseRecipients(text, decimals);
 
     setRecipients(newRecipients);
-
-    if (
-      newRecipients.length &&
-      (sending === "ether" || (sending === "token" && token.address && token.decimals !== undefined))
-    ) {
-      setAppState(AppState.ENTERED_AMOUNTS);
-    }
-  }, [sending, token, setAppState]);
+  }, [sending, token, setRecipients]);
 
   const handleRecipientsChange = useCallback(
     (newRecipients: Recipient[]) => {
       setRecipients(newRecipients);
-
-      if (
-        newRecipients.length &&
-        (sending === "ether" || (sending === "token" && token.address && token.decimals !== undefined))
-      ) {
-        setAppState(AppState.ENTERED_AMOUNTS);
-      }
     },
-    [sending, token, setAppState],
+    [setRecipients],
   );
-
-  const resetToken = useCallback(() => {
-    setToken({});
-    setAppState(AppState.CONNECTED_TO_WALLET);
-  }, [setToken, setAppState]);
 
   const selectCurrency = useCallback(
     (type: "ether" | "token") => {
       setSending(type);
 
       if (type === "ether") {
-        setAppState(AppState.SELECTED_CURRENCY);
         requestAnimationFrame(() => {
           if (textareaRef.current?.value) {
             parseAmounts();
@@ -123,7 +180,6 @@ function App() {
         });
       } else if (type === "token") {
         if (token.address && token.decimals !== undefined && token.symbol) {
-          setAppState(AppState.SELECTED_CURRENCY);
           requestAnimationFrame(() => {
             if (textareaRef.current?.value) {
               parseAmounts();
@@ -134,14 +190,12 @@ function App() {
         }
       }
     },
-    [setSending, setAppState, token, parseAmounts, resetToken],
+    [setSending, token, parseAmounts, resetToken],
   );
 
   const selectToken = useCallback(
     (tokenInfo: TokenInfo) => {
       setToken(tokenInfo);
-      setSending("token");
-      setAppState(AppState.SELECTED_CURRENCY);
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -154,7 +208,7 @@ function App() {
         });
       });
     },
-    [setToken, setSending, setAppState, parseAmounts],
+    [setToken, parseAmounts],
   );
 
   // Use reactive allowance hook
