@@ -44,6 +44,7 @@ const TokenLoader = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [lastProcessedToken, setLastProcessedToken] = useState<string | null>(null);
 
   const disperseContractAddress = contractAddress || (disperse_legacy.address as `0x${string}`);
 
@@ -191,6 +192,14 @@ const TokenLoader = ({
       balanceData !== undefined &&
       allowanceData !== undefined
     ) {
+      // Create a unique key for this token to prevent duplicate processing
+      const tokenKey = `${chainId}-${tokenAddress}`;
+      
+      // Skip if we already processed this exact token data
+      if (lastProcessedToken === tokenKey) {
+        return;
+      }
+
       debug("All token data loaded, creating token info");
 
       const tokenInfo: TokenInfo = {
@@ -205,6 +214,7 @@ const TokenLoader = ({
       debug("Calling onSelect with token info", tokenInfo);
       // Clear any error message on successful token load
       setErrorMessage("");
+      setLastProcessedToken(tokenKey);
 
       // Use store setter if no onSelect callback provided
       if (onSelect) {
@@ -232,9 +242,9 @@ const TokenLoader = ({
     decimalsErrorObj,
     balanceErrorObj,
     allowanceErrorObj,
-    onSelect,
-    onError,
-    tokenAddress, // setToken is stable from Zustand
+    tokenAddress,
+    lastProcessedToken,
+    // onSelect and onError are stable callbacks, setToken is stable from Zustand
   ]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -258,6 +268,7 @@ const TokenLoader = ({
 
     setIsLoading(true);
     setIsSubmitted(true);
+    setLastProcessedToken(null); // Reset to allow reprocessing
     debug("Token loading started", { tokenAddress, account, disperseContractAddress });
   };
 

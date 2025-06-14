@@ -51,6 +51,7 @@ function App() {
   const isChainSupported = chainId ? config.chains.some((chain) => chain.id === chainId) : false;
 
   // Update wallet state in store when wagmi state changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: updateWallet is stable
   useEffect(() => {
     updateWallet({
       address,
@@ -59,7 +60,7 @@ function App() {
       status,
       isChainSupported,
     });
-  }, [address, chainId, isConnected, status, isChainSupported, updateWallet]);
+  }, [address, chainId, isConnected, status, isChainSupported]);
 
   const {
     verifiedAddress,
@@ -71,6 +72,7 @@ function App() {
   } = useContractVerification(chainId, isConnected, customContractAddress);
 
   // Update contract state in store
+  // biome-ignore lint/correctness/useExhaustiveDependencies: updateContract is stable
   useEffect(() => {
     updateContract({
       verifiedAddress,
@@ -87,13 +89,11 @@ function App() {
     isBytecodeLoading,
     potentialAddresses,
     createxDisperseAddress,
-    updateContract,
   ]);
 
   // App state logic - simplified since most is now in the store
   useEffect(() => {
     if (status === "reconnecting" || status === "connecting") return;
-    if (sending === null) return;
 
     if (status === "disconnected") {
       setAppState(AppState.UNLOCK_WALLET);
@@ -111,6 +111,8 @@ function App() {
           } else {
             setAppState(AppState.CONNECTED_TO_WALLET);
           }
+        } else if (sending === null) {
+          setAppState(AppState.CONNECTED_TO_WALLET);
         }
         return;
       }
@@ -125,6 +127,8 @@ function App() {
         } else {
           setAppState(AppState.CONNECTED_TO_WALLET);
         }
+      } else if (sending === null) {
+        setAppState(AppState.CONNECTED_TO_WALLET);
       }
     }
   }, [
@@ -138,6 +142,16 @@ function App() {
     token,
     setAppState,
   ]);
+
+  // Handle app state transition to ENTERED_AMOUNTS
+  useEffect(() => {
+    if (
+      recipients.length &&
+      (sending === "ether" || (sending === "token" && token.address && token.decimals !== undefined))
+    ) {
+      setAppState(AppState.ENTERED_AMOUNTS);
+    }
+  }, [recipients, sending, token, setAppState]);
 
   const canDeploy = canDeployToNetwork(chainId);
 

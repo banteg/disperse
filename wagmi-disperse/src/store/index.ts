@@ -5,7 +5,7 @@ import type { DisperseStore } from "./types";
 
 const useDisperseStore = create<DisperseStore>()(
   devtools(
-    (set, get) => ({
+    (set) => ({
       // Wallet slice
       address: undefined,
       chainId: undefined,
@@ -13,66 +13,32 @@ const useDisperseStore = create<DisperseStore>()(
       status: "disconnected",
       isChainSupported: false,
 
-      updateWallet: (wallet) => set((state) => ({ ...state, ...wallet }), false, "updateWallet"),
+      updateWallet: (wallet) => set((state) => ({ ...state, ...wallet }), false, 'updateWallet'),
 
       // Currency slice
       sending: null,
       token: {},
 
       setSending: (sending) => {
-        set({ sending }, false, "setSending");
-
-        // Update app state based on currency selection
-        const { isConnected, token, setAppState } = get();
-        if (isConnected) {
-          if (sending === "ether") {
-            setAppState(AppState.SELECTED_CURRENCY);
-          } else if (sending === "token") {
-            if (token.address && token.decimals !== undefined && token.symbol) {
-              setAppState(AppState.SELECTED_CURRENCY);
-            } else {
-              setAppState(AppState.CONNECTED_TO_WALLET);
-            }
-          }
-        }
+        set({ sending });
       },
 
       setToken: (token) => {
-        set({ token }, false, "setToken");
-
-        // Auto-select token currency when token is set
-        const { setSending, setAppState } = get();
-        setSending("token");
-        if (token.address && token.decimals !== undefined && token.symbol) {
-          setAppState(AppState.SELECTED_CURRENCY);
-        }
+        set({ token, sending: "token" });
       },
 
       resetToken: () => {
-        set({ token: {}, sending: null }, false, "resetToken");
-        const { isConnected, setAppState } = get();
-        if (isConnected) {
-          setAppState(AppState.CONNECTED_TO_WALLET);
-        }
+        set({ token: {} });
       },
 
       // Transaction slice
       recipients: [],
 
       setRecipients: (recipients) => {
-        set({ recipients }, false, "setRecipients");
-
-        // Update app state if recipients are set with valid currency
-        const { sending, token, setAppState } = get();
-        if (
-          recipients.length &&
-          (sending === "ether" || (sending === "token" && token.address && token.decimals !== undefined))
-        ) {
-          setAppState(AppState.ENTERED_AMOUNTS);
-        }
+        set({ recipients });
       },
 
-      clearRecipients: () => set({ recipients: [] }, false, "clearRecipients"),
+      clearRecipients: () => set({ recipients: [] }),
 
       // Contract slice
       verifiedAddress: null,
@@ -83,14 +49,14 @@ const useDisperseStore = create<DisperseStore>()(
       createxDisperseAddress: undefined,
       customContractAddress: undefined,
 
-      updateContract: (contract) => set((state) => ({ ...state, ...contract }), false, "updateContract"),
+      updateContract: (contract) => set((state) => ({ ...state, ...contract }), false, 'updateContract'),
 
-      setCustomContractAddress: (address) => set({ customContractAddress: address }, false, "setCustomContractAddress"),
+      setCustomContractAddress: (address) => set({ customContractAddress: address }),
 
       // App state slice
       appState: AppState.UNLOCK_WALLET,
 
-      setAppState: (appState) => set({ appState }, false, "setAppState"),
+      setAppState: (appState) => set({ appState }),
     }),
     {
       name: "disperse-store",
@@ -100,48 +66,83 @@ const useDisperseStore = create<DisperseStore>()(
 
 export default useDisperseStore;
 
-// Selector hooks for better performance
-export const useWallet = () =>
-  useDisperseStore((state) => ({
-    address: state.address,
-    chainId: state.chainId,
-    isConnected: state.isConnected,
-    status: state.status,
-    isChainSupported: state.isChainSupported,
-    updateWallet: state.updateWallet,
-  }));
+// Selector hooks for better performance with shallow comparison
+export const useWallet = () => {
+  const address = useDisperseStore((state) => state.address);
+  const chainId = useDisperseStore((state) => state.chainId);
+  const isConnected = useDisperseStore((state) => state.isConnected);
+  const status = useDisperseStore((state) => state.status);
+  const isChainSupported = useDisperseStore((state) => state.isChainSupported);
+  const updateWallet = useDisperseStore((state) => state.updateWallet);
+  
+  return {
+    address,
+    chainId,
+    isConnected,
+    status,
+    isChainSupported,
+    updateWallet,
+  };
+};
 
-export const useCurrency = () =>
-  useDisperseStore((state) => ({
-    sending: state.sending,
-    token: state.token,
-    setSending: state.setSending,
-    setToken: state.setToken,
-    resetToken: state.resetToken,
-  }));
+export const useCurrency = () => {
+  const sending = useDisperseStore((state) => state.sending);
+  const token = useDisperseStore((state) => state.token);
+  const setSending = useDisperseStore((state) => state.setSending);
+  const setToken = useDisperseStore((state) => state.setToken);
+  const resetToken = useDisperseStore((state) => state.resetToken);
+  
+  return {
+    sending,
+    token,
+    setSending,
+    setToken,
+    resetToken,
+  };
+};
 
-export const useTransaction = () =>
-  useDisperseStore((state) => ({
-    recipients: state.recipients,
-    setRecipients: state.setRecipients,
-    clearRecipients: state.clearRecipients,
-  }));
+export const useTransaction = () => {
+  const recipients = useDisperseStore((state) => state.recipients);
+  const setRecipients = useDisperseStore((state) => state.setRecipients);
+  const clearRecipients = useDisperseStore((state) => state.clearRecipients);
+  
+  return {
+    recipients,
+    setRecipients,
+    clearRecipients,
+  };
+};
 
-export const useContract = () =>
-  useDisperseStore((state) => ({
-    verifiedAddress: state.verifiedAddress,
-    hasContractAddress: state.hasContractAddress,
-    isContractDeployed: state.isContractDeployed,
-    isBytecodeLoading: state.isBytecodeLoading,
-    potentialAddresses: state.potentialAddresses,
-    createxDisperseAddress: state.createxDisperseAddress,
-    customContractAddress: state.customContractAddress,
-    updateContract: state.updateContract,
-    setCustomContractAddress: state.setCustomContractAddress,
-  }));
+export const useContract = () => {
+  const verifiedAddress = useDisperseStore((state) => state.verifiedAddress);
+  const hasContractAddress = useDisperseStore((state) => state.hasContractAddress);
+  const isContractDeployed = useDisperseStore((state) => state.isContractDeployed);
+  const isBytecodeLoading = useDisperseStore((state) => state.isBytecodeLoading);
+  const potentialAddresses = useDisperseStore((state) => state.potentialAddresses);
+  const createxDisperseAddress = useDisperseStore((state) => state.createxDisperseAddress);
+  const customContractAddress = useDisperseStore((state) => state.customContractAddress);
+  const updateContract = useDisperseStore((state) => state.updateContract);
+  const setCustomContractAddress = useDisperseStore((state) => state.setCustomContractAddress);
+  
+  return {
+    verifiedAddress,
+    hasContractAddress,
+    isContractDeployed,
+    isBytecodeLoading,
+    potentialAddresses,
+    createxDisperseAddress,
+    customContractAddress,
+    updateContract,
+    setCustomContractAddress,
+  };
+};
 
-export const useAppState = () =>
-  useDisperseStore((state) => ({
-    appState: state.appState,
-    setAppState: state.setAppState,
-  }));
+export const useAppState = () => {
+  const appState = useDisperseStore((state) => state.appState);
+  const setAppState = useDisperseStore((state) => state.setAppState);
+  
+  return {
+    appState,
+    setAppState,
+  };
+};
