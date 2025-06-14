@@ -1,23 +1,25 @@
+import { useChainId, useAccount } from "wagmi";
 import { networkName } from "../networks";
 import DeployContract from "./DeployContract";
+import { useAppStore } from "../../store/appStore";
+import { useContractVerification } from "../../hooks/useContractVerification";
 
-interface NetworkStatusProps {
-  realChainId?: number;
-  isBytecodeLoading: boolean;
-  isContractDeployed: boolean;
-  isConnected: boolean;
-  verifiedAddress?: { address: `0x${string}`; label: string } | null;
-  onContractDeployed: (address: `0x${string}`) => void;
-}
+export default function NetworkStatus() {
+  const chainId = useChainId();
+  const { isConnected } = useAccount();
+  const customContractAddress = useAppStore((state) => state.customContractAddress);
+  const setCustomContractAddress = useAppStore((state) => state.setCustomContractAddress);
 
-export default function NetworkStatus({
-  realChainId,
-  isBytecodeLoading,
-  isContractDeployed,
-  isConnected,
-  verifiedAddress,
-  onContractDeployed,
-}: NetworkStatusProps) {
+  const {
+    verifiedAddress,
+    isContractDeployed,
+    isBytecodeLoading,
+  } = useContractVerification(chainId, isConnected, customContractAddress);
+
+  const handleContractDeployed = (address: `0x${string}`) => {
+    setCustomContractAddress(address);
+  };
+
   return (
     <section>
       <h2>unsupported network</h2>
@@ -43,16 +45,16 @@ export default function NetworkStatus({
       ) : (
         <>
           <p>
-            no disperse contract found on <em>{networkName(realChainId)?.toLowerCase() || "this network"}</em>. you can
+            no disperse contract found on <em>{networkName(chainId)?.toLowerCase() || "this network"}</em>. you can
             deploy it yourself.
           </p>
-          <DeployContract chainId={realChainId} onSuccess={onContractDeployed} />
+          <DeployContract chainId={chainId} onSuccess={handleContractDeployed} />
         </>
       )}
 
       <div className="network-info">
         <p>
-          network: {networkName(realChainId)?.toLowerCase() || "unknown"} (id: {realChainId})
+          network: {networkName(chainId)?.toLowerCase() || "unknown"} (id: {chainId})
         </p>
         {verifiedAddress && (
           <p>

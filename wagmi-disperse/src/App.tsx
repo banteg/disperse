@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef } from "react";
 import { formatUnits } from "viem";
-import { useAccount, useBalance, useConfig, useConnect } from "wagmi";
+import { useAccount, useBalance, useChainId, useConfig, useConnect } from "wagmi";
 
 import { Suspense, lazy } from "react";
 import CurrencySelector from "./components/CurrencySelector";
@@ -11,12 +11,12 @@ import TokenLoader from "./components/TokenLoader";
 import TransactionSection from "./components/TransactionSection";
 const DebugPanel = lazy(() => import("./components/debug/DebugPanel"));
 import { AppState } from "./constants";
-import { useAppStateSync } from "./hooks/useAppStateSync";
+// import { useAppState } from "./hooks/useAppState"; // Replaced by Zustand
 import { useContractVerification } from "./hooks/useContractVerification";
-import { useRealChainId } from "./hooks/useRealChainId";
+// import { useCurrencySelection } from "./hooks/useCurrencySelection"; // Replaced by Zustand
 import { useTokenAllowance } from "./hooks/useTokenAllowance";
-import { useStore } from "./store";
-import type { TokenInfo } from "./types";
+import { useAppStore } from "../store/appStore"; // Import Zustand store
+import type { Recipient } from "./types"; // TokenInfo will be from store
 import {
   getBalance,
   getDecimals,
@@ -31,30 +31,31 @@ import { parseRecipients } from "./utils/parseRecipients";
 
 function App() {
   const config = useConfig();
-  const realChainId = useRealChainId();
+  const chainId = useChainId();
   const { address, status, isConnected } = useAccount();
   const { data: balanceData } = useBalance({
     address,
-    chainId: realChainId,
+    chainId: chainId,
   });
   const { connectors, connect } = useConnect();
 
-  const isChainSupported = realChainId ? config.chains.some((chain) => chain.id === realChainId) : false;
+  const isChainSupported = chainId ? config.chains.some((chain) => chain.id === chainId) : false;
 
-  // Get state and actions from Zustand store
-  const {
-    appState,
-    sending,
-    token,
-    recipients,
-    customContractAddress,
-    setAppState,
-    setRecipients,
-    setCustomContractAddress,
-    resetToken,
-    selectCurrency,
-    selectToken,
-  } = useStore();
+  // Zustand store integration
+  const appState = useAppStore((state) => state.appState);
+  const setAppState = useAppStore((state) => state.setAppState);
+  const recipients = useAppStore((state) => state.recipients);
+  const setRecipients = useAppStore((state) => state.setRecipients);
+  const customContractAddress = useAppStore((state) => state.customContractAddress);
+  const setCustomContractAddress = useAppStore((state) => state.setCustomContractAddress);
+  const sending = useAppStore((state) => state.sending);
+  const setSending = useAppStore((state) => state.setSending);
+  const token = useAppStore((state) => state.token);
+  const setToken = useAppStore((state) => state.setToken);
+  const resetTokenStore = useAppStore((state) => state.resetToken);
+  const textareaValue = useAppStore((state) => state.textareaValue);
+  const evaluateAndSetAppState = useAppStore((state) => state.evaluateAndSetAppState);
+  // const setTextareaValue = useAppStore((state) => state.setTextareaValue); // Not directly used in App.tsx, but through RecipientInput
 
   const {
     verifiedAddress,
@@ -63,9 +64,9 @@ function App() {
     isBytecodeLoading,
     potentialAddresses,
     createxDisperseAddress,
-  } = useContractVerification(realChainId, isConnected, customContractAddress);
+  } = useContractVerification(chainId, isConnected, customContractAddress);
 
-  const canDeploy = canDeployToNetwork(realChainId);
+  const canDeploy = canDeployToNetwork(chainId);
 
   const handleContractDeployed = useCallback(
     (address: `0x${string}`) => {
@@ -75,90 +76,166 @@ function App() {
   );
 
   const walletStatus = status === "connected" ? `logged in as ${address}` : "please unlock wallet";
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null); // This ref is still used by RecipientInput, managed there
 
-  // Sync app state based on connection status
-  useAppStateSync({
+  // const { sending, token, setSending, setToken } = useCurrencySelection(); // Replaced by Zustand
+
+  // const { appState, setAppState } = useAppState({ // Replaced by Zustand
+  //   status,
+  //   isConnected,
+  //   chainId,
+  //   isChainSupported,
+  //   isContractDeployed,
+  //   isBytecodeLoading,
+  //   hasContractAddress,
+  //   sending,
+  //   token,
+  // });
+
+  // Effect to call the new store action that encapsulates useAppState logic
+  useEffect(() => {
+    evaluateAndSetAppState({
+      status,
+      isConnected,
+      chainId,
+      isChainSupported,
+      isContractDeployed, // This is from useContractVerification
+      isBytecodeLoading,
+      hasContractAddress,
+      // sending and token are read directly from store state within the action
+    });
+  }, [
     status,
     isConnected,
-    realChainId,
+    chainId,
     isChainSupported,
     isContractDeployed,
     isBytecodeLoading,
     hasContractAddress,
-  });
+    evaluateAndSetAppState,
+  ]);
 
   const parseAmounts = useCallback(() => {
-    if (!textareaRef.current) return;
+    // Textarea value will now be read from the store, set by RecipientInput
+    // For now, let's assume RecipientInput updates the store, and here we read it.
+    // However, the prompt says "Should get textareaRef.current.value" for parseAmounts.
+    // This implies parseAmounts might be called from places other than RecipientInput's onChange.
+    // Let's stick to the prompt for now, but this might need adjustment if RecipientInput is the sole source of truth for textareaValue.
+    if (!textareaRef.current) return; // Keep this check if textareaRef is still used directly
+    const text = textareaRef.current.value; // As per prompt
+    // const text = textareaValue; // Alternative if textareaValue from store is preferred source.
 
-    const text = textareaRef.current.value;
-    const decimals = getDecimals(sending, token);
+    const currentToken = useAppStore.getState().token; // Get latest token from store
+    const currentSending = useAppStore.getState().sending; // Get latest sending from store
+
+    const decimals = getDecimals(currentSending, currentToken);
     const newRecipients = parseRecipients(text, decimals);
 
     setRecipients(newRecipients);
 
     if (
       newRecipients.length &&
-      (sending === "ether" || (sending === "token" && token.address && token.decimals !== undefined))
+      (currentSending === "ether" || (currentSending === "token" && currentToken.address && currentToken.decimals !== undefined))
     ) {
       setAppState(AppState.ENTERED_AMOUNTS);
     }
-  }, [sending, token, setAppState, setRecipients]);
+  }, [setRecipients, setAppState]); // Dependencies: sending and token are now read directly from store inside
 
-  const handleSelectCurrency = useCallback(
-    (type: "ether" | "token") => {
-      selectCurrency(type);
-      requestAnimationFrame(() => {
-        if (textareaRef.current?.value) {
-          parseAmounts();
-        }
-      });
+  const handleRecipientsChange = useCallback(
+    (newRecipients: Recipient[]) => {
+      setRecipients(newRecipients);
+      const currentToken = useAppStore.getState().token; // Get latest token from store
+      const currentSending = useAppStore.getState().sending; // Get latest sending from store
+
+      if (
+        newRecipients.length &&
+        (currentSending === "ether" || (currentSending === "token" && currentToken.address && currentToken.decimals !== undefined))
+      ) {
+        setAppState(AppState.ENTERED_AMOUNTS);
+      }
     },
-    [selectCurrency, parseAmounts],
+    [setRecipients, setAppState], // Dependencies: sending and token are now read directly from store inside
   );
 
-  const handleSelectToken = useCallback(
-    (tokenInfo: TokenInfo) => {
-      selectToken(tokenInfo);
+  const resetToken = useCallback(() => {
+    resetTokenStore(); // Use store action
+  }, [resetTokenStore]);
+
+  const selectCurrency = useCallback(
+    (type: "ether" | "token") => {
+      setSending(type);
+      const currentToken = useAppStore.getState().token; // Get latest token
+
+      if (type === "ether") {
+        setAppState(AppState.SELECTED_CURRENCY);
+        requestAnimationFrame(() => {
+          // if (textareaRef.current?.value) { // Check store's textareaValue instead if fully migrated
+          //   parseAmounts();
+          // }
+          // For now, assuming parseAmounts still relies on textareaRef as per prompt for parseAmounts
+          if (textareaRef.current?.value) {
+             parseAmounts();
+          }
+        });
+      } else if (type === "token") {
+        if (currentToken.address && currentToken.decimals !== undefined && currentToken.symbol) {
+          setAppState(AppState.SELECTED_CURRENCY);
+          requestAnimationFrame(() => {
+            // if (textareaRef.current?.value) {
+            //  parseAmounts();
+            // }
+            if (textareaRef.current?.value) {
+               parseAmounts();
+            }
+          });
+        } else {
+          resetTokenStore(); // Use store action
+        }
+      }
+    },
+    [setSending, setAppState, parseAmounts, resetTokenStore], // token removed, resetToken replaced
+  );
+
+  const selectToken = useCallback(
+    (selectedTokenInfo: typeof token) => { // Use 'typeof token' for selectedTokenInfo type
+      setToken(selectedTokenInfo);
+      setSending("token");
+      setAppState(AppState.SELECTED_CURRENCY);
+
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (textareaRef.current) {
             textareaRef.current.focus();
-            if (tokenInfo.decimals !== undefined) {
+            if (selectedTokenInfo.decimals !== undefined) {
               parseAmounts();
             }
           }
         });
       });
     },
-    [selectToken, parseAmounts],
+    [setToken, setSending, setAppState, parseAmounts],
   );
 
   // Use reactive allowance hook
-  const { allowance: currentAllowance } = useTokenAllowance({
-    tokenAddress: token.address,
-    account: address,
-    spender: verifiedAddress?.address,
-    chainId: realChainId,
-  });
+  const { allowance: currentAllowance } = useTokenAllowance(); // Props are now sourced internally
 
   // Use the reactive allowance if available, otherwise fall back to the stored token allowance
-  const effectiveAllowance = currentAllowance ?? token.allowance ?? 0n;
+  const effectiveAllowance = currentAllowance ?? token.allowance ?? 0n; // token from store
 
   // Memoize expensive calculations
-  const totalAmount = useMemo(() => getTotalAmount(recipients), [recipients]);
-  const balance = useMemo(() => getBalance(sending, token, balanceData), [sending, token, balanceData]);
+  const totalAmount = useMemo(() => getTotalAmount(recipients), [recipients]); // recipients from store
+  const balance = useMemo(() => getBalance(sending, token, balanceData), [sending, token, balanceData]); // sending, token from store
   const leftAmount = useMemo(
-    () => getLeftAmount(recipients, sending, token, balanceData),
+    () => getLeftAmount(recipients, sending, token, balanceData), // recipients, sending, token from store
     [recipients, sending, token, balanceData],
   );
   const disperseMessage = useMemo(
-    () => getDisperseMessage(recipients, sending, { ...token, allowance: effectiveAllowance }, balanceData),
+    () => getDisperseMessage(recipients, sending, { ...token, allowance: effectiveAllowance }, balanceData), // recipients, sending, token from store
     [recipients, sending, token, effectiveAllowance, balanceData],
   );
-  const symbol = useMemo(() => getSymbol(sending, token, realChainId), [sending, token, realChainId]);
-  const decimals = useMemo(() => getDecimals(sending, token), [sending, token]);
-  const nativeCurrencyName = useMemo(() => getNativeCurrencyName(realChainId), [realChainId]);
+  const symbol = useMemo(() => getSymbol(sending, token, chainId), [sending, token, chainId]); // sending, token from store
+  const decimals = useMemo(() => getDecimals(sending, token), [sending, token]); // sending, token from store
+  const nativeCurrencyName = useMemo(() => getNativeCurrencyName(chainId), [chainId]);
 
   // Display all wallet connectors
   const renderConnectors = () => {
@@ -179,7 +256,7 @@ function App() {
 
   return (
     <article>
-      <Header chainId={realChainId} address={address} />
+      <Header chainId={chainId} address={address} />
 
       {appState === AppState.WALLET_REQUIRED && (
         <section>
@@ -189,14 +266,7 @@ function App() {
       )}
 
       {appState === AppState.NETWORK_UNAVAILABLE && (
-        <NetworkStatus
-          realChainId={realChainId}
-          isBytecodeLoading={isBytecodeLoading}
-          isContractDeployed={isContractDeployed}
-          isConnected={isConnected}
-          verifiedAddress={verifiedAddress}
-          onContractDeployed={handleContractDeployed}
-        />
+        <NetworkStatus />
       )}
 
       {appState >= AppState.UNLOCK_WALLET && !isConnected && (
@@ -209,11 +279,11 @@ function App() {
 
       {appState >= AppState.CONNECTED_TO_WALLET && (
         <section>
-          <CurrencySelector onSelect={handleSelectCurrency} />
+          <CurrencySelector onSelect={selectCurrency} />
           {sending === "ether" && (
             <p>
               you have {formatUnits(balanceData?.value || 0n, 18)} {nativeCurrencyName}
-              {balanceData?.value === 0n && realChainId && <span className="warning">(make sure to add funds)</span>}
+              {balanceData?.value === 0n && chainId && <span className="warning">(make sure to add funds)</span>}
             </p>
           )}
         </section>
@@ -222,12 +292,9 @@ function App() {
       {appState >= AppState.CONNECTED_TO_WALLET && sending === "token" && (
         <section>
           <TokenLoader
-            onSelect={handleSelectToken}
-            onError={resetToken}
-            chainId={realChainId}
-            account={address}
-            token={token}
-            contractAddress={verifiedAddress?.address}
+            onSelect={selectToken}
+            onError={resetTokenStore} {/* Use store action */}
+            // chainId, account, token, contractAddress are now sourced from store/hooks within TokenLoader
           />
           {token.symbol && (
             <p className="mt">
@@ -246,41 +313,17 @@ function App() {
       {appState !== AppState.NETWORK_UNAVAILABLE &&
         ((appState >= AppState.CONNECTED_TO_WALLET && sending === "ether") ||
           appState >= AppState.SELECTED_CURRENCY ||
-          (sending === "token" && !!token.symbol)) && <RecipientInput />}
+          (sending === "token" && !!token.symbol)) && (
+          <RecipientInput onRecipientsChange={handleRecipientsChange} />
+        )}
 
       {appState >= AppState.ENTERED_AMOUNTS && (
-        <TransactionSection
-          sending={sending}
-          recipients={recipients}
-          token={token}
-          symbol={symbol}
-          decimals={decimals}
-          balance={balance}
-          leftAmount={leftAmount}
-          totalAmount={totalAmount}
-          disperseMessage={disperseMessage}
-          realChainId={realChainId}
-          verifiedAddress={verifiedAddress}
-          account={address}
-          nativeCurrencyName={nativeCurrencyName}
-          effectiveAllowance={effectiveAllowance}
-        />
+        <TransactionSection />
       )}
 
       {/* Debug Panel */}
       <Suspense fallback={null}>
-        <DebugPanel
-          realChainId={realChainId}
-          isChainSupported={isChainSupported}
-          hasContractAddress={hasContractAddress}
-          isContractDeployed={isContractDeployed}
-          isBytecodeLoading={isBytecodeLoading}
-          verifiedAddress={verifiedAddress}
-          canDeploy={canDeploy}
-          createxDisperseAddress={createxDisperseAddress}
-          potentialAddresses={potentialAddresses}
-          isConnected={isConnected}
-        />
+        <DebugPanel />
       </Suspense>
     </article>
   );

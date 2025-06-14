@@ -1,24 +1,24 @@
-import { type ChangeEvent, useState } from "react";
+import { type ChangeEvent } from "react";
 import { useChainId } from "wagmi";
 import { nativeCurrencyName } from "../networks";
+import { useAppStore } from "../../store/appStore";
 
 interface CurrencySelectorProps {
   onSelect: (type: "ether" | "token") => void;
 }
 
 const CurrencySelector = ({ onSelect }: CurrencySelectorProps) => {
-  const [selectedCurrency, setSelectedCurrency] = useState<"ether" | "token">("ether");
   const chainId = useChainId();
+  const sending = useAppStore((state) => state.sending);
 
   // Get native currency name for display
   const nativeCurrency = nativeCurrencyName(chainId);
 
-  // Don't auto-select ether on mount - this causes issues when switching back from token
-  // The parent component should control the initial state instead
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value as "ether" | "token";
-    setSelectedCurrency(value);
+    // The local selectedCurrency state is removed.
+    // The checked state is now driven by `sending` from the store.
+    // Calling onSelect will trigger the logic in App.tsx, which updates the store.
     onSelect(value);
   };
 
@@ -30,7 +30,7 @@ const CurrencySelector = ({ onSelect }: CurrencySelectorProps) => {
         id="ether"
         name="what"
         value="ether"
-        checked={selectedCurrency === "ether"}
+        checked={sending === "ether"} // Controlled by Zustand store state
         onChange={handleChange}
       />
       <label htmlFor="ether">{nativeCurrency}</label>
@@ -40,7 +40,7 @@ const CurrencySelector = ({ onSelect }: CurrencySelectorProps) => {
         id="token"
         name="what"
         value="token"
-        checked={selectedCurrency === "token"}
+        checked={sending === "token"} // Controlled by Zustand store state
         onChange={handleChange}
       />
       <label htmlFor="token">token</label>

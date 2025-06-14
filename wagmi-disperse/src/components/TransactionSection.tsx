@@ -1,40 +1,58 @@
-import type { Recipient, TokenInfo } from "../types";
+import { useMemo } from "react";
+import { useAccount, useBalance, useChainId } from "wagmi";
+import { useAppStore } from "../../store/appStore";
+import { useTokenAllowance } from "../../hooks/useTokenAllowance";
+import {
+  getBalance,
+  getDecimals,
+  getDisperseMessage,
+  getLeftAmount,
+  getNativeCurrencyName,
+  getSymbol,
+  getTotalAmount,
+} from "../../utils/balanceCalculations";
 import DisperseAddresses from "./DisperseAddresses";
 import TransactionButton from "./TransactionButton";
+// Recipient and TokenInfo will be from the store or derived within the component
 
-interface TransactionSectionProps {
-  sending: "ether" | "token" | null;
-  recipients: Recipient[];
-  token: TokenInfo;
-  symbol: string;
-  decimals: number;
-  balance: bigint;
-  leftAmount: bigint;
-  totalAmount: bigint;
-  disperseMessage?: string;
-  realChainId?: number;
-  verifiedAddress?: { address: `0x${string}`; label: string } | null;
-  account?: `0x${string}`;
-  nativeCurrencyName?: string;
-  effectiveAllowance?: bigint;
-}
+export default function TransactionSection() {
+  const chainId = useChainId();
+  const { address: account } = useAccount();
 
-export default function TransactionSection({
-  sending,
-  recipients,
-  token,
-  symbol,
-  decimals,
-  balance,
-  leftAmount,
-  totalAmount,
-  disperseMessage,
-  realChainId,
-  verifiedAddress,
-  account,
-  nativeCurrencyName = "ETH",
-  effectiveAllowance = 0n,
-}: TransactionSectionProps) {
+  const sending = useAppStore((state) => state.sending);
+  const recipients = useAppStore((state) => state.recipients);
+  const token = useAppStore((state) => state.token);
+  const verifiedAddress = useAppStore((state) => state.verifiedAddress);
+
+  const { data: balanceData } = useBalance({
+    address: account,
+    chainId: chainId,
+    // For token balance, it's usually handled by token.balance from store,
+    // but useBalance is for native currency. getBalance utility handles this.
+  });
+
+  // Use reactive allowance hook
+  const { allowance: currentAllowance } = useTokenAllowance(); // Props are now sourced internally
+
+  // Use the reactive allowance if available, otherwise fall back to the stored token allowance
+  const effectiveAllowance = useMemo(() => currentAllowance ?? token.allowance ?? 0n, [currentAllowance, token.allowance]);
+
+  // Memoize expensive calculations
+  const totalAmount = useMemo(() => getTotalAmount(recipients), [recipients]);
+  const balance = useMemo(() => getBalance(sending, token, balanceData), [sending, token, balanceData]);
+  const leftAmount = useMemo(
+    () => getLeftAmount(recipients, sending, token, balanceData),
+    [recipients, sending, token, balanceData],
+  );
+  const disperseMessage = useMemo(
+    () => getDisperseMessage(recipients, sending, { ...token, allowance: effectiveAllowance }, balanceData),
+    [recipients, sending, token, effectiveAllowance, balanceData],
+  );
+  const symbol = useMemo(() => getSymbol(sending, token, chainId), [sending, token, chainId]);
+  const decimals = useMemo(() => getDecimals(sending, token), [sending, token]);
+  const nativeCurrencyName = useMemo(() => getNativeCurrencyName(chainId) || "ETH", [chainId]);
+
+
   return (
     <>
       <section>
@@ -54,7 +72,7 @@ export default function TransactionSection({
             title={`disperse ${nativeCurrencyName}`}
             action="disperseEther"
             message={disperseMessage}
-            chainId={realChainId}
+            chainId={chainId}
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}
@@ -74,7 +92,7 @@ export default function TransactionSection({
           <TransactionButton
             title={effectiveAllowance < totalAmount ? "approve" : "revoke"}
             action={effectiveAllowance < totalAmount ? "approve" : "deny"}
-            chainId={realChainId}
+            chainId={chainId}
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}
@@ -87,7 +105,7 @@ export default function TransactionSection({
             title="disperse token"
             action="disperseToken"
             message={disperseMessage}
-            chainId={realChainId}
+            chainId={chainId}
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}

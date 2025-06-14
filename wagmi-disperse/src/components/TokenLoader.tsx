@@ -1,9 +1,10 @@
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { type BaseError, isAddress } from "viem";
-import { useReadContract } from "wagmi";
+import { useReadContract, useChainId, useAccount } from "wagmi";
 import { erc20 } from "../contracts";
 import { disperse_legacy } from "../deploy";
 import type { DebugParam, TokenInfo } from "../types";
+import { useAppStore } from "../../store/appStore";
 
 // Debug function to log TokenLoader events
 const debug = (message: string, data?: DebugParam) => {
@@ -13,27 +14,29 @@ const debug = (message: string, data?: DebugParam) => {
 interface TokenLoaderProps {
   onSelect: (token: TokenInfo) => void;
   onError: () => void;
-  chainId?: number;
-  account?: `0x${string}`;
-  token?: TokenInfo; // Pass the current token to preserve state
-  contractAddress?: `0x${string}`; // Optional prop for disperse contract address
+  // chainId, account, token, contractAddress will be sourced from hooks/store
 }
 
-const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddress }: TokenLoaderProps) => {
-  // Initialize tokenAddress with token.address if available
-  const [tokenAddress, setTokenAddress] = useState<`0x${string}` | "">(token?.address || "");
+const TokenLoader = ({ onSelect, onError }: TokenLoaderProps) => {
+  const chainId = useChainId();
+  const { address: account } = useAccount();
+  const storeToken = useAppStore((state) => state.token);
+  const verifiedContractAddress = useAppStore((state) => state.verifiedAddress?.address);
+
+  // Initialize tokenAddress with storeToken.address if available
+  const [tokenAddress, setTokenAddress] = useState<`0x${string}` | "">(storeToken?.address || "");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const disperseContractAddress = contractAddress || (disperse_legacy.address as `0x${string}`);
+  const disperseContractAddress = verifiedContractAddress || (disperse_legacy.address as `0x${string}`);
 
-  // Update tokenAddress if token prop changes
+  // Update tokenAddress if storeToken prop changes
   useEffect(() => {
-    if (token?.address && token.address !== tokenAddress) {
-      setTokenAddress(token.address);
+    if (storeToken?.address && storeToken.address !== tokenAddress) {
+      setTokenAddress(storeToken.address);
     }
-  }, [token?.address, tokenAddress]);
+  }, [storeToken?.address, tokenAddress]);
 
   debug("Component rendered", {
     tokenAddress,
