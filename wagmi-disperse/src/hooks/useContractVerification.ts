@@ -16,6 +16,7 @@ export function useContractVerification(
   const [verifiedAddress, setVerifiedAddress] = useState<VerifiedAddress | null>(null);
   const [currentCheckIndex, setCurrentCheckIndex] = useState(0);
   const lastCheckedChainIdRef = useRef<number | null>(null);
+  const currentChainIdRef = useRef<number | undefined>(undefined);
 
   const legacyDisperseAddress = disperse_legacy.address as `0x${string}`;
   const createxDisperseAddress = disperse_createx.address as `0x${string}`;
@@ -47,6 +48,7 @@ export function useContractVerification(
   useEffect(() => {
     if (lastCheckedChainIdRef.current !== realChainId) {
       lastCheckedChainIdRef.current = realChainId !== undefined ? realChainId : null;
+      currentChainIdRef.current = realChainId;
       setVerifiedAddress(null);
       setCurrentCheckIndex(0);
     }
@@ -54,6 +56,12 @@ export function useContractVerification(
 
   useEffect(() => {
     if (!addressToCheck || isBytecodeLoading || !isConnected || !realChainId) return;
+
+    // Async safety: ignore results if chain changed during the async operation
+    if (currentChainIdRef.current !== realChainId) {
+      debug(`Ignoring stale result for chain ${realChainId}, current chain is ${currentChainIdRef.current}`);
+      return;
+    }
 
     const currentAddress = potentialAddresses[currentCheckIndex];
     if (!currentAddress) return;
@@ -67,8 +75,11 @@ export function useContractVerification(
     console.log(`[DEBUG-CODE] Code sample: ${codeString ? codeString.substring(0, 100) : "empty"}`);
 
     if (codeString && codeString !== "0x" && isDisperseContract(codeString)) {
-      debug(`Found valid Disperse contract at ${currentAddress.label} address:`, currentAddress.address);
-      setVerifiedAddress(currentAddress);
+      // Double-check chain hasn't changed before setting verified address
+      if (currentChainIdRef.current === realChainId) {
+        debug(`Found valid Disperse contract at ${currentAddress.label} address:`, currentAddress.address);
+        setVerifiedAddress(currentAddress);
+      }
       return;
     }
 

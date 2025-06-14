@@ -3,6 +3,7 @@ import { type BaseError, isAddress } from "viem";
 import { useReadContracts } from "wagmi";
 import { erc20 } from "../contracts";
 import { disperse_legacy } from "../deploy";
+import { useContract, useCurrency, useWallet } from "../store";
 import type { DebugParam, TokenInfo } from "../types";
 
 // Debug function to log TokenLoader events
@@ -11,20 +12,39 @@ const debug = (message: string, data?: DebugParam) => {
 };
 
 interface TokenLoaderProps {
-  onSelect: (token: TokenInfo) => void;
-  onError: () => void;
-  chainId?: number;
-  account?: `0x${string}`;
-  token?: TokenInfo; // Pass the current token to preserve state
-  contractAddress?: `0x${string}`; // Optional prop for disperse contract address
+  onSelect?: (token: TokenInfo) => void; // Optional, uses store by default
+  onError?: () => void; // Optional callback
+  chainId?: number; // Optional, uses store by default
+  account?: `0x${string}`; // Optional, uses store by default
+  token?: TokenInfo; // Optional, uses store by default
+  contractAddress?: `0x${string}`; // Optional, uses store by default
 }
 
-const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddress }: TokenLoaderProps) => {
+const TokenLoader = ({
+  onSelect,
+  onError,
+  chainId: propChainId,
+  account: propAccount,
+  token: propToken,
+  contractAddress: propContractAddress,
+}: TokenLoaderProps) => {
+  // Get data from store
+  const { token: storeToken, setToken } = useCurrency();
+  const { verifiedAddress } = useContract();
+  const { chainId: storeChainId, address: storeAccount } = useWallet();
+
+  // Use props with store fallbacks
+  const token = propToken || storeToken;
+  const chainId = propChainId || storeChainId;
+  const account = propAccount || storeAccount;
+  const contractAddress = propContractAddress || verifiedAddress?.address;
+
   // Initialize tokenAddress with token.address if available
   const [tokenAddress, setTokenAddress] = useState<`0x${string}` | "">(token?.address || "");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [lastProcessedToken, setLastProcessedToken] = useState<string | null>(null);
 
   const disperseContractAddress = contractAddress || (disperse_legacy.address as `0x${string}`);
 
@@ -139,6 +159,7 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
   ]);
 
   // Use effect to process token data when it's loaded
+  // biome-ignore lint/correctness/useExhaustiveDependencies: setToken is stable from Zustand
   useEffect(() => {
     if (!isSubmitted) return;
 
@@ -157,7 +178,9 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
       setErrorMessage(errorMessage);
       setIsLoading(false);
       setIsSubmitted(false);
-      onError();
+      if (onError) {
+        onError();
+      }
       return;
     }
 
@@ -169,6 +192,14 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
       balanceData !== undefined &&
       allowanceData !== undefined
     ) {
+      // Create a unique key for this token to prevent duplicate processing
+      const tokenKey = `${chainId}-${tokenAddress}`;
+      
+      // Skip if we already processed this exact token data
+      if (lastProcessedToken === tokenKey) {
+        return;
+      }
+
       debug("All token data loaded, creating token info");
 
       const tokenInfo: TokenInfo = {
@@ -183,7 +214,14 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
       debug("Calling onSelect with token info", tokenInfo);
       // Clear any error message on successful token load
       setErrorMessage("");
-      onSelect(tokenInfo);
+      setLastProcessedToken(tokenKey);
+
+      // Use store setter if no onSelect callback provided
+      if (onSelect) {
+        onSelect(tokenInfo);
+      } else {
+        setToken(tokenInfo);
+      }
       setIsSubmitted(false);
       setIsLoading(false);
     }
@@ -204,9 +242,9 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
     decimalsErrorObj,
     balanceErrorObj,
     allowanceErrorObj,
-    onSelect,
-    onError,
     tokenAddress,
+    lastProcessedToken,
+    // onSelect and onError are stable callbacks, setToken is stable from Zustand
   ]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -230,6 +268,7 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
 
     setIsLoading(true);
     setIsSubmitted(true);
+    setLastProcessedToken(null); // Reset to allow reprocessing
     debug("Token loading started", { tokenAddress, account, disperseContractAddress });
   };
 

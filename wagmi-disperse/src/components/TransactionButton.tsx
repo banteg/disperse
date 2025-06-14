@@ -6,6 +6,7 @@ import { erc20 } from "../contracts";
 import { disperse_legacy } from "../deploy";
 import { disperseAbi } from "../generated";
 import { explorerTx } from "../networks";
+import { useContract, useCurrency, useTransaction, useWallet } from "../store";
 import type { Recipient, TokenInfo } from "../types";
 import { formatError } from "../utils/errors";
 
@@ -15,12 +16,12 @@ interface TransactionButtonProps {
   title: string;
   action: "disperseEther" | "disperseToken" | "approve" | "deny";
   message?: string;
-  chainId?: number;
-  recipients: Recipient[];
-  token: TokenInfo;
-  contractAddress?: `0x${string}`; // Optional contract address override
+  chainId?: number; // Optional, uses store by default
+  recipients?: Recipient[]; // Optional, uses store by default
+  token?: TokenInfo; // Optional, uses store by default
+  contractAddress?: `0x${string}`; // Optional, uses store by default
   className?: string; // Additional class names for styling
-  account?: `0x${string}`; // User account for query invalidation
+  account?: `0x${string}`; // Optional, uses store by default
 }
 
 const TransactionButton = ({
@@ -29,19 +30,31 @@ const TransactionButton = ({
   title,
   action,
   message,
-  chainId,
-  recipients,
-  token,
-  contractAddress: customAddress,
+  chainId: propChainId,
+  recipients: propRecipients,
+  token: propToken,
+  contractAddress: propContractAddress,
   className = "",
-  account,
+  account: propAccount,
 }: TransactionButtonProps) => {
+  // Get data from store
+  const { token: storeToken } = useCurrency();
+  const { recipients: storeRecipients } = useTransaction();
+  const { verifiedAddress } = useContract();
+  const { chainId: storeChainId, address: storeAccount } = useWallet();
+
+  // Use props with store fallbacks
+  const chainId = propChainId || storeChainId;
+  const recipients = propRecipients || storeRecipients;
+  const token = propToken || storeToken;
+  const contractAddress = propContractAddress || verifiedAddress?.address;
+  const account = propAccount || storeAccount;
   const [txHash, setTxHash] = useState<`0x${string}` | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const queryClient = useQueryClient();
 
-  // Use the contract address from props, falling back to legacy address if not provided
-  const contractAddress = customAddress || (disperse_legacy.address as `0x${string}`);
+  // Fall back to legacy address if no contract address is available
+  const deployedAddress = contractAddress || (disperse_legacy.address as `0x${string}`);
 
   // Always consider the contract deployed if we're showing the button
   // The parent component (App.tsx) only shows this button when a contract is verified
@@ -67,14 +80,14 @@ const TransactionButton = ({
     if (isConfirmed && account) {
       if (action === "approve" || action === "deny") {
         // Invalidate allowance queries to refetch fresh data
-        if (token.address && contractAddress) {
+        if (token.address && deployedAddress) {
           queryClient.invalidateQueries({
             queryKey: [
               "readContract",
               {
                 address: token.address,
                 functionName: "allowance",
-                args: [account, contractAddress],
+                args: [account, deployedAddress],
                 chainId,
               },
             ],
@@ -109,15 +122,18 @@ const TransactionButton = ({
         console.log(`[TransactionButton] Invalidated ETH balance queries for ${action} transaction`);
       }
     }
-  }, [isConfirmed, action, token.address, account, contractAddress, chainId, queryClient]);
+  }, [isConfirmed, action, token.address, account, deployedAddress, chainId, queryClient]);
 
   const handleClick = async () => {
     setErrorMessage("");
 
-    if (!contractAddress) {
+    if (!deployedAddress) {
       setErrorMessage("Disperse contract address not available for this network");
       return;
     }
+
+    // TypeScript: deployedAddress is guaranteed to be non-null after this check
+    const contractAddr = deployedAddress as `0x${string}`;
 
     if (isBytecodeLoading) {
       setErrorMessage("Checking if Disperse contract is deployed...");
@@ -133,7 +149,7 @@ const TransactionButton = ({
       if (action === "disperseEther") {
         writeContract(
           {
-            address: contractAddress,
+            address: contractAddr,
             abi: disperseAbi,
             functionName: "disperseEther",
             args: [recipients.map((r) => r.address), recipients.map((r) => r.value)],
@@ -151,7 +167,7 @@ const TransactionButton = ({
       } else if (action === "disperseToken" && token.address) {
         writeContract(
           {
-            address: contractAddress,
+            address: contractAddr,
             abi: disperseAbi,
             functionName: "disperseToken",
             args: [token.address, recipients.map((r) => r.address), recipients.map((r) => r.value)],
@@ -172,7 +188,7 @@ const TransactionButton = ({
             abi: erc20.abi,
             functionName: "approve",
             args: [
-              contractAddress,
+              contractAddr,
               BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"), // MaxUint256
             ],
           },
@@ -191,7 +207,7 @@ const TransactionButton = ({
             address: token.address,
             abi: erc20.abi,
             functionName: "approve",
-            args: [contractAddress, 0n],
+            args: [contractAddr, 0n],
           },
           {
             onSuccess(hash) {

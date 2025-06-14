@@ -1,18 +1,20 @@
 import { memo, useCallback, useRef } from "react";
-import type { Recipient, TokenInfo } from "../types";
+import { useCurrency, useTransaction } from "../store";
+import type { Recipient } from "../types";
 import { getDecimals } from "../utils/balanceCalculations";
 import { parseRecipients } from "../utils/parseRecipients";
 
 interface RecipientInputProps {
-  sending: "ether" | "token" | null;
-  token: TokenInfo;
-  onRecipientsChange: (recipients: Recipient[]) => void;
+  onRecipientsChange?: (recipients: Recipient[]) => void; // Optional callback for parent component
 }
 
-const RecipientInput = ({ sending, token, onRecipientsChange }: RecipientInputProps) => {
+const RecipientInput = ({ onRecipientsChange }: RecipientInputProps) => {
+  const { sending, token } = useCurrency();
+  const { setRecipients } = useTransaction();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const symbol = sending === "token" ? token.symbol || "???" : "ETH";
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: setRecipients is stable from Zustand
   const parseAmounts = useCallback(() => {
     if (!textareaRef.current) return;
 
@@ -20,8 +22,13 @@ const RecipientInput = ({ sending, token, onRecipientsChange }: RecipientInputPr
     const decimals = getDecimals(sending, token);
     const newRecipients = parseRecipients(text, decimals);
 
-    onRecipientsChange(newRecipients);
-  }, [sending, token, onRecipientsChange]);
+    setRecipients(newRecipients);
+
+    // Keep compatibility with existing callback
+    if (onRecipientsChange) {
+      onRecipientsChange(newRecipients);
+    }
+  }, [sending, token, onRecipientsChange]); // setRecipients is stable from Zustand
 
   return (
     <section>
