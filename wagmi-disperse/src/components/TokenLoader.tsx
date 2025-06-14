@@ -1,6 +1,6 @@
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { type BaseError, isAddress } from "viem";
-import { useReadContract } from "wagmi";
+import { useReadContracts } from "wagmi";
 import { erc20 } from "../contracts";
 import { disperse_legacy } from "../deploy";
 import type { DebugParam, TokenInfo } from "../types";
@@ -44,83 +44,67 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
     disperseContractAddress,
   });
 
-  // Use wagmi's hooks to read token data
-  const {
-    data: nameData,
-    isError: nameError,
-    error: nameErrorObj,
-  } = useReadContract({
-    address: tokenAddress as `0x${string}`,
-    abi: erc20.abi,
-    functionName: "name",
-    chainId, // Explicitly set chainId from wallet
-    query: {
-      enabled: isSubmitted && !!tokenAddress && !!chainId,
-      retry: false,
-    },
-  });
-
-  const {
-    data: symbolData,
-    isError: symbolError,
-    error: symbolErrorObj,
-  } = useReadContract({
-    address: tokenAddress as `0x${string}`,
-    abi: erc20.abi,
-    functionName: "symbol",
-    chainId, // Explicitly set chainId from wallet
-    query: {
-      enabled: isSubmitted && !!tokenAddress && !!chainId,
-      retry: false,
-    },
-  });
-
-  const {
-    data: decimalsData,
-    isError: decimalsError,
-    error: decimalsErrorObj,
-  } = useReadContract({
-    address: tokenAddress as `0x${string}`,
-    abi: erc20.abi,
-    functionName: "decimals",
-    chainId, // Explicitly set chainId from wallet
-    query: {
-      enabled: isSubmitted && !!tokenAddress && !!chainId,
-      retry: false,
-    },
-  });
-
-  const {
-    data: balanceData,
-    isError: balanceError,
-    error: balanceErrorObj,
-  } = useReadContract({
-    address: tokenAddress as `0x${string}`,
-    abi: erc20.abi,
-    functionName: "balanceOf",
-    args: [account as `0x${string}`],
-    chainId, // Explicitly set chainId from wallet
-    query: {
-      enabled: isSubmitted && !!tokenAddress && !!account && !!chainId,
-      retry: false,
-    },
-  });
-
-  const {
-    data: allowanceData,
-    isError: allowanceError,
-    error: allowanceErrorObj,
-  } = useReadContract({
-    address: tokenAddress as `0x${string}`,
-    abi: erc20.abi,
-    functionName: "allowance",
-    args: [account as `0x${string}`, disperseContractAddress as `0x${string}`],
-    chainId, // Explicitly set chainId from wallet
+  // Use wagmi's useReadContracts to batch all token data calls
+  const { data } = useReadContracts({
+    contracts: [
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: erc20.abi,
+        functionName: "name",
+        chainId,
+      },
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: erc20.abi,
+        functionName: "symbol",
+        chainId,
+      },
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: erc20.abi,
+        functionName: "decimals",
+        chainId,
+      },
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: erc20.abi,
+        functionName: "balanceOf",
+        args: [account as `0x${string}`],
+        chainId,
+      },
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: erc20.abi,
+        functionName: "allowance",
+        args: [account as `0x${string}`, disperseContractAddress as `0x${string}`],
+        chainId,
+      },
+    ],
     query: {
       enabled: isSubmitted && !!tokenAddress && !!account && !!disperseContractAddress && !!chainId,
       retry: false,
     },
   });
+
+  // Extract individual results
+  const nameData = data?.[0]?.result;
+  const symbolData = data?.[1]?.result;
+  const decimalsData = data?.[2]?.result;
+  const balanceData = data?.[3]?.result;
+  const allowanceData = data?.[4]?.result;
+
+  // Extract individual errors
+  const nameError = data?.[0]?.status === "failure";
+  const symbolError = data?.[1]?.status === "failure";
+  const decimalsError = data?.[2]?.status === "failure";
+  const balanceError = data?.[3]?.status === "failure";
+  const allowanceError = data?.[4]?.status === "failure";
+
+  const nameErrorObj = data?.[0]?.error;
+  const symbolErrorObj = data?.[1]?.error;
+  const decimalsErrorObj = data?.[2]?.error;
+  const balanceErrorObj = data?.[3]?.error;
+  const allowanceErrorObj = data?.[4]?.error;
 
   // Log when contract data is received
   useEffect(() => {

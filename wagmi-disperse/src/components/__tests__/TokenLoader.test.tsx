@@ -6,15 +6,15 @@ import TokenLoader from "../TokenLoader";
 
 // Mock wagmi hooks
 vi.mock("wagmi", () => ({
-  useReadContract: vi.fn(),
+  useReadContracts: vi.fn(),
   useConfig: vi.fn(() => ({ chains: [] })),
 }));
 
 // Mock console.log to avoid noise in tests
 vi.spyOn(console, "log").mockImplementation(() => {});
 
-import { useReadContract } from "wagmi";
-const mockUseReadContract = vi.mocked(useReadContract);
+import { useReadContracts } from "wagmi";
+const mockUseReadContracts = vi.mocked(useReadContracts);
 
 describe("TokenLoader", () => {
   const mockOnSelect = vi.fn();
@@ -29,7 +29,7 @@ describe("TokenLoader", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseReadContract.mockReturnValue({
+    mockUseReadContracts.mockReturnValue({
       data: undefined,
       isError: false,
       error: null,
@@ -47,13 +47,12 @@ describe("TokenLoader", () => {
   it("should handle valid token address submission", async () => {
     const user = userEvent.setup();
 
-    // Mock successful token data loading
-    mockUseReadContract
-      .mockReturnValueOnce({ data: "Test Token", isError: false, error: null } as any) // name
-      .mockReturnValueOnce({ data: "TEST", isError: false, error: null } as any) // symbol
-      .mockReturnValueOnce({ data: 18n, isError: false, error: null } as any) // decimals
-      .mockReturnValueOnce({ data: 1000000n, isError: false, error: null } as any) // balance
-      .mockReturnValueOnce({ data: 500000n, isError: false, error: null } as any); // allowance
+    // Initially mock no data (loading state)
+    mockUseReadContracts.mockReturnValue({
+      data: undefined,
+      isError: false,
+      error: null,
+    } as any);
 
     render(<TokenLoader {...defaultProps} />);
 
@@ -104,12 +103,17 @@ describe("TokenLoader", () => {
     const user = userEvent.setup();
 
     // Mock error in token data loading
-    mockUseReadContract.mockReturnValue({
-      data: undefined,
+    mockUseReadContracts.mockReturnValue({
+      data: [
+        { 
+          status: "failure", 
+          error: new BaseError("Contract read failed", {
+            cause: new Error("Network error"),
+          })
+        },
+      ],
       isError: true,
-      error: new BaseError("Contract read failed", {
-        cause: new Error("Network error"),
-      }),
+      error: null,
     } as any);
 
     render(<TokenLoader {...defaultProps} />);
@@ -129,7 +133,7 @@ describe("TokenLoader", () => {
     const user = userEvent.setup();
 
     // Initially return no data
-    mockUseReadContract.mockReturnValue({ data: undefined, isError: false, error: null } as any);
+    mockUseReadContracts.mockReturnValue({ data: undefined, isError: false, error: null } as any);
 
     const { rerender } = render(<TokenLoader {...defaultProps} />);
 
@@ -140,12 +144,17 @@ describe("TokenLoader", () => {
     await user.click(loadButton);
 
     // Now mock successful data return for all calls
-    mockUseReadContract
-      .mockReturnValueOnce({ data: "Test Token", isError: false, error: null } as any) // name
-      .mockReturnValueOnce({ data: "TEST", isError: false, error: null } as any) // symbol
-      .mockReturnValueOnce({ data: 18n, isError: false, error: null } as any) // decimals
-      .mockReturnValueOnce({ data: 1000000n, isError: false, error: null } as any) // balance
-      .mockReturnValueOnce({ data: 500000n, isError: false, error: null } as any); // allowance
+    mockUseReadContracts.mockReturnValue({
+      data: [
+        { result: "Test Token", status: "success" },
+        { result: "TEST", status: "success" },
+        { result: 18n, status: "success" },
+        { result: 1000000n, status: "success" },
+        { result: 500000n, status: "success" },
+      ],
+      isError: false,
+      error: null,
+    } as any);
 
     // Force re-render to trigger effect with new data
     rerender(<TokenLoader {...defaultProps} />);
@@ -201,10 +210,15 @@ describe("TokenLoader", () => {
     const errorWithShortMessage = new BaseError("Full error message");
     errorWithShortMessage.shortMessage = "Token not found";
 
-    mockUseReadContract.mockReturnValue({
-      data: undefined,
+    mockUseReadContracts.mockReturnValue({
+      data: [
+        { 
+          status: "failure", 
+          error: errorWithShortMessage
+        },
+      ],
       isError: true,
-      error: errorWithShortMessage,
+      error: null,
     } as any);
 
     render(<TokenLoader {...defaultProps} />);
@@ -222,13 +236,25 @@ describe("TokenLoader", () => {
 
   it("should use custom contract address when provided", async () => {
     const customContractAddress = "0xD152f549545093347A162Dce210e7293f1452150";
+    const user = userEvent.setup();
+    
     render(<TokenLoader {...defaultProps} contractAddress={customContractAddress as `0x${string}`} />);
+    
+    const input = screen.getByPlaceholderText("0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359");
+    const loadButton = screen.getByDisplayValue("load");
+
+    await user.type(input, "0x6B175474E89094C44Da98b954EedeAC495271d0F");
+    await user.click(loadButton);
 
     // The component should use the custom address for allowance checks
-    expect(mockUseReadContract).toHaveBeenCalledWith(
+    expect(mockUseReadContracts).toHaveBeenCalledWith(
       expect.objectContaining({
-        functionName: "allowance",
-        args: [defaultProps.account, customContractAddress],
+        contracts: expect.arrayContaining([
+          expect.objectContaining({
+            functionName: "allowance",
+            args: [defaultProps.account, customContractAddress],
+          }),
+        ]),
       }),
     );
   });
