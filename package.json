@@ -1,0 +1,6 @@
+{
+	"dependencies": {
+		"@wagmi/connectors": "5.8.5",
+		"fuse.js": "^7.1.0"
+	}
+}
