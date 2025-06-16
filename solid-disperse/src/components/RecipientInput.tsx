@@ -33,7 +33,7 @@ const RecipientInput = (props: RecipientInputProps) => {
       <div class="shadow">
         <textarea
           ref={textareaRef}
-          spellCheck={false}
+          spellcheck={false}
           onInput={parseAmounts}
           id="recipients-textarea"
           placeholder="0x314ab97b76e39d63c78d5c86c2daf8eaa306b182 3.141592&#10;0x271bffabd0f79b8bd4d7a1c245b7ec5b576ea98a,2.7182&#10;0x141ca95b6177615fb1417cf70e930e102bf8f584=1.41421"

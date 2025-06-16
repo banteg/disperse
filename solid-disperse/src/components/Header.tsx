@@ -1,5 +1,5 @@
-import { Show, createSignal, createResource } from 'solid-js'
-import { disconnect, readContract } from '@wagmi/core'
+import { Show, createResource } from 'solid-js'
+import { disconnect, getEnsName } from '@wagmi/core'
 import { config } from '../wagmi.config'
 import { explorerAddr } from '../networks'
 import ChainSelector from './ChainSelector'
@@ -9,17 +9,6 @@ interface HeaderProps {
   address?: `0x${string}`
 }
 
-// ENS Reverse Registrar contract address and ABI
-const ENS_REVERSE_REGISTRAR = '0x3671aE578E63FdF66ad4F3E12CC0c0d71Ac7510C'
-const ENS_REVERSE_REGISTRAR_ABI = [
-  {
-    inputs: [{ name: 'addresses', type: 'address[]' }],
-    name: 'getNames',
-    outputs: [{ name: '', type: 'string[]' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-] as const
 
 const Header = (props: HeaderProps) => {
   // Fetch ENS name if address is available
@@ -28,14 +17,10 @@ const Header = (props: HeaderProps) => {
     async (address) => {
       if (!address) return null
       try {
-        const names = await readContract(config, {
-          address: ENS_REVERSE_REGISTRAR,
-          abi: ENS_REVERSE_REGISTRAR_ABI,
-          functionName: 'getNames',
-          args: [[address]],
+        return await getEnsName(config, {
+          address,
           chainId: 1, // ENS is on mainnet
         })
-        return names[0] || null
       } catch {
         return null
       }

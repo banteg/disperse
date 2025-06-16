@@ -1,10 +1,13 @@
-import { createSignal, createMemo, createResource, Show, For } from 'solid-js'
+import { createSignal, createMemo, createResource, Show, For, Switch, Match } from 'solid-js'
 import { connect, getBalance } from '@wagmi/core'
+import { formatUnits } from 'viem'
 import { config } from './wagmi.config'
 import { account, chainId, isConnected } from './web3.store'
 import { chains, nativeCurrencyName } from './networks'
 import { useContractVerification } from './hooks/useContractVerification'
 import { useTokenAllowance } from './hooks/useTokenAllowance'
+import { useAppState } from './hooks/useAppState'
+import { AppState } from './constants'
 import Header from './components/Header'
 import CurrencySelector from './components/CurrencySelector'
 import TokenLoader from './components/TokenLoader'
@@ -38,6 +41,18 @@ function App() {
     chainId,
     isConnected
   )
+
+  // App state management
+  const { appState, isReady } = useAppState({
+    isConnected,
+    chainId,
+    isChainSupported,
+    isContractDeployed,
+    isContractLoading,
+    sending,
+    token,
+    recipients,
+  })
 
   // Fetch ETH balance
   const [balanceData] = createResource(
@@ -89,113 +104,116 @@ function App() {
     <article>
       <Header chainId={chainId()} address={account().address} />
 
-      <Show when={!isConnected()}>
-        <section>
-          <h2>connect to wallet</h2>
-          <p>{renderConnectors()}</p>
-        </section>
-      </Show>
-
-      <Show when={isConnected() && !isChainSupported()}>
-        <section>
-          <h2>Unsupported Network</h2>
-          <p>Please switch to a supported network.</p>
-        </section>
-      </Show>
-
-      <Show when={isConnected() && isChainSupported() && isContractLoading()}>
-        <section>
-          <h2>Checking Contract</h2>
-          <p class="pending">Verifying disperse contract on this network...</p>
-        </section>
-      </Show>
-
-      <Show when={isConnected() && isChainSupported() && (!isContractLoading() && !isContractDeployed())}>
-        <NetworkStatus
-          chainId={chainId()}
-          isBytecodeLoading={isContractLoading()}
-          isContractDeployed={isContractDeployed()}
-          isConnected={isConnected()}
-          verifiedAddress={verifiedAddress()}
-        />
-      </Show>
-
-      <Show when={isConnected() && isChainSupported() && !isContractLoading() && isContractDeployed()}>
-        <Show when={verifiedAddress()}>
-          <section class="contract-info">
-            <p class="sc">Using {verifiedAddress()!.label} disperse contract</p>
-          </section>
-        </Show>
-        <section>
-          <CurrencySelector onSelect={setSending} />
-          <Show when={sending() === 'ether'}>
-            <p>
-              you have {balanceData()?.value ? (Number(balanceData()!.value) / 1e18).toFixed(6) : '0'} {nativeCurrencyName(chainId())}
-              <Show when={balanceData()?.value === 0n && chainId()}>
-                <span class="warning"> (make sure to add funds)</span>
-              </Show>
-            </p>
-          </Show>
-        </section>
-        
-        <Show when={sending() === 'token'}>
+      <Switch>
+        <Match when={appState() === AppState.WALLET_REQUIRED}>
           <section>
-            <TokenLoader
-              onSelect={setToken}
-              onError={() => setSending('ether')}
-              chainId={chainId()}
-              account={account().address}
-              token={token()}
-              contractAddress={verifiedAddress()?.address}
-            />
-            <Show when={token().symbol}>
-              <p class="mt">
-                you have {token().balance ? (Number(token().balance) / 10 ** (token().decimals || 18)).toFixed(6) : '0'} {token().symbol}
+            <h2>connect to wallet</h2>
+            <p>{renderConnectors()}</p>
+          </section>
+        </Match>
+
+        <Match when={appState() === AppState.NETWORK_UNSUPPORTED}>
+          <section>
+            <h2>Unsupported Network</h2>
+            <p>Please switch to a supported network.</p>
+          </section>
+        </Match>
+
+        <Match when={appState() === AppState.CONTRACT_LOADING}>
+          <section>
+            <h2>Checking Contract</h2>
+            <p class="pending">Verifying disperse contract on this network...</p>
+          </section>
+        </Match>
+
+        <Match when={appState() === AppState.CONTRACT_NOT_DEPLOYED}>
+          <NetworkStatus
+            chainId={chainId()}
+            isBytecodeLoading={isContractLoading()}
+            isContractDeployed={isContractDeployed()}
+            isConnected={isConnected()}
+            verifiedAddress={verifiedAddress()}
+          />
+        </Match>
+
+        <Match when={isReady()}>
+          <Show when={verifiedAddress()}>
+            <section class="contract-info">
+              <p class="sc">Using {verifiedAddress()!.label} disperse contract</p>
+            </section>
+          </Show>
+          
+          <section>
+            <CurrencySelector onSelect={setSending} />
+            <Show when={sending() === 'ether'}>
+              <p>
+                you have {balanceData()?.value ? formatUnits(balanceData()!.value, 18) : '0'} {nativeCurrencyName(chainId())}
+                <Show when={balanceData()?.value === 0n && chainId()}>
+                  <span class="warning"> (make sure to add funds)</span>
+                </Show>
               </p>
             </Show>
           </section>
-        </Show>
-        
-        <Show when={sending() === 'ether' || (sending() === 'token' && token().symbol)}>
-          <RecipientInput
-            sending={sending()}
-            token={token()}
-            onRecipientsChange={setRecipients}
-          />
-        </Show>
-        
-        <Show when={recipients().length > 0}>
-          {(() => {
-            const totalAmount = getTotalAmount(recipients())
-            const balance = getBalanceUtil(sending(), token(), balanceData() || undefined)
-            const leftAmount = getLeftAmount(recipients(), sending(), token(), balanceData() || undefined)
-            const disperseMessage = getDisperseMessage(recipients(), sending(), token(), balanceData() || undefined)
-            const symbol = getSymbol(sending(), token(), chainId())
-            const decimals = getDecimals(sending(), token())
-            const nativeCurrency = nativeCurrencyName(chainId())
-            
-            return (
-              <TransactionSection
-                sending={sending()}
-                recipients={recipients()}
-                token={token()}
-                symbol={symbol}
-                decimals={decimals}
-                balance={balance}
-                leftAmount={leftAmount}
-                totalAmount={totalAmount}
-                disperseMessage={disperseMessage}
+          
+          <Show when={sending() === 'token'}>
+            <section>
+              <TokenLoader
+                onSelect={setToken}
+                onError={() => setSending('ether')}
                 chainId={chainId()}
-                verifiedAddress={verifiedAddress()}
                 account={account().address}
-                nativeCurrencyName={nativeCurrency}
-                effectiveAllowance={currentAllowance() ?? token().allowance}
-                onAllowanceChange={refetchAllowance}
+                token={token()}
+                contractAddress={verifiedAddress()?.address}
               />
-            )
-          })()}
-        </Show>
-      </Show>
+              <Show when={token().symbol}>
+                <p class="mt">
+                  you have {token().balance ? formatUnits(token().balance || 0n, token().decimals || 18) : '0'} {token().symbol}
+                </p>
+              </Show>
+            </section>
+          </Show>
+          
+          <Show when={sending() === 'ether' || (sending() === 'token' && token().symbol)}>
+            <RecipientInput
+              sending={sending()}
+              token={token()}
+              onRecipientsChange={setRecipients}
+            />
+          </Show>
+          
+          <Show when={recipients().length > 0}>
+            {(() => {
+              const totalAmount = getTotalAmount(recipients())
+              const balance = getBalanceUtil(sending(), token(), balanceData() || undefined)
+              const leftAmount = getLeftAmount(recipients(), sending(), token(), balanceData() || undefined)
+              const disperseMessage = getDisperseMessage(recipients(), sending(), token(), balanceData() || undefined)
+              const symbol = getSymbol(sending(), token(), chainId())
+              const decimals = getDecimals(sending(), token())
+              const nativeCurrency = nativeCurrencyName(chainId())
+              
+              return (
+                <TransactionSection
+                  sending={sending()}
+                  recipients={recipients()}
+                  token={token()}
+                  symbol={symbol}
+                  decimals={decimals}
+                  balance={balance}
+                  leftAmount={leftAmount}
+                  totalAmount={totalAmount}
+                  disperseMessage={disperseMessage}
+                  chainId={chainId()}
+                  verifiedAddress={verifiedAddress()}
+                  account={account().address}
+                  nativeCurrencyName={nativeCurrency}
+                  effectiveAllowance={currentAllowance() ?? token().allowance}
+                  onAllowanceChange={refetchAllowance}
+                />
+              )
+            })()}
+          </Show>
+        </Match>
+      </Switch>
     </article>
   )
 }

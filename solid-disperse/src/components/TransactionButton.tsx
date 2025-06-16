@@ -1,12 +1,10 @@
-import { createSignal, createEffect, Show } from 'solid-js'
-import { writeContract, waitForTransactionReceipt, type BaseError } from '@wagmi/core'
-import { config } from '../wagmi.config'
+import { Show, createEffect } from 'solid-js'
 import { erc20 } from '../contracts'
-import { disperse_legacy } from '../deploy'
+import { disperse_legacy } from '../utils'
 import { disperseAbi } from '../disperseAbi'
 import { explorerTx } from '../networks'
 import type { Recipient, TokenInfo } from '../types'
-import { formatError } from '../utils'
+import { useWriteContract } from '../hooks/useWriteContract'
 
 interface TransactionButtonProps {
   show?: boolean
@@ -24,30 +22,26 @@ interface TransactionButtonProps {
 }
 
 const TransactionButton = (props: TransactionButtonProps) => {
-  const [txHash, setTxHash] = createSignal<`0x${string}` | null>(null)
-  const [errorMessage, setErrorMessage] = createSignal('')
-  const [isPending, setIsPending] = createSignal(false)
-  const [isConfirming, setIsConfirming] = createSignal(false)
-  const [isSuccess, setIsSuccess] = createSignal(false)
+  const { write, state, error, txHash, isLoading } = useWriteContract()
 
   const contractAddress = () => props.contractAddress || (disperse_legacy.address as `0x${string}`)
 
+  // Call onSuccess when transaction succeeds
+  createEffect(() => {
+    if (state() === 'success' && props.onSuccess) {
+      props.onSuccess()
+    }
+  })
+
   const handleClick = async () => {
-    setErrorMessage('')
-    setIsSuccess(false)
-    
     const address = contractAddress()
     if (!address) {
-      setErrorMessage('Disperse contract address not available for this network')
       return
     }
 
     try {
-      setIsPending(true)
-      let hash: `0x${string}` | undefined
-
       if (props.action === 'disperseEther') {
-        hash = await writeContract(config, {
+        await write({
           address,
           abi: disperseAbi,
           functionName: 'disperseEther',
@@ -55,10 +49,10 @@ const TransactionButton = (props: TransactionButtonProps) => {
             props.recipients.map((r) => r.address),
             props.recipients.map((r) => r.value)
           ],
-          value: props.recipients.reduce((sum, r) => sum + r.value, 0n),
+          value: props.recipients.reduce((sum, r) => sum + r.value, 0n) as any,
         })
       } else if (props.action === 'disperseToken' && props.token.address) {
-        hash = await writeContract(config, {
+        await write({
           address,
           abi: disperseAbi,
           functionName: 'disperseToken',
@@ -69,7 +63,7 @@ const TransactionButton = (props: TransactionButtonProps) => {
           ],
         })
       } else if (props.action === 'approve' && props.token.address) {
-        hash = await writeContract(config, {
+        await write({
           address: props.token.address,
           abi: erc20.abi,
           functionName: 'approve',
@@ -79,40 +73,15 @@ const TransactionButton = (props: TransactionButtonProps) => {
           ],
         })
       } else if (props.action === 'deny' && props.token.address) {
-        hash = await writeContract(config, {
+        await write({
           address: props.token.address,
           abi: erc20.abi,
           functionName: 'approve',
           args: [address, 0n],
         })
       }
-
-      if (hash) {
-        setTxHash(hash)
-        setIsPending(false)
-        setIsConfirming(true)
-
-        // Wait for transaction receipt
-        const receipt = await waitForTransactionReceipt(config, {
-          hash,
-        })
-
-        setIsConfirming(false)
-        setIsSuccess(true)
-
-        // Call success callback
-        if (props.onSuccess) {
-          props.onSuccess()
-        }
-        
-        console.log('Transaction successful:', receipt)
-      }
-    } catch (error) {
-      console.error('Transaction error:', error)
-      setIsPending(false)
-      setIsConfirming(false)
-      const err = error as BaseError
-      setErrorMessage(formatError(err))
+    } catch {
+      // Error is handled by the hook
     }
   }
 
@@ -126,23 +95,23 @@ const TransactionButton = (props: TransactionButtonProps) => {
         type="submit"
         value={props.title}
         onClick={handleClick}
-        disabled={props.disabled || isPending() || isConfirming()}
+        disabled={props.disabled || isLoading()}
       />
       <div class="status">
         <Show when={props.message}>
           <div>{props.message}</div>
         </Show>
-        <Show when={isPending()}>
+        <Show when={state() === 'signing'}>
           <div class="pending">sign transaction with wallet</div>
         </Show>
-        <Show when={isConfirming()}>
+        <Show when={state() === 'confirming'}>
           <div class="pending">transaction pending</div>
         </Show>
-        <Show when={isSuccess()}>
+        <Show when={state() === 'success'}>
           <div class="success">transaction success</div>
         </Show>
-        <Show when={errorMessage()}>
-          <div class="failed">{errorMessage()}</div>
+        <Show when={state() === 'error' && error()}>
+          <div class="failed">{error()}</div>
         </Show>
         <Show when={txHash()}>
           <a

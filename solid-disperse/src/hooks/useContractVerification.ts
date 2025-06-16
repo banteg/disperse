@@ -1,8 +1,7 @@
 import { createSignal, createMemo, createEffect } from 'solid-js'
 import { getBytecode } from '@wagmi/core'
 import { config } from '../wagmi.config'
-import { disperse_legacy, disperse_createx } from '../deploy'
-import { isDisperseContract } from '../utils'
+import { disperse_legacy, disperse_createx, isDisperseContract } from '../utils'
 import type { VerifiedAddress } from '../types'
 
 export function useContractVerification(

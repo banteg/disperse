@@ -1,9 +1,9 @@
 import { createSignal, createEffect, Show } from 'solid-js'
 import { isAddress, type BaseError } from 'viem'
-import { readContract, multicall } from '@wagmi/core'
+import { multicall } from '@wagmi/core'
 import { config } from '../wagmi.config'
 import { erc20 } from '../contracts'
-import { disperse_legacy } from '../deploy'
+import { disperse_legacy } from '../utils'
 import type { TokenInfo } from '../types'
 
 interface TokenLoaderProps {
@@ -104,8 +104,8 @@ const TokenLoader = (props: TokenLoaderProps) => {
         name: nameResult.result as string,
         symbol: symbolResult.result as string,
         decimals: Number(decimalsResult.result),
-        balance: balanceResult.result as bigint,
-        allowance: allowanceResult.result as bigint,
+        balance: BigInt(balanceResult.result as string | number),
+        allowance: BigInt(allowanceResult.result as string | number),
       }
 
       setErrorMessage('')

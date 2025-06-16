@@ -1,34 +1,15 @@
 import { createConfig, http } from '@wagmi/core'
-import { injected, walletConnect, metaMask, safe } from '@wagmi/connectors'
+import { injected, metaMask, safe } from '@wagmi/connectors'
 import { chains } from './networks'
-import type { Chain } from 'viem'
-
-// Convert our custom chain format to viem chain format
-const viemChains = chains.map(chain => ({
-  id: chain.id,
-  name: chain.name,
-  network: chain.name.toLowerCase().replace(/\s+/g, ''),
-  nativeCurrency: chain.nativeCurrency,
-  rpcUrls: {
-    default: { http: chain.rpcUrls }
-  },
-  blockExplorers: chain.blockExplorers ? {
-    default: {
-      name: chain.blockExplorers[0].name,
-      url: chain.blockExplorers[0].url
-    }
-  } : undefined,
-  testnet: chain.testnet
-})) as readonly [Chain, ...Chain[]]
 
 // Create transports for each chain
-const transports = viemChains.reduce((acc, chain) => {
+const transports = chains.reduce((acc, chain) => {
   acc[chain.id] = http()
   return acc
 }, {} as Record<number, ReturnType<typeof http>>)
 
 export const config = createConfig({
-  chains: viemChains,
+  chains: chains as any, // Type assertion needed due to wagmi's strict chain typing
   connectors: [
     injected(),
     metaMask(),

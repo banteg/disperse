@@ -1,4 +1,4 @@
-import { createSignal, createResource, createEffect } from 'solid-js'
+import { createSignal, createResource } from 'solid-js'
 import { readContract } from '@wagmi/core'
 import { config } from '../wagmi.config'
 import { erc20 } from '../contracts'
