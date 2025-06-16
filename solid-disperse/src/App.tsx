@@ -10,6 +10,7 @@ import CurrencySelector from './components/CurrencySelector'
 import TokenLoader from './components/TokenLoader'
 import RecipientInput from './components/RecipientInput'
 import TransactionSection from './components/TransactionSection'
+import NetworkStatus from './components/NetworkStatus'
 import {
   getTotalAmount,
   getBalance as getBalanceUtil,
@@ -109,12 +110,14 @@ function App() {
         </section>
       </Show>
 
-      <Show when={isConnected() && isChainSupported() && !isContractLoading() && !isContractDeployed()}>
-        <section>
-          <h2>Contract Not Available</h2>
-          <p class="error">Disperse contract is not deployed on this network.</p>
-          <p>Please switch to a supported network.</p>
-        </section>
+      <Show when={isConnected() && isChainSupported() && (!isContractLoading() && !isContractDeployed())}>
+        <NetworkStatus
+          chainId={chainId()}
+          isBytecodeLoading={isContractLoading()}
+          isContractDeployed={isContractDeployed()}
+          isConnected={isConnected()}
+          verifiedAddress={verifiedAddress()}
+        />
       </Show>
 
       <Show when={isConnected() && isChainSupported() && !isContractLoading() && isContractDeployed()}>
