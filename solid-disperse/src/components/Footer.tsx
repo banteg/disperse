@@ -6,6 +6,7 @@ interface FooterProps {
   chainId?: number
   verifiedAddress?: { address: `0x${string}`; label: string } | null
   contractStatuses?: { legacy: boolean; createx: boolean }
+  isLoading?: boolean
 }
 
 const Footer = (props: FooterProps) => {
@@ -16,6 +17,11 @@ const Footer = (props: FooterProps) => {
   const createxStatus = createMemo(() => {
     return props.contractStatuses?.createx ?? false
   })
+
+  const getBulletColor = (isDeployed: boolean) => {
+    if (props.isLoading) return '#eab308' // yellow
+    return isDeployed ? '#22c55e' : '#ef4444' // green : red
+  }
 
   return (
     <footer style={{ 
@@ -34,7 +40,7 @@ const Footer = (props: FooterProps) => {
                 width: '8px',
                 height: '8px',
                 'border-radius': '50%',
-                'background-color': legacyStatus() ? '#22c55e' : '#ef4444',
+                'background-color': getBulletColor(legacyStatus()),
                 'margin-right': '0.5rem'
               }}
             />
@@ -61,7 +67,7 @@ const Footer = (props: FooterProps) => {
                 width: '8px',
                 height: '8px',
                 'border-radius': '50%',
-                'background-color': createxStatus() ? '#22c55e' : '#ef4444',
+                'background-color': getBulletColor(createxStatus()),
                 'margin-right': '0.5rem'
               }}
             />

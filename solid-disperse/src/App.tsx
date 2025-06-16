@@ -222,7 +222,12 @@ function App() {
         </Match>
       </Switch>
       
-      <Footer chainId={chainId()} verifiedAddress={verifiedAddress()} contractStatuses={contractStatuses()} />
+      <Footer 
+        chainId={chainId()} 
+        verifiedAddress={verifiedAddress()} 
+        contractStatuses={contractStatuses()} 
+        isLoading={isContractLoading()}
+      />
     </article>
   )
 }
