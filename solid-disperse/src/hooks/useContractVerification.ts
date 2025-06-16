@@ -4,6 +4,11 @@ import { config } from '../wagmi.config'
 import { disperse_legacy, disperse_createx, isDisperseContract } from '../utils'
 import type { VerifiedAddress } from '../types'
 
+interface ContractStatus {
+  legacy: boolean
+  createx: boolean
+}
+
 export function useContractVerification(
   chainId: () => number | undefined,
   isConnected: () => boolean,
@@ -11,6 +16,10 @@ export function useContractVerification(
 ) {
   const [verifiedAddress, setVerifiedAddress] = createSignal<VerifiedAddress | null>(null)
   const [isLoading, setIsLoading] = createSignal(false)
+  const [contractStatuses, setContractStatuses] = createSignal<ContractStatus>({
+    legacy: false,
+    createx: false
+  })
 
   const potentialAddresses = createMemo(() => {
     const addresses = [
@@ -33,11 +42,14 @@ export function useContractVerification(
     
     if (!currentChainId || !connected) {
       setVerifiedAddress(null)
+      setContractStatuses({ legacy: false, createx: false })
       return
     }
 
     setIsLoading(true)
     setVerifiedAddress(null)
+    const statuses: ContractStatus = { legacy: false, createx: false }
+    let firstValidContract: VerifiedAddress | null = null
 
     // Check each potential address
     for (const addressInfo of potentialAddresses()) {
@@ -48,18 +60,27 @@ export function useContractVerification(
         })
 
         if (bytecode && isDisperseContract(bytecode)) {
-          setVerifiedAddress(addressInfo)
-          setIsLoading(false)
-          return
+          // Update status for this contract
+          if (addressInfo.label === 'legacy') {
+            statuses.legacy = true
+          } else if (addressInfo.label === 'createx') {
+            statuses.createx = true
+          }
+
+          // Set the first valid contract as the verified address
+          if (!firstValidContract) {
+            firstValidContract = addressInfo
+          }
         }
       } catch (error) {
         console.error(`Error checking ${addressInfo.label} contract:`, error)
       }
     }
 
-    // No valid contract found
+    // Update states
+    setContractStatuses(statuses)
+    setVerifiedAddress(firstValidContract)
     setIsLoading(false)
-    setVerifiedAddress(null)
   })
 
   return {
@@ -67,5 +88,6 @@ export function useContractVerification(
     isLoading,
     hasContractAddress: createMemo(() => verifiedAddress() !== null),
     isContractDeployed: createMemo(() => verifiedAddress() !== null),
+    contractStatuses,
   }
 }

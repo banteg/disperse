@@ -5,17 +5,16 @@ import { explorerAddr } from '../networks'
 interface FooterProps {
   chainId?: number
   verifiedAddress?: { address: `0x${string}`; label: string } | null
+  contractStatuses?: { legacy: boolean; createx: boolean }
 }
 
 const Footer = (props: FooterProps) => {
   const legacyStatus = createMemo(() => {
-    if (!props.verifiedAddress) return false
-    return props.verifiedAddress.label === 'legacy'
+    return props.contractStatuses?.legacy ?? false
   })
 
   const createxStatus = createMemo(() => {
-    if (!props.verifiedAddress) return false
-    return props.verifiedAddress.label === 'createx'
+    return props.contractStatuses?.createx ?? false
   })
 
   return (

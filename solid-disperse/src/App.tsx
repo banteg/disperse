@@ -44,7 +44,7 @@ function App() {
   })
 
   // Contract verification
-  const { verifiedAddress, isLoading: isContractLoading, isContractDeployed } = useContractVerification(
+  const { verifiedAddress, isLoading: isContractLoading, isContractDeployed, contractStatuses } = useContractVerification(
     chainId,
     isConnected
   )
@@ -222,7 +222,7 @@ function App() {
         </Match>
       </Switch>
       
-      <Footer chainId={chainId()} verifiedAddress={verifiedAddress()} />
+      <Footer chainId={chainId()} verifiedAddress={verifiedAddress()} contractStatuses={contractStatuses()} />
     </article>
   )
 }
