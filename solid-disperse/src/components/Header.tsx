@@ -27,8 +27,12 @@ const Header = (props: HeaderProps) => {
     }
   )
 
-  const handleDisconnect = () => {
-    disconnect(config)
+  const handleDisconnect = async () => {
+    try {
+      await disconnect(config)
+    } catch (error) {
+      console.error('Failed to disconnect:', error)
+    }
   }
 
   return (

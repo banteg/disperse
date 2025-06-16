@@ -1,4 +1,4 @@
-import { createSignal, onCleanup } from 'solid-js'
+import { createSignal } from 'solid-js'
 import {
   getAccount,
   getChainId,
@@ -37,9 +37,9 @@ export function initWeb3Watchers() {
     },
   })
 
-  // 3. Ensure we cleanup watchers when the app is torn down (for HMR).
-  onCleanup(() => {
+  // Return cleanup function to be called by the component
+  return () => {
     unwatchAccount()
     unwatchChainId()
-  })
+  }
 }

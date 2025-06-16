@@ -1,8 +1,8 @@
-import { createSignal, createMemo, createResource, Show, For, Switch, Match } from 'solid-js'
+import { createSignal, createMemo, createResource, Show, For, Switch, Match, onMount, onCleanup } from 'solid-js'
 import { connect, getBalance } from '@wagmi/core'
 import { formatUnits } from 'viem'
 import { config } from './wagmi.config'
-import { account, chainId, isConnected } from './web3.store'
+import { account, chainId, isConnected, initWeb3Watchers } from './web3.store'
 import { chains, nativeCurrencyName } from './networks'
 import { useContractVerification } from './hooks/useContractVerification'
 import { useTokenAllowance } from './hooks/useTokenAllowance'
@@ -25,6 +25,12 @@ import {
 import type { Recipient, TokenInfo } from './types'
 
 function App() {
+  // Initialize Web3 watchers
+  onMount(() => {
+    const cleanup = initWeb3Watchers()
+    onCleanup(cleanup)
+  })
+
   // Local state signals
   const [sending, setSending] = createSignal<'ether' | 'token'>('ether')
   const [token, setToken] = createSignal<TokenInfo>({})
