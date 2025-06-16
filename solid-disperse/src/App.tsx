@@ -3,7 +3,8 @@ import { connect, getBalance } from '@wagmi/core'
 import { config } from './wagmi.config'
 import { account, chainId, isConnected } from './web3.store'
 import { chains, nativeCurrencyName } from './networks'
-import { disperse_legacy } from './deploy'
+import { useContractVerification } from './hooks/useContractVerification'
+import { useTokenAllowance } from './hooks/useTokenAllowance'
 import Header from './components/Header'
 import CurrencySelector from './components/CurrencySelector'
 import TokenLoader from './components/TokenLoader'
@@ -31,6 +32,12 @@ function App() {
     return id ? chains.some((chain) => chain.id === id) : false
   })
 
+  // Contract verification
+  const { verifiedAddress, isLoading: isContractLoading, isContractDeployed } = useContractVerification(
+    chainId,
+    isConnected
+  )
+
   // Fetch ETH balance
   const [balanceData] = createResource(
     () => ({ address: account().address, chainId: chainId() }),
@@ -43,6 +50,14 @@ function App() {
       }
     }
   )
+
+  // Token allowance
+  const { allowance: currentAllowance, refetch: refetchAllowance } = useTokenAllowance({
+    tokenAddress: () => token().address,
+    account: () => account().address,
+    spender: () => verifiedAddress()?.address,
+    chainId,
+  })
 
   // Connect handlers
   const handleConnect = async (connector: any) => {
@@ -87,7 +102,27 @@ function App() {
         </section>
       </Show>
 
-      <Show when={isConnected() && isChainSupported()}>
+      <Show when={isConnected() && isChainSupported() && isContractLoading()}>
+        <section>
+          <h2>Checking Contract</h2>
+          <p class="pending">Verifying disperse contract on this network...</p>
+        </section>
+      </Show>
+
+      <Show when={isConnected() && isChainSupported() && !isContractLoading() && !isContractDeployed()}>
+        <section>
+          <h2>Contract Not Available</h2>
+          <p class="error">Disperse contract is not deployed on this network.</p>
+          <p>Please switch to a supported network.</p>
+        </section>
+      </Show>
+
+      <Show when={isConnected() && isChainSupported() && !isContractLoading() && isContractDeployed()}>
+        <Show when={verifiedAddress()}>
+          <section class="contract-info">
+            <p class="sc">Using {verifiedAddress()!.label} disperse contract</p>
+          </section>
+        </Show>
         <section>
           <CurrencySelector onSelect={setSending} />
           <Show when={sending() === 'ether'}>
@@ -108,6 +143,7 @@ function App() {
               chainId={chainId()}
               account={account().address}
               token={token()}
+              contractAddress={verifiedAddress()?.address}
             />
             <Show when={token().symbol}>
               <p class="mt">
@@ -128,9 +164,9 @@ function App() {
         <Show when={recipients().length > 0}>
           {(() => {
             const totalAmount = getTotalAmount(recipients())
-            const balance = getBalanceUtil(sending(), token(), balanceData())
-            const leftAmount = getLeftAmount(recipients(), sending(), token(), balanceData())
-            const disperseMessage = getDisperseMessage(recipients(), sending(), token(), balanceData())
+            const balance = getBalanceUtil(sending(), token(), balanceData() || undefined)
+            const leftAmount = getLeftAmount(recipients(), sending(), token(), balanceData() || undefined)
+            const disperseMessage = getDisperseMessage(recipients(), sending(), token(), balanceData() || undefined)
             const symbol = getSymbol(sending(), token(), chainId())
             const decimals = getDecimals(sending(), token())
             const nativeCurrency = nativeCurrencyName(chainId())
@@ -147,10 +183,11 @@ function App() {
                 totalAmount={totalAmount}
                 disperseMessage={disperseMessage}
                 chainId={chainId()}
-                verifiedAddress={{ address: disperse_legacy.address as `0x${string}`, label: 'Legacy' }}
+                verifiedAddress={verifiedAddress()}
                 account={account().address}
                 nativeCurrencyName={nativeCurrency}
-                effectiveAllowance={token().allowance}
+                effectiveAllowance={currentAllowance() ?? token().allowance}
+                onAllowanceChange={refetchAllowance}
               />
             )
           })()}

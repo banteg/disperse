@@ -20,6 +20,7 @@ interface TransactionButtonProps {
   contractAddress?: `0x${string}`
   class?: string
   account?: `0x${string}`
+  onSuccess?: () => void
 }
 
 const TransactionButton = (props: TransactionButtonProps) => {
@@ -99,7 +100,11 @@ const TransactionButton = (props: TransactionButtonProps) => {
         setIsConfirming(false)
         setIsSuccess(true)
 
-        // In a real app, you'd refresh balances/allowances here
+        // Call success callback
+        if (props.onSuccess) {
+          props.onSuccess()
+        }
+        
         console.log('Transaction successful:', receipt)
       }
     } catch (error) {

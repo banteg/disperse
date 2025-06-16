@@ -18,6 +18,7 @@ interface TransactionSectionProps {
   account?: `0x${string}`
   nativeCurrencyName?: string
   effectiveAllowance?: bigint
+  onAllowanceChange?: () => void
 }
 
 export default function TransactionSection(props: TransactionSectionProps) {
@@ -69,6 +70,7 @@ export default function TransactionSection(props: TransactionSectionProps) {
             contractAddress={props.verifiedAddress?.address}
             class={effectiveAllowance() >= props.totalAmount ? 'secondary' : ''}
             account={props.account}
+            onSuccess={props.onAllowanceChange}
           />
           <TransactionButton
             show={true}
