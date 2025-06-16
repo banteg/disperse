@@ -9,6 +9,7 @@ import { useTokenAllowance } from './hooks/useTokenAllowance'
 import { useAppState } from './hooks/useAppState'
 import { AppState } from './constants'
 import Header from './components/Header'
+import Footer from './components/Footer'
 import CurrencySelector from './components/CurrencySelector'
 import TokenLoader from './components/TokenLoader'
 import RecipientInput from './components/RecipientInput'
@@ -220,6 +221,8 @@ function App() {
           </Show>
         </Match>
       </Switch>
+      
+      <Footer chainId={chainId()} verifiedAddress={verifiedAddress()} />
     </article>
   )
 }
