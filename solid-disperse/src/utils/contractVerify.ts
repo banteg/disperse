@@ -24,7 +24,7 @@ export const disperse_createx = {
  */
 export function isDisperseContract(bytecode: string | undefined): boolean {
   // For debugging - use a more specific tag to easily filter logs
-  const debug = (msg: string) => {}; // Disabled for production
+  const debug = (_msg: string) => {}; // Disabled for production
 
   // Print debugging information
   debug("------------------------------------------------------------");
