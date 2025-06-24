@@ -1,40 +1,34 @@
 export const disperseAbi = [
   {
-    constant: false,
-    payable: false,
-    type: "function",
-    inputs: [
-      { name: "token", type: "address" },
-      { name: "recipients", type: "address[]" },
-      { name: "values", type: "uint256[]" },
-    ],
-    name: "disperseTokenSimple",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    constant: false,
-    payable: false,
-    type: "function",
-    inputs: [
-      { name: "token", type: "address" },
-      { name: "recipients", type: "address[]" },
-      { name: "values", type: "uint256[]" },
-    ],
-    name: "disperseToken",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    constant: false,
-    payable: true,
-    type: "function",
-    inputs: [
-      { name: "recipients", type: "address[]" },
-      { name: "values", type: "uint256[]" },
-    ],
     name: "disperseEther",
-    outputs: [],
+    type: "function",
     stateMutability: "payable",
+    inputs: [
+      { name: "recipients", type: "address[]" },
+      { name: "values", type: "uint256[]" },
+    ],
+    outputs: [],
   },
-] as const
+  {
+    name: "disperseToken",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "token", type: "address" },
+      { name: "recipients", type: "address[]" },
+      { name: "values", type: "uint256[]" },
+    ],
+    outputs: [],
+  },
+  {
+    name: "disperseTokenSimple",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "token", type: "address" },
+      { name: "recipients", type: "address[]" },
+      { name: "values", type: "uint256[]" },
+    ],
+    outputs: [],
+  },
+] as const;

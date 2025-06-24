@@ -1,7 +1,7 @@
 import { Show, createEffect } from 'solid-js'
 import { erc20 } from '../contracts'
 import { disperse_legacy } from '../utils'
-import { disperseAbi } from '../disperseAbi'
+import { disperseAbi } from '../abi'
 import { explorerTx } from '../networks'
 import type { Recipient, TokenInfo } from '../types'
 import { useWriteContract } from '../hooks/useWriteContract'
