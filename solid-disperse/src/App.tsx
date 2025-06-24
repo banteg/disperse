@@ -128,7 +128,7 @@ function App() {
 
         <Match when={appState() === AppState.CONTRACT_LOADING}>
           <section>
-            <h2>Checking Contract</h2>
+            <h2>checking contract</h2>
             <p class="pending">Verifying disperse contract on this network...</p>
           </section>
         </Match>
@@ -144,12 +144,6 @@ function App() {
         </Match>
 
         <Match when={isReady()}>
-          <Show when={verifiedAddress()}>
-            <section class="contract-info">
-              <p class="sc">Using {verifiedAddress()!.label} disperse contract</p>
-            </section>
-          </Show>
-          
           <section>
             <CurrencySelector onSelect={setSending} />
             <Show when={sending() === 'ether'}>

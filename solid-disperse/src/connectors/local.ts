@@ -115,11 +115,11 @@ export function local(options: LocalConnectorOptions = {}) {
       return chain
     },
     
-    onAccountsChanged(accounts) {
+    onAccountsChanged(_accounts: string[]) {
       // Local connector doesn't support account changes
     },
     
-    onChainChanged(chainId) {
+    onChainChanged(_chainId: string) {
       // Local connector doesn't support chain changes
     },
     

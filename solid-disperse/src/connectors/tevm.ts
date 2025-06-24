@@ -61,15 +61,15 @@ export function tevm(options: TevmConnectorOptions = {}) {
       }
     },
     
-    async switchChain({ chainId }) {
+    async switchChain({ chainId }: { chainId: number }) {
       throw new Error('TEVM connector does not support chain switching')
     },
     
-    onAccountsChanged(accounts) {
+    onAccountsChanged(_accounts: string[]) {
       // TEVM doesn't support account changes in the same way
     },
     
-    onChainChanged(chainId) {
+    onChainChanged(_chainId: string) {
       // TEVM doesn't support chain changes
     },
     
