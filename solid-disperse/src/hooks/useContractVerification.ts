@@ -1,13 +1,9 @@
 import { createSignal, createMemo, createEffect } from 'solid-js'
 import { getBytecode } from '@wagmi/core'
 import { config } from '../wagmi.config'
-import { disperse_legacy, disperse_createx, isDisperseContract } from '../utils'
+import { disperse_createx, isDisperseContract } from '../utils'
 import type { VerifiedAddress } from '../types'
 
-interface ContractStatus {
-  legacy: boolean
-  createx: boolean
-}
 
 export function useContractVerification(
   chainId: () => number | undefined,
@@ -15,17 +11,8 @@ export function useContractVerification(
 ) {
   const [verifiedAddress, setVerifiedAddress] = createSignal<VerifiedAddress | null>(null)
   const [isLoading, setIsLoading] = createSignal(false)
-  const [contractStatuses, setContractStatuses] = createSignal<ContractStatus>({
-    legacy: false,
-    createx: false
-  })
+  const [isContractDeployed, setIsContractDeployed] = createSignal(false)
 
-  const potentialAddresses = createMemo(() => {
-    return [
-      { address: disperse_legacy.address as `0x${string}`, label: 'legacy' },
-      { address: disperse_createx.address as `0x${string}`, label: 'createx' },
-    ]
-  })
 
   // Check contracts when chain changes
   createEffect(async () => {
@@ -34,44 +21,31 @@ export function useContractVerification(
     
     if (!currentChainId || !connected) {
       setVerifiedAddress(null)
-      setContractStatuses({ legacy: false, createx: false })
+      setIsContractDeployed(false)
       return
     }
 
     setIsLoading(true)
     setVerifiedAddress(null)
-    const statuses: ContractStatus = { legacy: false, createx: false }
-    let firstValidContract: VerifiedAddress | null = null
+    // Check createx contract
+    try {
+      const bytecode = await getBytecode(config, {
+        address: disperse_createx.address as `0x${string}`,
+        chainId: currentChainId,
+      })
 
-    // Check each potential address
-    for (const addressInfo of potentialAddresses()) {
-      try {
-        const bytecode = await getBytecode(config, {
-          address: addressInfo.address,
-          chainId: currentChainId,
-        })
-
-        if (bytecode && isDisperseContract(bytecode)) {
-          // Update status for this contract
-          if (addressInfo.label === 'legacy') {
-            statuses.legacy = true
-          } else if (addressInfo.label === 'createx') {
-            statuses.createx = true
-          }
-
-          // Set the first valid contract as the verified address
-          if (!firstValidContract) {
-            firstValidContract = addressInfo
-          }
-        }
-      } catch (error) {
-        console.error(`Error checking ${addressInfo.label} contract:`, error)
+      if (bytecode && isDisperseContract(bytecode)) {
+        setVerifiedAddress({ address: disperse_createx.address as `0x${string}`, label: 'createx' })
+        setIsContractDeployed(true)
+      } else {
+        setVerifiedAddress(null)
+        setIsContractDeployed(false)
       }
+    } catch (error) {
+      console.error('Error checking createx contract:', error)
+      setVerifiedAddress(null)
+      setIsContractDeployed(false)
     }
-
-    // Update states
-    setContractStatuses(statuses)
-    setVerifiedAddress(firstValidContract)
     setIsLoading(false)
   })
 
@@ -79,7 +53,6 @@ export function useContractVerification(
     verifiedAddress,
     isLoading,
     hasContractAddress: createMemo(() => verifiedAddress() !== null),
-    isContractDeployed: createMemo(() => verifiedAddress() !== null),
-    contractStatuses,
+    isContractDeployed: createMemo(() => isContractDeployed()),
   }
 }

@@ -3,7 +3,6 @@ import { isAddress, type BaseError } from 'viem'
 import { multicall } from '@wagmi/core'
 import { config } from '../wagmi.config'
 import { erc20 } from '../contracts'
-import { disperse_legacy } from '../utils'
 import type { TokenInfo } from '../types'
 
 interface TokenLoaderProps {
@@ -20,7 +19,7 @@ const TokenLoader = (props: TokenLoaderProps) => {
   const [isLoading, setIsLoading] = createSignal(false)
   const [errorMessage, setErrorMessage] = createSignal('')
 
-  const disperseContractAddress = () => props.contractAddress || (disperse_legacy.address as `0x${string}`)
+  const disperseContractAddress = () => props.contractAddress
 
   // Update tokenAddress if token prop changes
   createEffect(() => {

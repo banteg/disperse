@@ -1,6 +1,5 @@
 import { Show, createEffect } from 'solid-js'
 import { erc20 } from '../contracts'
-import { disperse_legacy } from '../utils'
 import { disperseAbi } from '../abi'
 import { explorerTx } from '../networks'
 import type { Recipient, TokenInfo } from '../types'
@@ -24,7 +23,7 @@ interface TransactionButtonProps {
 const TransactionButton = (props: TransactionButtonProps) => {
   const { write, state, error, txHash, isLoading } = useWriteContract()
 
-  const contractAddress = () => props.contractAddress || (disperse_legacy.address as `0x${string}`)
+  const contractAddress = () => props.contractAddress
 
   // Call onSuccess when transaction succeeds
   createEffect(() => {

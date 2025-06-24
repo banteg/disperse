@@ -1,21 +1,17 @@
 import { Show, createMemo } from 'solid-js'
-import { disperse_legacy, disperse_createx } from '../utils'
+import { disperse_createx } from '../utils'
 import { explorerAddr } from '../networks'
 
 interface FooterProps {
   chainId?: number
   verifiedAddress?: { address: `0x${string}`; label: string } | null
-  contractStatuses?: { legacy: boolean; createx: boolean }
+  isContractDeployed?: boolean
   isLoading?: boolean
 }
 
 const Footer = (props: FooterProps) => {
-  const legacyStatus = createMemo(() => {
-    return props.contractStatuses?.legacy ?? false
-  })
-
-  const createxStatus = createMemo(() => {
-    return props.contractStatuses?.createx ?? false
+  const contractStatus = createMemo(() => {
+    return props.isContractDeployed ?? false
   })
 
   const getBulletColor = (isDeployed: boolean) => {
@@ -33,33 +29,6 @@ const Footer = (props: FooterProps) => {
     }}>
       <div style={{ 'text-align': 'center' }}>
         <div style={{ 'margin-bottom': '0.5rem' }}>
-          <span style={{ 'margin-right': '2rem' }}>
-            <span 
-              style={{ 
-                display: 'inline-block',
-                width: '8px',
-                height: '8px',
-                'border-radius': '50%',
-                'background-color': getBulletColor(legacyStatus()),
-                'margin-right': '0.5rem'
-              }}
-            />
-            legacy: 
-            <Show
-              when={props.chainId}
-              fallback={<span> {disperse_legacy.address}</span>}
-            >
-              {' '}
-              <a 
-                href={explorerAddr(disperse_legacy.address, props.chainId)}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: '#666' }}
-              >
-                {disperse_legacy.address.substring(0, 6)}...{disperse_legacy.address.substring(38)}
-              </a>
-            </Show>
-          </span>
           <span>
             <span 
               style={{ 
@@ -67,11 +36,11 @@ const Footer = (props: FooterProps) => {
                 width: '8px',
                 height: '8px',
                 'border-radius': '50%',
-                'background-color': getBulletColor(createxStatus()),
+                'background-color': getBulletColor(contractStatus()),
                 'margin-right': '0.5rem'
               }}
             />
-            createx: 
+            Disperse contract: 
             <Show
               when={props.chainId}
               fallback={<span> {disperse_createx.address}</span>}
