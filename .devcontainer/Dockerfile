@@ -69,6 +69,7 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
 # Install global packages including pnpm
 RUN npm install -g pnpm @anthropic-ai/claude-code
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+RUN curl -L https://foundry.paradigm.xyz | bash
 
 # Copy and set up firewall script
 USER root
