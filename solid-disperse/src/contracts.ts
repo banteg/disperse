@@ -1,4 +1,4 @@
-import { disperseAbi, erc20Abi, dsTokenAbi } from "./abi";
+import { disperseAbi, erc20Abi } from "./abi";
 
 export const disperse = {
   abi: disperseAbi,
@@ -36,8 +36,4 @@ export const disperse = {
 
 export const erc20 = {
   abi: erc20Abi,
-};
-
-export const ds_token = {
-  abi: dsTokenAbi,
 };
