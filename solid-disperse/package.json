@@ -15,6 +15,8 @@
   },
   "dependencies": {
     "@tanstack/solid-query": "^5.80.7",
+    "@tevm/memory-client": "1.0.0-next.147",
+    "@tevm/viem": "1.0.0-next.147",
     "@wagmi/connectors": "^5.8.5",
     "@wagmi/core": "2.17.3",
     "fuse.js": "^7.1.0",
