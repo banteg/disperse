@@ -11,8 +11,7 @@ interface ContractStatus {
 
 export function useContractVerification(
   chainId: () => number | undefined,
-  isConnected: () => boolean,
-  customContractAddress?: () => `0x${string}` | undefined
+  isConnected: () => boolean
 ) {
   const [verifiedAddress, setVerifiedAddress] = createSignal<VerifiedAddress | null>(null)
   const [isLoading, setIsLoading] = createSignal(false)
@@ -22,17 +21,10 @@ export function useContractVerification(
   })
 
   const potentialAddresses = createMemo(() => {
-    const addresses = [
+    return [
       { address: disperse_legacy.address as `0x${string}`, label: 'legacy' },
       { address: disperse_createx.address as `0x${string}`, label: 'createx' },
     ]
-    
-    const custom = customContractAddress?.()
-    if (custom) {
-      addresses.push({ address: custom, label: 'custom' })
-    }
-    
-    return addresses
   })
 
   // Check contracts when chain changes
