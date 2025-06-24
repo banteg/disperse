@@ -2,7 +2,6 @@ import { createConfig, http } from '@wagmi/core'
 import { injected, metaMask, safe } from '@wagmi/connectors'
 import { anvil } from 'viem/chains'
 import { chains } from './networks'
-import { tevm } from './connectors/tevm'
 import { local } from './connectors/local'
 
 // Add anvil to chains if not already included
@@ -20,7 +19,6 @@ export const config = createConfig({
     injected(),
     metaMask(),
     safe(),
-    tevm({ name: 'TEVM (In-Memory)' }),
     local({ chain: anvil, name: 'Anvil (Local)' }),
     // Note: WalletConnect requires a projectId which should be provided via env vars
     // walletConnect({
