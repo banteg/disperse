@@ -26,7 +26,7 @@ const DeployContract = (props: DeployContractProps) => {
     setErrorMessage('')
 
     try {
-      const { salt, initCode } = disperse_createx
+      const { salt, initcode } = disperse_createx
 
       const hash = await writeContract(config, {
         address: '0xba5Ed099633D3B313e4D5F792C2cf3d22a4312c0',
