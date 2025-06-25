@@ -4,20 +4,10 @@ import { explorerAddr } from '../networks'
 
 interface FooterProps {
   chainId?: number
-  verifiedAddress?: { address: `0x${string}`; label: string } | null
-  isContractDeployed?: boolean
-  isLoading?: boolean
 }
 
 const Footer = (props: FooterProps) => {
-  const contractStatus = createMemo(() => {
-    return props.isContractDeployed ?? false
-  })
-
-  const getBulletColor = (isDeployed: boolean) => {
-    if (props.isLoading) return '#eab308' // yellow
-    return isDeployed ? '#22c55e' : '#ef4444' // green : red
-  }
+  
 
   return (
     <footer style={{ 
@@ -36,7 +26,6 @@ const Footer = (props: FooterProps) => {
                 width: '8px',
                 height: '8px',
                 'border-radius': '50%',
-                'background-color': getBulletColor(contractStatus()),
                 'margin-right': '0.5rem'
               }}
             />

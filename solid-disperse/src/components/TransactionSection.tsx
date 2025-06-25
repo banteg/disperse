@@ -14,11 +14,11 @@ interface TransactionSectionProps {
   totalAmount: bigint
   disperseMessage?: string
   chainId: number | undefined
-  verifiedAddress?: { address: `0x${string}`; label: string } | null
+  verifiedAddress?: `0x${string}`
   account?: `0x${string}`
   nativeCurrencyName?: string
   effectiveAllowance?: bigint
-  onAllowanceChange?: () => void
+  onTransactionSuccess?: () => void
 }
 
 export default function TransactionSection(props: TransactionSectionProps) {
@@ -47,8 +47,9 @@ export default function TransactionSection(props: TransactionSectionProps) {
             chainId={props.chainId}
             recipients={props.recipients}
             token={props.token}
-            contractAddress={props.verifiedAddress?.address}
+            contractAddress={props.verifiedAddress}
             account={props.account}
+            onSuccess={props.onTransactionSuccess}
           />
         </Show>
       </section>
@@ -67,10 +68,10 @@ export default function TransactionSection(props: TransactionSectionProps) {
             chainId={props.chainId}
             recipients={props.recipients}
             token={props.token}
-            contractAddress={props.verifiedAddress?.address}
+            contractAddress={props.verifiedAddress}
             class={effectiveAllowance() >= props.totalAmount ? 'secondary' : ''}
             account={props.account}
-            onSuccess={props.onAllowanceChange}
+            onSuccess={props.onTransactionSuccess}
           />
           <TransactionButton
             show={true}
@@ -81,8 +82,9 @@ export default function TransactionSection(props: TransactionSectionProps) {
             chainId={props.chainId}
             recipients={props.recipients}
             token={props.token}
-            contractAddress={props.verifiedAddress?.address}
+            contractAddress={props.verifiedAddress}
             account={props.account}
+            onSuccess={props.onTransactionSuccess}
           />
         </section>
       </Show>

@@ -1,20 +1,24 @@
-import { createSignal, createMemo, createResource, Show, For, Switch, Match, onMount, onCleanup } from 'solid-js'
-import { connect, getBalance } from '@wagmi/core'
+import { Show, For, Switch, Match, onMount, onCleanup } from 'solid-js'
+import { connect } from '@wagmi/core'
 import { formatUnits } from 'viem'
 import { config } from './wagmi.config'
-import { account, chainId, isConnected, initWeb3Watchers } from './web3.store'
-import { chains, nativeCurrencyName } from './networks'
-import { useContractVerification } from './hooks/useContractVerification'
-import { useTokenAllowance } from './hooks/useTokenAllowance'
-import { useAppState } from './hooks/useAppState'
+import { account, chainId, initWeb3Watchers } from './web3.store'
+import { nativeCurrencyName } from './networks'
 import { AppState } from './constants'
+import { 
+  sending, setSending, 
+  recipients, setRecipients, 
+  appState, isReady, 
+  ethBalance, refetchEthBalance,
+  tokenMetadata, refetchTokenMetadata,
+  setTokenAddress
+} from './app.store'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import CurrencySelector from './components/CurrencySelector'
 import TokenLoader from './components/TokenLoader'
 import RecipientInput from './components/RecipientInput'
 import TransactionSection from './components/TransactionSection'
-import NetworkStatus from './components/NetworkStatus'
 import {
   getTotalAmount,
   getBalance as getBalanceUtil,
@@ -22,6 +26,7 @@ import {
   getDisperseMessage,
   getSymbol,
   getDecimals,
+  disperse_createx
 } from './utils'
 import type { Recipient, TokenInfo } from './types'
 
@@ -32,55 +37,9 @@ function App() {
     onCleanup(cleanup)
   })
 
-  // Local state signals
-  const [sending, setSending] = createSignal<'ether' | 'token'>('ether')
-  const [token, setToken] = createSignal<TokenInfo>({})
-  const [recipients, setRecipients] = createSignal<Recipient[]>([])
+  
 
-  // Computed values
-  const isChainSupported = createMemo(() => {
-    const id = chainId()
-    return id ? chains.some((chain) => chain.id === id) : false
-  })
-
-  // Contract verification
-  const { verifiedAddress, isLoading: isContractLoading, isContractDeployed } = useContractVerification(
-    chainId,
-    isConnected
-  )
-
-  // App state management
-  const { appState, isReady } = useAppState({
-    isConnected,
-    chainId,
-    isChainSupported,
-    isContractDeployed,
-    isContractLoading,
-    sending,
-    token,
-    recipients,
-  })
-
-  // Fetch ETH balance
-  const [balanceData] = createResource(
-    () => ({ address: account().address, chainId: chainId() }),
-    async ({ address, chainId }) => {
-      if (!address || !chainId) return null
-      try {
-        return await getBalance(config, { address, chainId })
-      } catch {
-        return null
-      }
-    }
-  )
-
-  // Token allowance
-  const { allowance: currentAllowance, refetch: refetchAllowance } = useTokenAllowance({
-    tokenAddress: () => token().address,
-    account: () => account().address,
-    spender: () => verifiedAddress()?.address,
-    chainId,
-  })
+  
 
   // Connect handlers
   const handleConnect = async (connector: any) => {
@@ -134,13 +93,12 @@ function App() {
         </Match>
 
         <Match when={appState() === AppState.CONTRACT_NOT_DEPLOYED}>
-          <NetworkStatus
-            chainId={chainId()}
-            isBytecodeLoading={isContractLoading()}
-            isContractDeployed={isContractDeployed()}
-            isConnected={isConnected()}
-            verifiedAddress={verifiedAddress()}
-          />
+          <section>
+            <h2>Contract Not Deployed</h2>
+            <p>The disperse contract is not deployed on this network.</p>
+            <p>You can deploy it by sending the following transaction:</p>
+            {/* Placeholder for deployment transaction */}
+          </section>
         </Match>
 
         <Match when={isReady()}>
@@ -148,8 +106,8 @@ function App() {
             <CurrencySelector onSelect={setSending} />
             <Show when={sending() === 'ether'}>
               <p>
-                you have {balanceData()?.value ? formatUnits(balanceData()!.value, 18) : '0'} {nativeCurrencyName(chainId())}
-                <Show when={balanceData()?.value === 0n && chainId()}>
+                you have {ethBalance()?.value ? formatUnits(ethBalance()!.value, 18) : '0'} {nativeCurrencyName(chainId())}
+                <Show when={ethBalance()?.value === 0n && chainId()}>
                   <span class="warning"> (make sure to add funds)</span>
                 </Show>
               </p>
@@ -159,44 +117,45 @@ function App() {
           <Show when={sending() === 'token'}>
             <section>
               <TokenLoader
-                onSelect={setToken}
+                onSelect={setTokenAddress}
                 onError={() => setSending('ether')}
                 chainId={chainId()}
                 account={account().address}
-                token={token()}
-                contractAddress={verifiedAddress()?.address}
+                token={tokenMetadata()}
+                contractAddress={disperse_createx.address}
               />
-              <Show when={token().symbol}>
+              <Show when={tokenMetadata()?.symbol}>
                 <p class="mt">
-                  you have {token().balance ? formatUnits(token().balance || 0n, token().decimals || 18) : '0'} {token().symbol}
+                  you have {tokenMetadata()?.balance ? formatUnits(tokenMetadata()!.balance || 0n, tokenMetadata()!.decimals || 18) : '0'} {tokenMetadata()?.symbol}
                 </p>
               </Show>
             </section>
           </Show>
           
-          <Show when={sending() === 'ether' || (sending() === 'token' && token().symbol)}>
+          <Show when={sending() === 'ether' || (sending() === 'token' && tokenMetadata()?.symbol)}>
             <RecipientInput
               sending={sending()}
-              token={token()}
+              token={tokenMetadata()}
               onRecipientsChange={setRecipients}
             />
           </Show>
           
           <Show when={recipients().length > 0}>
             {(() => {
+              const token = tokenMetadata();
               const totalAmount = getTotalAmount(recipients())
-              const balance = getBalanceUtil(sending(), token(), balanceData() || undefined)
-              const leftAmount = getLeftAmount(recipients(), sending(), token(), balanceData() || undefined)
-              const disperseMessage = getDisperseMessage(recipients(), sending(), token(), balanceData() || undefined)
-              const symbol = getSymbol(sending(), token(), chainId())
-              const decimals = getDecimals(sending(), token())
+              const balance = getBalanceUtil(sending(), token, ethBalance() || undefined)
+              const leftAmount = getLeftAmount(recipients(), sending(), token, ethBalance() || undefined)
+              const disperseMessage = getDisperseMessage(recipients(), sending(), token, ethBalance() || undefined)
+              const symbol = getSymbol(sending(), token, chainId())
+              const decimals = getDecimals(sending(), token)
               const nativeCurrency = nativeCurrencyName(chainId())
               
               return (
                 <TransactionSection
                   sending={sending()}
                   recipients={recipients()}
-                  token={token()}
+                  token={token}
                   symbol={symbol}
                   decimals={decimals}
                   balance={balance}
@@ -204,11 +163,14 @@ function App() {
                   totalAmount={totalAmount}
                   disperseMessage={disperseMessage}
                   chainId={chainId()}
-                  verifiedAddress={verifiedAddress()}
+                  verifiedAddress={disperse_createx.address}
                   account={account().address}
                   nativeCurrencyName={nativeCurrency}
-                  effectiveAllowance={currentAllowance() ?? token().allowance}
-                  onAllowanceChange={refetchAllowance}
+                  effectiveAllowance={token?.allowance}
+                  onTransactionSuccess={() => {
+                    refetchEthBalance();
+                    refetchTokenMetadata();
+                  }}
                 />
               )
             })()}
@@ -218,9 +180,6 @@ function App() {
       
       <Footer 
         chainId={chainId()} 
-        verifiedAddress={verifiedAddress()} 
-        isContractDeployed={isContractDeployed()} 
-        isLoading={isContractLoading()}
       />
     </article>
   )
