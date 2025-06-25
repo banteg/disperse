@@ -43,7 +43,7 @@ const DeployContract = (props: DeployContractProps) => {
           },
         ],
         functionName: 'deploy',
-        args: [salt, initCode],
+        args: [salt, initcode],
       })
 
       const receipt = await waitForTransactionReceipt(config, { hash })
