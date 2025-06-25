@@ -9,6 +9,7 @@ import NetworkStatus from './NetworkStatus';
 import RecipientInput from './RecipientInput';
 import TokenLoader from './TokenLoader';
 import TransactionButton from './TransactionButton';
+import DeployContract from './DeployContract';
 import TransactionSection from './TransactionSection';
 import type { Recipient } from '../types';
 
@@ -94,6 +95,11 @@ const ComponentTestPage = () => {
           effectiveAllowance={0n}
           onTransactionSuccess={() => {}}
         />
+      </section>
+
+      <section style={{ margin: '2rem 0' }}>
+        <h2>Deploy Contract</h2>
+        <DeployContract onDeploy={() => {}} />
       </section>
 
       <section style={{ margin: '2rem 0' }}>
