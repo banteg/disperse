@@ -1,5 +1,5 @@
 import { createRoot } from 'solid-js';
-import { createAppStore } from './app.store';
+import { createAppStore } from '../app.store';
 
 function createGlobalStore() {
   return createRoot(() => createAppStore());
