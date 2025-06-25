@@ -4,7 +4,7 @@ import { type BaseError } from 'viem'
 import { useAccount, useWriteContract } from 'wagmi'
 import { waitForTransactionReceipt } from '@wagmi/core'
 import { createStore } from 'solid-js/store'
-import { contractVerify } from '../utils/contractVerify'
+import { disperse_createx } from '../utils/contractVerify'
 import { config } from '../wagmi.config'
 
 interface DeployContractProps {
@@ -33,7 +33,7 @@ const DeployContract = (props: DeployContractProps) => {
     setErrorMessage('')
 
     try {
-      const { salt, initCode } = await contractVerify(chain().id)
+      const { salt, initCode } = disperse_createx
       setState({ salt, initCode })
 
       writeContract(
