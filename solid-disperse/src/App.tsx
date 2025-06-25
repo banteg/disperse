@@ -5,15 +5,7 @@ import { config } from './wagmi.config'
 import { account, chainId, initWeb3Watchers } from './web3.store'
 import { nativeCurrencyName } from './networks'
 import { AppState } from './constants'
-import { 
-  sending, setSending, 
-  recipients, setRecipients, 
-  appState, isReady, 
-  ethBalance, refetchEthBalance,
-  tokenMetadata, refetchTokenMetadata,
-  refetchContract,
-  setTokenAddress
-} from './app.store'
+import { store } from './store';
 import Header from './components/Header'
 import Footer from './components/Footer'
 import CurrencySelector from './components/CurrencySelector'
@@ -34,7 +26,15 @@ import {
 import type { Recipient, TokenInfo } from './types'
 
 function App() {
-  const [showTestPage, setShowTestPage] = createSignal(false);
+  const { 
+  sending, setSending, 
+  recipients, setRecipients, 
+  appState, isReady, 
+  ethBalance, refetchEthBalance,
+  tokenMetadata, refetchTokenMetadata,
+  refetchContract,
+  setTokenAddress
+} = store;
   // Initialize Web3 watchers
   onMount(() => {
     const cleanup = initWeb3Watchers()
