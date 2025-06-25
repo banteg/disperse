@@ -11,6 +11,7 @@ import {
   appState, isReady, 
   ethBalance, refetchEthBalance,
   tokenMetadata, refetchTokenMetadata,
+  refetchContract,
   setTokenAddress
 } from './app.store'
 import Header from './components/Header'
@@ -20,6 +21,7 @@ import TokenLoader from './components/TokenLoader'
 import RecipientInput from './components/RecipientInput'
 import TransactionSection from './components/TransactionSection'
 import ComponentTestPage from './components/ComponentTestPage'
+import DeployContract from './components/DeployContract'
 import {
   getTotalAmount,
   getBalance as getBalanceUtil,
@@ -110,8 +112,7 @@ function App() {
                 <section>
                   <h2>Contract Not Deployed</h2>
                   <p>The disperse contract is not deployed on this network.</p>
-                  <p>You can deploy it by sending the following transaction:</p>
-                  {/* Placeholder for deployment transaction */}
+                  <DeployContract onDeploy={() => refetchContract()} />
                 </section>
               </Match>
 
