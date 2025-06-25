@@ -26,6 +26,7 @@ import {
 import type { Recipient, TokenInfo } from './types'
 
 function App() {
+  const [showTestPage, setShowTestPage] = createSignal(false);
   const { 
   sending, setSending, 
   recipients, setRecipients, 

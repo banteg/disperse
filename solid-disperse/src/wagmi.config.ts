@@ -7,6 +7,11 @@ import { chains } from './networks'
 const allChains = chains.find(c => c.id === anvil.id) ? chains : [...chains, anvil]
 
 // Create transports for each chain
+const transports = allChains.reduce((acc, chain) => {
+  acc[chain.id] = http()
+  return acc
+}, {} as Record<number, ReturnType<typeof http>>)
+
 export const config = createConfig({
   chains: allChains as any, // Type assertion needed due to wagmi's strict chain typing
   connectors: [
@@ -18,7 +23,7 @@ export const config = createConfig({
     //   projectId: import.meta.env.VITE_WC_PROJECT_ID,
     // }),
   ],
-  transports: {},
+  transports,
 })
 
 declare module '@wagmi/core' {
