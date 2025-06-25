@@ -14,7 +14,7 @@ export const [tokenAddress, setTokenAddress] = createSignal<`0x${string}` | null
 export const [recipients, setRecipients] = createSignal<Recipient[]>([]);
 
 // Resources
-const [contractBytecode, { refetch: refetchContract }] = createResource(
+export const [contractBytecode, { refetch: refetchContract }] = createResource(
   () => {
     const currentChainId = chainId();
     if (!currentChainId || !isConnected()) return null;
