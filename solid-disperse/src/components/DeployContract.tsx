@@ -1,9 +1,7 @@
 
 import { createSignal, Show } from 'solid-js'
 import { type BaseError } from 'viem'
-import { useAccount, useWriteContract } from 'wagmi'
-import { waitForTransactionReceipt } from '@wagmi/core'
-import { createStore } from 'solid-js/store'
+import { getAccount, writeContract, waitForTransactionReceipt } from '@wagmi/core'
 import { disperse_createx } from '../utils/contractVerify'
 import { config } from '../wagmi.config'
 
@@ -15,16 +13,11 @@ interface DeployContractProps {
 const DeployContract = (props: DeployContractProps) => {
   const [isLoading, setIsLoading] = createSignal(false)
   const [errorMessage, setErrorMessage] = createSignal('')
-  const { chain } = useAccount()
-  const { writeContract } = useWriteContract()
-  const [state, setState] = createStore({
-    salt: '',
-    initCode: '',
-  })
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault()
-    if (!chain()?.id) {
+    const account = getAccount(config)
+    if (!account.chainId) {
       setErrorMessage('wallet not connected')
       return
     }
@@ -34,60 +27,41 @@ const DeployContract = (props: DeployContractProps) => {
 
     try {
       const { salt, initCode } = disperse_createx
-      setState({ salt, initCode })
 
-      writeContract(
-        {
-          ...({
-            address: '0xba5Ed099633D3B313e4D5F792C2cf3d22a4312c0',
-            abi: [
-              {
-                inputs: [
-                  { internalType: 'bytes32', name: 'salt', type: 'bytes32' },
-                  { internalType: 'bytes', name: 'initCode', type: 'bytes' },
-                ],
-                name: 'deploy',
-                outputs: [{ internalType: 'address', name: 'addr', type: 'address' }],
-                stateMutability: 'payable',
-                type: 'function',
-              },
+      const hash = await writeContract(config, {
+        address: '0xba5Ed099633D3B313e4D5F792C2cf3d22a4312c0',
+        abi: [
+          {
+            inputs: [
+              { internalType: 'bytes32', name: 'salt', type: 'bytes32' },
+              { internalType: 'bytes', name: 'initCode', type: 'bytes' },
             ],
-            functionName: 'deploy',
-            args: [salt, initCode],
-          } as const),
-        },
-        {
-          onSuccess: async (hash) => {
-            try {
-              const receipt = await waitForTransactionReceipt(config, { hash })
-              // Find the ContractCreated event in the logs
-              const event = receipt.logs.find(
-                (log) => log.topics[0] === '0x28c9db10b11b19e1513f4e42513533d6ba9b4f0e9423364ced4bf99a465b5163'
-              )
-              if (event) {
-                const deployedAddress = `0x${event.topics[1].slice(26)}` as `0x${string}`
-                props.onDeploy(deployedAddress)
-              } else {
-                setErrorMessage('Could not find ContractCreated event')
-              }
-            } catch (error) {
-              console.error('Error waiting for transaction receipt:', error)
-              const errorMsg = error instanceof Error ? error.message : 'error waiting for transaction receipt'
-              setErrorMessage(errorMsg)
-            }
-            setIsLoading(false)
+            name: 'deploy',
+            outputs: [{ internalType: 'address', name: 'addr', type: 'address' }],
+            stateMutability: 'payable',
+            type: 'function',
           },
-          onError: (error) => {
-            const errorMsg = (error as BaseError)?.shortMessage || error.message
-            setErrorMessage(errorMsg)
-            setIsLoading(false)
-          },
-        }
+        ],
+        functionName: 'deploy',
+        args: [salt, initCode],
+      })
+
+      const receipt = await waitForTransactionReceipt(config, { hash })
+      const event = receipt.logs.find(
+        (log) => log.topics[0] === '0x28c9db10b11b19e1513f4e42513533d6ba9b4f0e9423364ced4bf99a465b5163'
       )
+
+      if (event && event.topics[1]) {
+        const deployedAddress = `0x${event.topics[1].slice(26)}` as `0x${string}`
+        props.onDeploy(deployedAddress)
+      } else {
+        setErrorMessage('Could not find deployment event in transaction logs.')
+      }
     } catch (error) {
       console.error('Error deploying contract:', error)
-      const errorMsg = error instanceof Error ? error.message : 'error deploying contract'
+      const errorMsg = (error as BaseError)?.shortMessage || (error as Error)?.message || 'error deploying contract'
       setErrorMessage(errorMsg)
+    } finally {
       setIsLoading(false)
     }
   }
