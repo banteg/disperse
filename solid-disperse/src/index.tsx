@@ -9,16 +9,4 @@ import App from './App.tsx'
 
 const root = document.getElementById('root')
 
-render(() => (
-  <ErrorBoundary
-    fallback={(err, reset) => (
-      <section class="error-boundary">
-        <h2>Something went wrong</h2>
-        <p class="error">{err.message || 'An unexpected error occurred'}</p>
-        <button onClick={reset}>Try Again</button>
-      </section>
-    )}
-  >
-    <App />
-  </ErrorBoundary>
-), root!)
+render(() => <App />, root!)
