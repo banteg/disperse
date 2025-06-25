@@ -101,33 +101,3 @@ export function isDisperseContract(bytecode: string | undefined): boolean {
   return result;
 }
 
-/**
- * Get the Disperse contract address
- */
-export const getDisperseAddress = (): string => {
-  return disperse_createx.address;
-};
-
-/**
- * Check if we can deploy on this network
- * @param chainId Network chain ID
- * @returns true if deployment is allowed on this network
- */
-export function canDeployToNetwork(chainId: number | undefined): boolean {
-  if (!chainId) return false;
-
-  // Allow deployment on any EVM-compatible chain
-  // We're assuming that if the chain ID is available, it's an EVM chain
-  // that should support contract deployment
-  return true;
-
-  // Alternatively, you could have a blocklist of chains where deployment is known to be problematic:
-  /*
-  const unsupportedChains = [
-    // List chains that are either non-EVM or have issues with deployment
-    // For example, some Layer 2 solutions might have specific deployment requirements
-  ];
-  
-  return !unsupportedChains.includes(chainId);
-  */
-}

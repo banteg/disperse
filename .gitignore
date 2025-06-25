@@ -12,3 +12,4 @@ build
 .venv
 .DS_Store
 CLAUDE.local.md
+coverage/

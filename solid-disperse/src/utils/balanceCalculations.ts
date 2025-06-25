@@ -1,4 +1,3 @@
-import { formatUnits } from "viem";
 import { nativeCurrencyName, nativeSymbol } from "../networks";
 import type { Recipient, TokenInfo } from "../types";
 
@@ -41,9 +40,7 @@ export function getDisperseMessage(
   return undefined;
 }
 
-export function getNativeCurrencyName(realChainId: number | undefined): string {
-  return nativeCurrencyName(realChainId);
-}
+
 
 export function getSymbol(
   sending: "ether" | "token" | null,
@@ -60,6 +57,3 @@ export function getDecimals(sending: "ether" | "token" | null, token: TokenInfo)
   return sending === "token" ? (token.decimals ?? 18) : 18;
 }
 
-export function formatBalance(balance: bigint, decimals: number, symbol: string): string {
-  return `${formatUnits(balance, decimals)} ${symbol}`;
-}

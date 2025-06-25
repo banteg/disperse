@@ -2,7 +2,6 @@ import { createConfig, http } from '@wagmi/core'
 import { injected, metaMask, safe } from '@wagmi/connectors'
 import { anvil } from 'viem/chains'
 import { chains } from './networks'
-import { local } from './connectors/local'
 
 // Add anvil to chains if not already included
 const allChains = chains.find(c => c.id === anvil.id) ? chains : [...chains, anvil]
@@ -19,7 +18,6 @@ export const config = createConfig({
     injected(),
     metaMask(),
     safe(),
-    local({ chain: anvil, name: 'Anvil (Local)' }),
     // Note: WalletConnect requires a projectId which should be provided via env vars
     // walletConnect({
     //   projectId: import.meta.env.VITE_WC_PROJECT_ID,
