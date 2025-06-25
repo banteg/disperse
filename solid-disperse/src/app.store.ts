@@ -1,4 +1,4 @@
-import { createSignal, createResource, createMemo } from 'solid-js';
+import { createSignal, createResource, createMemo, createEffect, on } from 'solid-js';
 import { getBytecode, readContracts, getBalance } from '@wagmi/core';
 import { config } from './wagmi.config';
 import { erc20Abi } from './abi/erc20';
@@ -85,6 +85,12 @@ export function createAppStore() {
       }
     }
   );
+
+  createEffect(on(chainId, () => {
+    setSending('ether');
+    setTokenAddress(null);
+    setRecipients([]);
+  }));
 
   const isContractDeployed = createMemo(() => {
       const bytecode = contractBytecode();

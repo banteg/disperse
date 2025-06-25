@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import solid from 'vite-plugin-solid'
 
 export default defineConfig({
@@ -6,7 +6,6 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: [
@@ -17,6 +16,9 @@ export default defineConfig({
         '**/generated.ts',
       ],
     },
+    // Playwright specific config
+    include: ['src/**/*.test.ts'],
+    hookTimeout: 30000,
   },
   resolve: {
     conditions: ['development', 'browser'],
