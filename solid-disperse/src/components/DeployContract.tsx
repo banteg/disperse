@@ -29,7 +29,7 @@ const DeployContract = (props: DeployContractProps) => {
       const { salt, initcode } = disperse
 
       const hash = await writeContract(config, {
-        address: '0xba5Ed099633D3B313e4D5F792C2cf3d22a4312c0',
+        address: '0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed',
         abi: [
           {
             inputs: [
