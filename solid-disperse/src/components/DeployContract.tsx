@@ -2,7 +2,7 @@
 import { createSignal, Show } from 'solid-js'
 import { type BaseError } from 'viem'
 import { getAccount, writeContract, waitForTransactionReceipt } from '@wagmi/core'
-import { disperse_createx } from '../utils/contractVerify'
+import { disperse } from '../contracts'
 import { config } from '../wagmi.config'
 
 interface DeployContractProps {
@@ -26,7 +26,7 @@ const DeployContract = (props: DeployContractProps) => {
     setErrorMessage('')
 
     try {
-      const { salt, initcode } = disperse_createx
+      const { salt, initcode } = disperse
 
       const hash = await writeContract(config, {
         address: '0xba5Ed099633D3B313e4D5F792C2cf3d22a4312c0',

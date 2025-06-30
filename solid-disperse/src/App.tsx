@@ -21,7 +21,7 @@ import {
   getDisperseMessage,
   getSymbol,
   getDecimals,
-  disperse_createx
+  disperse
 } from './utils'
 import type { Recipient, TokenInfo } from './types'
 
@@ -138,7 +138,7 @@ function App() {
                       chainId={chainId()}
                       account={account().address}
                       token={tokenMetadata()}
-                      contractAddress={disperse_createx.address}
+                      contractAddress={disperse.address}
                     />
                     <Show when={tokenMetadata()?.symbol}>
                       <p class="mt">
@@ -179,7 +179,7 @@ function App() {
                         totalAmount={totalAmount}
                         disperseMessage={disperseMessage}
                         chainId={chainId()}
-                        verifiedAddress={disperse_createx.address}
+                        verifiedAddress={disperse.address}
                         account={account().address}
                         nativeCurrencyName={nativeCurrency}
                         effectiveAllowance={token?.allowance}

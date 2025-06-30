@@ -3,7 +3,7 @@ import { getBytecode, readContracts, getBalance } from '@wagmi/core';
 import { config } from './wagmi.config';
 import { erc20Abi } from './abi/erc20';
 import { account, chainId, isConnected } from './web3.store';
-import { disperse_createx } from './utils';
+import { disperse, isDisperseContract } from './contracts';
 import { chains } from './networks';
 import { AppState } from './constants';
 import type { Recipient, TokenInfo } from './types';
@@ -19,7 +19,7 @@ export function createAppStore() {
       if (!currentChainId || !isConnected()) return null;
       return {
         chainId: currentChainId,
-        address: disperse_createx.address as `0x${string}`,
+        address: disperse.address,
       };
     },
     async (source) => {
@@ -67,7 +67,7 @@ export function createAppStore() {
             { ...tokenContract, functionName: 'symbol' },
             { ...tokenContract, functionName: 'decimals' },
             { ...tokenContract, functionName: 'balanceOf', args: [user] },
-            { ...tokenContract, functionName: 'allowance', args: [user, disperse_createx.address] },
+            { ...tokenContract, functionName: 'allowance', args: [user, disperse.address] },
           ],
         });
         const [name, symbol, decimals, balance, allowance] = results.map(r => r.result);
@@ -93,8 +93,7 @@ export function createAppStore() {
   }));
 
   const isContractDeployed = createMemo(() => {
-      const bytecode = contractBytecode();
-      return !!bytecode && bytecode !== '0x';
+      return isDisperseContract(contractBytecode());
   });
 
   const appState = createMemo(() => {
