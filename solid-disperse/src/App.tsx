@@ -14,6 +14,7 @@ import RecipientInput from './components/RecipientInput'
 import TransactionSection from './components/TransactionSection'
 import ComponentTestPage from './components/ComponentTestPage'
 import DeployContract from './components/DeployContract'
+import DebugPanel from './components/debug/DebugPanel'
 import {
   getTotalAmount,
   getBalance as getBalanceUtil,
@@ -34,8 +35,11 @@ function App() {
   ethBalance, refetchEthBalance,
   tokenMetadata, refetchTokenMetadata,
   refetchContract,
-  setTokenAddress
+  setTokenAddress,
+  contractBytecode,
+  isContractDeployed
 } = store;
+
   // Initialize Web3 watchers
   onMount(() => {
     const cleanup = initWeb3Watchers()
@@ -196,6 +200,21 @@ function App() {
             
             <Footer 
               chainId={chainId()} 
+            />
+            
+            <DebugPanel
+              appState={appState()}
+              chainId={chainId()}
+              isConnected={account().isConnected}
+              account={account().address}
+              ethBalance={ethBalance()}
+              contractBytecode={contractBytecode()}
+              contractLoading={contractBytecode.loading}
+              isContractDeployed={isContractDeployed()}
+              sending={sending()}
+              tokenMetadata={tokenMetadata()}
+              recipients={recipients()}
+              disperseAddress={disperse.address}
             />
           </>
         </Match>
