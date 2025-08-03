@@ -57,7 +57,11 @@ const RecipientInput = ({ sending, token, onRecipientsChange }: RecipientInputPr
     } else {
       // Generate uniform amount
       const amount = parseFloat(uniformAmount) || 0.2;
-      resultText = generateAddressesWithUniformAmount(addresses, amount, decimalPlaces);
+      const calculatedDecimals = Math.max(
+        decimalPlaces,
+        (amount.toString().split('.')[1] || '').length
+      );
+      resultText = generateAddressesWithUniformAmount(addresses, amount, calculatedDecimals);
     }
 
     textareaRef.current.value = resultText;
