@@ -84,7 +84,7 @@ textarea {
   background: aquamarine;
   padding: .7rem;
   font-size: 1.4rem;
-  width: 100%;
+  width: 580px;
   position: relative;
   height: 8.4rem;
   resize: none;
@@ -475,3 +475,135 @@ h1 sup .chain-selector-dropdown {
   z-index: 1000;
   min-width: 250px;
 }
+
+/* Random amount settings styles */
+/* Random amount settings - now using section styling like recipients and amounts */
+
+.setting-row {
+  margin-bottom: 1rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #111111;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.random-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.4rem;
+  width: 580px;
+  padding: 0.7rem;
+}
+
+.random-controls span {
+  color: #111111;
+  white-space: nowrap;
+  font-size: 1.4rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.random-controls input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem;
+  border: none;
+  border-bottom: 1px solid #111111;
+  font-size: 1.4rem;
+  background: transparent;
+  text-align: center;
+}
+
+.random-controls input:focus {
+  outline: none;
+}
+
+
+
+/* Uniform amount setting styles */
+.uniform-amount-setting {
+  display: flex;
+  align-items: center;
+  font-style: italic;
+  margin-top: 2.1rem;
+  margin-bottom: 1.4rem;
+}
+
+.uniform-amount-setting label {
+  margin-right: .25rem;
+  font-size: 1.4rem;
+  color: #111111;
+  white-space: nowrap;
+}
+
+.uniform-amount-setting input {
+  display: inline-block;
+  font-size: 1.4rem;
+  color: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-bottom: 2px rgba(0, 0, 0, 0.5) solid;
+  background: transparent;
+  padding: 0;
+  margin-left: 0.5rem;
+  width: 580px;
+  text-align: center;
+}
+
+.uniform-amount-setting input:focus {
+  outline: none;
+  color: #111111;
+  border-bottom: 2px #111111 solid;
+  background: aquamarine;
+}
+
+/* Auto add section styles */
+.auto-add-section {
+  font-size: 1.4rem;
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 1.4rem;
+}
+
+.auto-add-button {
+  border: none;
+  font-style: italic;
+  padding: 0.7rem;
+  background: aquamarine;
+  box-shadow: 6px 6px crimson;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.auto-add-button:focus {
+  outline: none;
+}
+
+.auto-add-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.auto-add-note {
+  margin-left: 1.4rem;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 1.4rem;
+}
+
+
+
+
