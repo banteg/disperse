@@ -103,7 +103,7 @@ const RecipientInput = ({ sending, token, onRecipientsChange }: RecipientInputPr
           <label>amount</label>
           <input
             type="number"
-            step="0.000001"
+            step="0.0.0000000001"
             min="0"
             value={uniformAmount}
             onChange={(e) => setUniformAmount(e.target.value)}
