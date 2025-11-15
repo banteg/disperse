@@ -43,7 +43,7 @@ const RandomAmountSettings = memo(({
               <span>min</span>
               <input
                 type="number"
-                step="0.000001"
+                step="0.0000000001"
                 min="0"
                 value={minAmount}
                 onChange={(e) => onMinAmountChange(e.target.value)}
@@ -52,7 +52,7 @@ const RandomAmountSettings = memo(({
               <span>max</span>
               <input
                 type="number"
-                step="0.000001"
+                step="0.0000000001"
                 min="0"
                 value={maxAmount}
                 onChange={(e) => onMaxAmountChange(e.target.value)}
