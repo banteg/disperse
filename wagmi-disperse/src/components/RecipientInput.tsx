@@ -55,11 +55,11 @@ const RecipientInput = ({ sending, token, onRecipientsChange }: RecipientInputPr
       const max = parseFloat(maxAmount) || 0.3;
       resultText = generateAddressesWithRandomAmounts(addresses, min, max, decimalPlaces);
     } else {
-      // Generate uniform amount
       const amount = parseFloat(uniformAmount) || 0.2;
+      const uniformAmountStr = uniformAmount || '0.2';
       const calculatedDecimals = Math.max(
         decimalPlaces,
-        (amount.toString().split('.')[1] || '').length
+        (uniformAmountStr.split('.')[1] || '').length
       );
       resultText = generateAddressesWithUniformAmount(addresses, amount, calculatedDecimals);
     }
