@@ -1,6 +1,6 @@
-import { http, createConfig } from "wagmi";
 import * as chains from "viem/chains";
 import type { Chain } from "viem/chains";
+import { http, createConfig } from "wagmi";
 import { coinbaseWallet, injected, metaMask, walletConnect } from "wagmi/connectors";
 import { isValidChain } from "./utils/typeGuards";
 
