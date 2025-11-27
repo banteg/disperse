@@ -1,5 +1,5 @@
 import { isAddress } from "viem";
-import type { Chain } from "wagmi/chains";
+import type { Chain } from "viem/chains";
 
 export function isValidAddress(address: string): address is `0x${string}` {
   return isAddress(address);
