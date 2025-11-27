@@ -1,10 +1,10 @@
-import type { Chain } from "wagmi/chains";
-
-// Import all chains from wagmi
-import * as allWagmiChains from "wagmi/chains";
+import type { Chain } from "viem/chains";
+// Pull chains from viem to get the latest definitions (e.g., Monad).
+import * as allViemChains from "viem/chains";
+import { isValidChain } from "./utils/typeGuards";
 
 // Convert imported chains to an array
-const allChains = Object.values(allWagmiChains);
+const allChains: Chain[] = Object.values(allViemChains).filter(isValidChain);
 
 // Get a chain by ID, using all available wagmi chains
 export function getChainById(chainId: number | undefined): Chain | undefined {

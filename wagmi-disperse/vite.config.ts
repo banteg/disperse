@@ -19,7 +19,7 @@ export default defineConfig({
           "react-vendor": ["react", "react-dom"],
           "wagmi-vendor": ["wagmi", "viem"],
           "ui-vendor": ["@tanstack/react-query", "fuse.js"],
-          chains: ["wagmi/chains"],
+          chains: ["viem/chains"],
         },
       },
     },
