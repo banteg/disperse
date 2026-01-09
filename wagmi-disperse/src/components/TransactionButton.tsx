@@ -50,7 +50,10 @@ const TransactionButton = ({
   const { writeContract, isPending: isWritePending, isError: isWriteError, error: writeError } = useWriteContract();
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash: txHash as `0x${string}` | undefined,
+    hash: txHash ?? undefined,
+    query: {
+      enabled: !!txHash,
+    },
   });
 
   // Update error message when write fails with user-friendly error format

@@ -20,7 +20,14 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
   const [deployedAddress, setDeployedAddress] = useState<`0x${string}` | null>(null);
 
   // Use CreateX to deploy the contract - use generic writeContract to set address for any chain
-  const { writeContract, isPending, isError, error, data: contractWriteData } = useWriteContract();
+  const {
+    writeContract,
+    isPending,
+    isError,
+    error,
+    data: contractWriteData,
+    reset: resetWriteContract,
+  } = useWriteContract();
 
   // Handle errors from writeContract hook
   useEffect(() => {
@@ -75,7 +82,10 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
     isSuccess: isConfirmed,
     error: txError,
   } = useWaitForTransactionReceipt({
-    hash: txHash as `0x${string}` | undefined,
+    hash: txHash ?? undefined,
+    query: {
+      enabled: !!txHash,
+    },
   });
 
   // Handle transaction errors
@@ -119,6 +129,7 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
   }, [receipt, deployedAddress, expectedAddress, onSuccess, refetchBytecode]);
 
   const handleDeploy = async () => {
+    resetWriteContract();
     setIsDeploying(true);
     setErrorMessage("");
     setTxHash(null);
@@ -214,7 +225,7 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
               type="submit"
               value="deploy contract"
               onClick={handleDeploy}
-              disabled={isDeploying || isConfirming || isPending || isError}
+              disabled={isDeploying || isConfirming || isPending}
             />
 
             <div className="status">

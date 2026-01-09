@@ -39,17 +39,14 @@ const DebugPanel = ({
   recipientsCount,
 }: DebugPanelProps) => {
   // State to track if debug panel should be shown
-  const [showDebug, setShowDebug] = useState(false);
-
-  // Log chainId to satisfy linter (temporary)
-  console.log("DebugPanel chainId:", chainId);
+  const [showDebug, setShowDebug] = useState(import.meta.env.DEV);
 
   useEffect(() => {
-    // Check if in development environment using import.meta.env for Vite
     const isDev = import.meta.env.DEV;
 
-    // Initialize based on environment
-    setShowDebug(isDev);
+    if (!isDev) {
+      return;
+    }
 
     // Add a global function to toggle debug panel
     const windowExt = window as WindowWithEthereum & {
