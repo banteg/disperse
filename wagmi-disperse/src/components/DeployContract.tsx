@@ -43,7 +43,11 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
   const expectedAddress = disperse_createx.address as `0x${string}`;
 
   // Check if contract already exists at expected address - customize for speed
-  const { data: bytecode, isLoading: isBytecodeLoading } = useBytecode({
+  const {
+    data: bytecode,
+    isLoading: isBytecodeLoading,
+    refetch: refetchBytecode,
+  } = useBytecode({
     address: expectedAddress,
     chainId,
     query: {
@@ -66,6 +70,7 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
   const isCreateXDeployed = createXBytecode && createXBytecode !== "0x";
 
   const {
+    data: receipt,
     isLoading: isConfirming,
     isSuccess: isConfirmed,
     error: txError,
@@ -82,9 +87,42 @@ const DeployContract = ({ chainId, onSuccess }: DeployContractProps) => {
     }
   }, [txError, txHash]);
 
+  useEffect(() => {
+    if (!receipt || deployedAddress) return;
+
+    if (receipt.status === "reverted") {
+      setErrorMessage("Deployment transaction reverted");
+      setIsDeploying(false);
+      return;
+    }
+
+    const finalizeDeployment = async () => {
+      try {
+        const { data: freshBytecode } = await refetchBytecode();
+        if (freshBytecode && freshBytecode !== "0x") {
+          setDeployedAddress(expectedAddress);
+          onSuccess?.(expectedAddress);
+          setIsDeploying(false);
+        } else {
+          setErrorMessage("Deployment confirmed, but contract bytecode was not found at the expected address");
+          setIsDeploying(false);
+        }
+      } catch (error: unknown) {
+        setErrorMessage(
+          (error as BaseError)?.shortMessage || (error as Error)?.message || "Failed to verify deployment",
+        );
+        setIsDeploying(false);
+      }
+    };
+
+    void finalizeDeployment();
+  }, [receipt, deployedAddress, expectedAddress, onSuccess, refetchBytecode]);
+
   const handleDeploy = async () => {
     setIsDeploying(true);
     setErrorMessage("");
+    setTxHash(null);
+    setDeployedAddress(null);
 
     // If contract is already deployed at expected address, just notify success
     if (isAlreadyDeployed) {

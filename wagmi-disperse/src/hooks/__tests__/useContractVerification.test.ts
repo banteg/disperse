@@ -212,12 +212,11 @@ describe("useContractVerification", () => {
     });
   });
 
-  it("should always have contract address (fallback to legacy)", () => {
+  it("should not expose a contract address until verified", () => {
     const { result } = renderHook(() => useContractVerification(1, true));
 
-    expect(result.current.hasContractAddress).toBe(true);
-    // Should default to legacy address when no verified address
-    expect(result.current.contractAddress).toBe("0x1111111111111111111111111111111111111111");
+    expect(result.current.hasContractAddress).toBe(false);
+    expect(result.current.contractAddress).toBeUndefined();
   });
 
   it("should handle undefined chain ID", () => {

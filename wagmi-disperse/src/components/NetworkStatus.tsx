@@ -18,9 +18,11 @@ export default function NetworkStatus({
   verifiedAddress,
   onContractDeployed,
 }: NetworkStatusProps) {
+  const heading = isBytecodeLoading ? "checking contract" : "unsupported network";
+
   return (
     <section>
-      <h2>unsupported network</h2>
+      <h2>{heading}</h2>
       {isBytecodeLoading ? (
         <p>
           <span className="checking">checking if disperse contract is deployed on any address...</span>

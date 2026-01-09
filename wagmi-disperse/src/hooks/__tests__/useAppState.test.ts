@@ -15,7 +15,6 @@ describe("useAppState", () => {
     isChainSupported: true,
     isContractDeployed: true,
     isBytecodeLoading: false,
-    hasContractAddress: true,
     sending: "ether" as const,
     token: {} as TokenInfo,
     ...overrides,
@@ -41,18 +40,17 @@ describe("useAppState", () => {
     expect(result.current.appState).toBe(AppState.NETWORK_UNAVAILABLE);
   });
 
-  it("should skip state update during bytecode loading", () => {
+  it("should show network unavailable while bytecode is loading", () => {
     const { result } = renderHook(() =>
       useAppState(
         createMockProps({
           isContractDeployed: false,
           isBytecodeLoading: true,
-          hasContractAddress: true,
         }),
       ),
     );
 
-    expect(result.current.appState).toBe(AppState.UNLOCK_WALLET);
+    expect(result.current.appState).toBe(AppState.NETWORK_UNAVAILABLE);
   });
 
   it("should return SELECTED_CURRENCY when sending ether and connected", () => {

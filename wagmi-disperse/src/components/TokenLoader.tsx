@@ -1,13 +1,23 @@
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
-import { type BaseError, isAddress } from "viem";
+import { type BaseError, hexToString, isAddress } from "viem";
 import { useReadContracts } from "wagmi";
-import { erc20 } from "../contracts";
-import { disperse_legacy } from "../deploy";
+import { ds_token, erc20 } from "../contracts";
 import type { DebugParam, TokenInfo } from "../types";
 
 // Debug function to log TokenLoader events
 const debug = (message: string, data?: DebugParam) => {
   console.log(`[TOKEN-LOADER] ${message}`, data || "");
+};
+
+const decodeBytes32String = (value: unknown) => {
+  if (typeof value !== "string") return undefined;
+  try {
+    const decoded = hexToString(value as `0x${string}`);
+    return decoded.replace(/\0+$/, "");
+  } catch (error) {
+    console.warn("Failed to decode bytes32 string", error);
+    return undefined;
+  }
 };
 
 interface TokenLoaderProps {
@@ -25,13 +35,15 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [useBytes32Fallback, setUseBytes32Fallback] = useState(false);
 
-  const disperseContractAddress = contractAddress || (disperse_legacy.address as `0x${string}`);
+  const disperseContractAddress = contractAddress;
 
   // Update tokenAddress if token prop changes
   useEffect(() => {
     if (token?.address && token.address !== tokenAddress) {
       setTokenAddress(token.address);
+      setUseBytes32Fallback(false);
     }
   }, [token?.address, tokenAddress]);
 
@@ -42,6 +54,7 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
     chainId,
     account,
     disperseContractAddress,
+    useBytes32Fallback,
   });
 
   // Use wagmi's useReadContracts to batch all token data calls
@@ -86,6 +99,27 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
     },
   });
 
+  const { data: bytes32Data } = useReadContracts({
+    contracts: [
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: ds_token.abi,
+        functionName: "name",
+        chainId,
+      },
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: ds_token.abi,
+        functionName: "symbol",
+        chainId,
+      },
+    ],
+    query: {
+      enabled: useBytes32Fallback && isSubmitted && !!tokenAddress && !!account && !!disperseContractAddress && !!chainId,
+      retry: false,
+    },
+  });
+
   // Extract individual results
   const nameData = data?.[0]?.result;
   const symbolData = data?.[1]?.result;
@@ -106,6 +140,13 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
   const balanceErrorObj = data?.[3]?.error;
   const allowanceErrorObj = data?.[4]?.error;
 
+  const bytes32NameData = bytes32Data?.[0]?.result;
+  const bytes32SymbolData = bytes32Data?.[1]?.result;
+  const bytes32NameError = bytes32Data?.[0]?.status === "failure";
+  const bytes32SymbolError = bytes32Data?.[1]?.status === "failure";
+  const bytes32NameErrorObj = bytes32Data?.[0]?.error;
+  const bytes32SymbolErrorObj = bytes32Data?.[1]?.error;
+
   // Log when contract data is received
   useEffect(() => {
     if (isSubmitted) {
@@ -122,6 +163,14 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
           balance: balanceError,
           allowance: allowanceError,
         },
+        bytes32: {
+          name: bytes32NameData,
+          symbol: bytes32SymbolData,
+          errors: {
+            name: bytes32NameError,
+            symbol: bytes32SymbolError,
+          },
+        },
       });
     }
   }, [
@@ -136,18 +185,30 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
     decimalsError,
     balanceError,
     allowanceError,
+    bytes32NameData,
+    bytes32SymbolData,
+    bytes32NameError,
+    bytes32SymbolError,
   ]);
+
+  useEffect(() => {
+    if (!isSubmitted) return;
+    if ((nameError || symbolError) && !useBytes32Fallback) {
+      setUseBytes32Fallback(true);
+    }
+  }, [isSubmitted, nameError, symbolError, useBytes32Fallback]);
 
   // Use effect to process token data when it's loaded
   useEffect(() => {
     if (!isSubmitted) return;
+    if (!data) return;
 
     // Check for errors and handle them
-    if (nameError || symbolError || decimalsError || balanceError || allowanceError) {
+    if (decimalsError || balanceError || allowanceError) {
       debug("Error loading token data");
 
       // Get the first error that occurred
-      const firstError = nameErrorObj || symbolErrorObj || decimalsErrorObj || balanceErrorObj || allowanceErrorObj;
+      const firstError = decimalsErrorObj || balanceErrorObj || allowanceErrorObj;
 
       // Format error message with shortMessage if available
       const errorMessage = firstError
@@ -161,10 +222,38 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
       return;
     }
 
+    if ((nameError || symbolError) && !useBytes32Fallback) {
+      return;
+    }
+
+    if (useBytes32Fallback && !bytes32Data) {
+      return;
+    }
+
+    const resolvedName = nameError ? decodeBytes32String(bytes32NameData) : (nameData as string | undefined);
+    const resolvedSymbol = symbolError ? decodeBytes32String(bytes32SymbolData) : (symbolData as string | undefined);
+    const hasResolvedName = typeof resolvedName === "string";
+    const hasResolvedSymbol = typeof resolvedSymbol === "string";
+
+    if ((nameError || symbolError) && useBytes32Fallback && (!hasResolvedName || !hasResolvedSymbol)) {
+      debug("Error loading token data");
+
+      const firstError = bytes32NameErrorObj || bytes32SymbolErrorObj || nameErrorObj || symbolErrorObj;
+      const errorMessage = firstError
+        ? (firstError as BaseError).shortMessage || firstError.message || "error loading token data"
+        : "error loading token data";
+
+      setErrorMessage(errorMessage);
+      setIsLoading(false);
+      setIsSubmitted(false);
+      onError();
+      return;
+    }
+
     // Process token data when all data is loaded
     if (
-      nameData &&
-      symbolData &&
+      hasResolvedName &&
+      hasResolvedSymbol &&
       decimalsData !== undefined &&
       balanceData !== undefined &&
       allowanceData !== undefined
@@ -173,8 +262,8 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
 
       const tokenInfo: TokenInfo = {
         address: tokenAddress as `0x${string}`,
-        name: nameData as string,
-        symbol: symbolData as string,
+        name: resolvedName as string,
+        symbol: resolvedSymbol as string,
         decimals: Number(decimalsData),
         balance: balanceData as bigint,
         allowance: allowanceData as bigint,
@@ -204,14 +293,22 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
     decimalsErrorObj,
     balanceErrorObj,
     allowanceErrorObj,
+    bytes32Data,
+    bytes32NameData,
+    bytes32SymbolData,
+    bytes32NameErrorObj,
+    bytes32SymbolErrorObj,
+    useBytes32Fallback,
     onSelect,
     onError,
     tokenAddress,
+    data,
   ]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTokenAddress(e.target.value as `0x${string}` | "");
     setErrorMessage("");
+    setUseBytes32Fallback(false);
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -228,8 +325,14 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
       return;
     }
 
+    if (!disperseContractAddress) {
+      setErrorMessage("disperse contract not available on this network");
+      return;
+    }
+
     setIsLoading(true);
     setIsSubmitted(true);
+    setUseBytes32Fallback(false);
     debug("Token loading started", { tokenAddress, account, disperseContractAddress });
   };
 

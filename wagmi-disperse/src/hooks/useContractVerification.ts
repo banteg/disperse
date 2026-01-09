@@ -80,8 +80,8 @@ export function useContractVerification(
     }
   }, [bytecode, isBytecodeLoading, addressToCheck, currentCheckIndex, potentialAddresses, isConnected, realChainId]);
 
-  const contractAddress = verifiedAddress?.address || legacyDisperseAddress;
-  const hasContractAddress = !!contractAddress;
+  const contractAddress = verifiedAddress?.address;
+  const hasContractAddress = !!verifiedAddress;
   const isContractDeployed = !!verifiedAddress;
   const loadingAddresses = isBytecodeLoading && !verifiedAddress;
 
