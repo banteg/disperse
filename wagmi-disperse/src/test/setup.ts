@@ -35,7 +35,12 @@ Object.defineProperty(window, "matchMedia", {
 // Provide a minimal localStorage implementation for SDKs that expect it.
 const localStorageStore = new Map<string, string>();
 const localStorageMock = {
-  getItem: (key: string) => (localStorageStore.has(key) ? localStorageStore.get(key) ?? null : null),
+  getItem: (key: string) => {
+    if (!localStorageStore.has(key)) {
+      return null;
+    }
+    return localStorageStore.get(key) ?? null;
+  },
   setItem: (key: string, value: string) => {
     localStorageStore.set(key, value);
   },

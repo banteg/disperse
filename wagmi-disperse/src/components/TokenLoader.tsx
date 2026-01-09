@@ -115,7 +115,8 @@ const TokenLoader = ({ onSelect, onError, chainId, account, token, contractAddre
       },
     ],
     query: {
-      enabled: useBytes32Fallback && isSubmitted && !!tokenAddress && !!account && !!disperseContractAddress && !!chainId,
+      enabled:
+        useBytes32Fallback && isSubmitted && !!tokenAddress && !!account && !!disperseContractAddress && !!chainId,
       retry: false,
     },
   });

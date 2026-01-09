@@ -77,16 +77,7 @@ export function useAppState({
         }
       }
     }
-  }, [
-    status,
-    isConnected,
-    chainId,
-    isChainSupported,
-    isContractDeployed,
-    isBytecodeLoading,
-    sending,
-    token,
-  ]);
+  }, [status, isConnected, chainId, isChainSupported, isContractDeployed, isBytecodeLoading, sending, token]);
 
   return { appState, setAppState };
 }

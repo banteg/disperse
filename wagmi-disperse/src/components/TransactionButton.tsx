@@ -219,12 +219,7 @@ const TransactionButton = ({
         value={title}
         onClick={handleClick}
         disabled={
-          disabled ||
-          isWritePending ||
-          isConfirming ||
-          isBytecodeLoading ||
-          !isContractDeployed ||
-          !contractAddress
+          disabled || isWritePending || isConfirming || isBytecodeLoading || !isContractDeployed || !contractAddress
         }
       />
       <div className="status">
