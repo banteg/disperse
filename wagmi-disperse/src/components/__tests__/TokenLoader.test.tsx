@@ -25,6 +25,7 @@ describe("TokenLoader", () => {
     onError: mockOnError,
     chainId: 1,
     account: "0x1234567890123456789012345678901234567890" as `0x${string}`,
+    contractAddress: "0xD152f549545093347A162Dce210e7293f1452150" as `0x${string}`,
   };
 
   beforeEach(() => {
@@ -102,19 +103,55 @@ describe("TokenLoader", () => {
   it("should handle token loading errors", async () => {
     const user = userEvent.setup();
 
-    // Mock error in token data loading
-    mockUseReadContracts.mockReturnValue({
-      data: [
-        {
-          status: "failure",
-          error: new BaseError("Contract read failed", {
-            cause: new Error("Network error"),
-          }),
-        },
-      ],
-      isError: true,
-      error: null,
-    } as any);
+    // Mock error in token data loading once the query is enabled
+    mockUseReadContracts.mockImplementation(({ query, contracts }) => {
+      if (!query?.enabled) {
+        return { data: undefined, isError: false, error: null } as any;
+      }
+
+      if (contracts.length === 5) {
+        return {
+          data: [
+            {
+              status: "failure",
+              error: new BaseError("Contract read failed", {
+                cause: new Error("Network error"),
+              }),
+            },
+            {
+              status: "failure",
+              error: new BaseError("Contract read failed", {
+                cause: new Error("Network error"),
+              }),
+            },
+            { result: 18n, status: "success" },
+            { result: 1000000n, status: "success" },
+            { result: 500000n, status: "success" },
+          ],
+          isError: true,
+          error: null,
+        } as any;
+      }
+
+      return {
+        data: [
+          {
+            status: "failure",
+            error: new BaseError("Contract read failed", {
+              cause: new Error("Network error"),
+            }),
+          },
+          {
+            status: "failure",
+            error: new BaseError("Contract read failed", {
+              cause: new Error("Network error"),
+            }),
+          },
+        ],
+        isError: true,
+        error: null,
+      } as any;
+    });
 
     render(<TokenLoader {...defaultProps} />);
 
@@ -247,15 +284,15 @@ describe("TokenLoader", () => {
     await user.click(loadButton);
 
     // The component should use the custom address for allowance checks
-    expect(mockUseReadContracts).toHaveBeenCalledWith(
-      expect.objectContaining({
-        contracts: expect.arrayContaining([
-          expect.objectContaining({
-            functionName: "allowance",
-            args: [defaultProps.account, customContractAddress],
-          }),
-        ]),
-      }),
+    const usesCustomAddress = mockUseReadContracts.mock.calls.some(([call]) =>
+      call?.contracts?.some(
+        (contract: { functionName?: string; args?: unknown[] }) =>
+          contract.functionName === "allowance" &&
+          contract.args?.[0] === defaultProps.account &&
+          contract.args?.[1] === customContractAddress,
+      ),
     );
+
+    expect(usesCustomAddress).toBe(true);
   });
 });

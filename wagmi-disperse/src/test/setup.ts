@@ -31,3 +31,37 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Provide a minimal localStorage implementation for SDKs that expect it.
+const localStorageStore = new Map<string, string>();
+const localStorageMock = {
+  getItem: (key: string) => {
+    if (!localStorageStore.has(key)) {
+      return null;
+    }
+    return localStorageStore.get(key) ?? null;
+  },
+  setItem: (key: string, value: string) => {
+    localStorageStore.set(key, value);
+  },
+  removeItem: (key: string) => {
+    localStorageStore.delete(key);
+  },
+  clear: () => {
+    localStorageStore.clear();
+  },
+  key: (index: number) => Array.from(localStorageStore.keys())[index] ?? null,
+  get length() {
+    return localStorageStore.size;
+  },
+};
+
+Object.defineProperty(window, "localStorage", {
+  value: localStorageMock,
+  writable: true,
+});
+
+Object.defineProperty(globalThis, "localStorage", {
+  value: localStorageMock,
+  writable: true,
+});

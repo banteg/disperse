@@ -1,4 +1,5 @@
 import { memo, useCallback, useRef } from "react";
+import type { RefObject } from "react";
 import type { Recipient, TokenInfo } from "../types";
 import { getDecimals } from "../utils/balanceCalculations";
 import { parseRecipients } from "../utils/parseRecipients";
@@ -7,21 +8,23 @@ interface RecipientInputProps {
   sending: "ether" | "token" | null;
   token: TokenInfo;
   onRecipientsChange: (recipients: Recipient[]) => void;
+  textareaRef?: RefObject<HTMLTextAreaElement>;
 }
 
-const RecipientInput = ({ sending, token, onRecipientsChange }: RecipientInputProps) => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+const RecipientInput = ({ sending, token, onRecipientsChange, textareaRef }: RecipientInputProps) => {
+  const internalRef = useRef<HTMLTextAreaElement>(null);
+  const resolvedRef = textareaRef ?? internalRef;
   const symbol = sending === "token" ? token.symbol || "???" : "ETH";
 
   const parseAmounts = useCallback(() => {
-    if (!textareaRef.current) return;
+    if (!resolvedRef.current) return;
 
-    const text = textareaRef.current.value;
+    const text = resolvedRef.current.value;
     const decimals = getDecimals(sending, token);
     const newRecipients = parseRecipients(text, decimals);
 
     onRecipientsChange(newRecipients);
-  }, [sending, token, onRecipientsChange]);
+  }, [sending, token, onRecipientsChange, resolvedRef]);
 
   return (
     <section>
@@ -29,7 +32,7 @@ const RecipientInput = ({ sending, token, onRecipientsChange }: RecipientInputPr
       <p>enter one address and amount in {symbol} on each line. supports any format.</p>
       <div className="shadow">
         <textarea
-          ref={textareaRef}
+          ref={resolvedRef}
           spellCheck="false"
           onChange={parseAmounts}
           id="recipients-textarea"

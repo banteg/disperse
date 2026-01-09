@@ -14,6 +14,8 @@ interface TransactionSectionProps {
   disperseMessage?: string;
   chainId: number | undefined;
   verifiedAddress?: { address: `0x${string}`; label: string } | null;
+  isContractDeployed: boolean;
+  isBytecodeLoading: boolean;
   account?: `0x${string}`;
   nativeCurrencyName?: string;
   effectiveAllowance?: bigint;
@@ -31,6 +33,8 @@ export default function TransactionSection({
   disperseMessage,
   chainId,
   verifiedAddress,
+  isContractDeployed,
+  isBytecodeLoading,
   account,
   nativeCurrencyName = "ETH",
   effectiveAllowance = 0n,
@@ -58,6 +62,8 @@ export default function TransactionSection({
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}
+            isContractDeployed={isContractDeployed}
+            isBytecodeLoading={isBytecodeLoading}
             account={account}
           />
         )}
@@ -78,6 +84,8 @@ export default function TransactionSection({
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}
+            isContractDeployed={isContractDeployed}
+            isBytecodeLoading={isBytecodeLoading}
             className={effectiveAllowance >= totalAmount ? "secondary" : ""}
             account={account}
           />
@@ -91,6 +99,8 @@ export default function TransactionSection({
             recipients={recipients}
             token={token}
             contractAddress={verifiedAddress?.address}
+            isContractDeployed={isContractDeployed}
+            isBytecodeLoading={isBytecodeLoading}
             account={account}
           />
         </div>

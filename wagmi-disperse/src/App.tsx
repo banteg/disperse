@@ -69,7 +69,6 @@ function App() {
     isChainSupported,
     isContractDeployed,
     isBytecodeLoading,
-    hasContractAddress,
     sending,
     token,
   });
@@ -270,7 +269,12 @@ function App() {
         ((appState >= AppState.CONNECTED_TO_WALLET && sending === "ether") ||
           appState >= AppState.SELECTED_CURRENCY ||
           (sending === "token" && !!token.symbol)) && (
-          <RecipientInput sending={sending} token={token} onRecipientsChange={handleRecipientsChange} />
+          <RecipientInput
+            sending={sending}
+            token={token}
+            onRecipientsChange={handleRecipientsChange}
+            textareaRef={textareaRef}
+          />
         )}
 
       {appState >= AppState.ENTERED_AMOUNTS && (
@@ -286,6 +290,8 @@ function App() {
           disperseMessage={disperseMessage}
           chainId={chainId}
           verifiedAddress={verifiedAddress}
+          isContractDeployed={isContractDeployed}
+          isBytecodeLoading={isBytecodeLoading}
           account={address}
           nativeCurrencyName={nativeCurrencyName}
           effectiveAllowance={effectiveAllowance}
