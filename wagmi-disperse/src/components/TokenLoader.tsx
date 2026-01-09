@@ -5,7 +5,9 @@ import { ds_token, erc20 } from "../contracts";
 import type { DebugParam, TokenInfo } from "../types";
 
 // Debug function to log TokenLoader events
+const DEBUG = import.meta.env.DEV;
 const debug = (message: string, data?: DebugParam) => {
+  if (!DEBUG) return;
   console.log(`[TOKEN-LOADER] ${message}`, data || "");
 };
 

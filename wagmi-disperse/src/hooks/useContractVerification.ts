@@ -4,7 +4,9 @@ import { disperse_createx, disperse_legacy } from "../deploy";
 import type { AddressInfo, VerifiedAddress } from "../types";
 import { isDisperseContract } from "../utils/contractVerify";
 
+const DEBUG = import.meta.env.DEV;
 const debug = (message: string, data?: unknown) => {
+  if (!DEBUG) return;
   console.log(`[DEBUG] ${message}`, data || "");
 };
 
@@ -23,9 +25,9 @@ export function useContractVerification(
   const potentialAddresses = useMemo(
     () =>
       [
-        { address: legacyDisperseAddress, label: "legacy" },
-        { address: createxDisperseAddress, label: "createx" },
         { address: customContractAddress, label: "custom" },
+        { address: createxDisperseAddress, label: "createx" },
+        { address: legacyDisperseAddress, label: "legacy" },
       ].filter((item) => !!item.address) as AddressInfo[],
     [legacyDisperseAddress, createxDisperseAddress, customContractAddress],
   );
@@ -61,10 +63,11 @@ export function useContractVerification(
     debug(`Checking contract at ${currentAddress.label} address: ${currentAddress.address}`);
 
     const codeString = bytecode;
-    console.log(
-      `[DEBUG-CODE] Chain ${realChainId}, Address ${currentAddress.address}, Code length: ${codeString ? codeString.length : 0}`,
+    debug(
+      `Code length for ${currentAddress.label} (${currentAddress.address}) on chain ${realChainId}: ${
+        codeString ? codeString.length : 0
+      }`,
     );
-    console.log(`[DEBUG-CODE] Code sample: ${codeString ? codeString.substring(0, 100) : "empty"}`);
 
     if (codeString && codeString !== "0x" && isDisperseContract(codeString)) {
       debug(`Found valid Disperse contract at ${currentAddress.label} address:`, currentAddress.address);

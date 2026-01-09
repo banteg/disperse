@@ -35,11 +35,11 @@ describe("useContractVerification", () => {
     mockIsDisperseContract.mockReturnValue(false);
   });
 
-  it("should check legacy address first", () => {
+  it("should check createx address first", () => {
     const { result } = renderHook(() => useContractVerification(1, true));
 
     expect(mockUseBytecode).toHaveBeenCalledWith({
-      address: "0x1111111111111111111111111111111111111111",
+      address: "0x2222222222222222222222222222222222222222",
       chainId: 1,
       query: {
         enabled: true,
@@ -70,24 +70,24 @@ describe("useContractVerification", () => {
 
     await waitFor(() => {
       expect(result.current.verifiedAddress).toEqual({
-        address: "0x1111111111111111111111111111111111111111",
-        label: "legacy",
+        address: "0x2222222222222222222222222222222222222222",
+        label: "createx",
       });
       expect(result.current.isContractDeployed).toBe(true);
     });
   });
 
-  it.skip("should check createx address if legacy not found", async () => {
-    // Mock sequence: first check legacy (empty), then check createx (valid)
+  it.skip("should check legacy address if createx not found", async () => {
+    // Mock sequence: first check createx (empty), then check legacy (valid)
     let callCount = 0;
     mockUseBytecode.mockImplementation(({ address }) => {
       callCount++;
-      if (address === "0x1111111111111111111111111111111111111111") {
-        // Legacy address check - no contract
+      if (address === "0x2222222222222222222222222222222222222222") {
+        // CreateX address check - no contract
         return { data: "0x", isLoading: false } as any;
       }
-      if (address === "0x2222222222222222222222222222222222222222") {
-        // CreateX address check - has contract
+      if (address === "0x1111111111111111111111111111111111111111") {
+        // Legacy address check - has contract
         return {
           data: "0x608060405234801561001057600080fd5b50",
           isLoading: false,
@@ -97,16 +97,16 @@ describe("useContractVerification", () => {
     });
 
     mockIsDisperseContract
-      .mockReturnValueOnce(false) // legacy check fails
-      .mockReturnValueOnce(true); // createx check succeeds
+      .mockReturnValueOnce(false) // createx check fails
+      .mockReturnValueOnce(true); // legacy check succeeds
 
     const { result } = renderHook(() => useContractVerification(1, true));
 
     await waitFor(
       () => {
         expect(result.current.verifiedAddress).toEqual({
-          address: "0x2222222222222222222222222222222222222222",
-          label: "createx",
+          address: "0x1111111111111111111111111111111111111111",
+          label: "legacy",
         });
       },
       { timeout: 2000 },
@@ -125,7 +125,7 @@ describe("useContractVerification", () => {
     const { result } = renderHook(() => useContractVerification(1, true, customAddress));
 
     expect(result.current.potentialAddresses).toHaveLength(3);
-    expect(result.current.potentialAddresses[2]).toEqual({
+    expect(result.current.potentialAddresses[0]).toEqual({
       address: customAddress,
       label: "custom",
     });

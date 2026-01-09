@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { AppState } from "../constants";
 import type { TokenInfo } from "../types";
 
+const DEBUG = import.meta.env.DEV;
 const debug = (message: string, data?: unknown) => {
+  if (!DEBUG) return;
   console.log(`[DEBUG] ${message}`, data || "");
 };
 

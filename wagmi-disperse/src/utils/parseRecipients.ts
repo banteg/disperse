@@ -1,7 +1,9 @@
 import { isAddress, parseUnits } from "viem";
 import type { Recipient } from "../types";
 
+const DEBUG = import.meta.env.DEV;
 const debug = (message: string, data?: unknown) => {
+  if (!DEBUG) return;
   console.log(`[DEBUG] ${message}`, data || "");
 };
 
