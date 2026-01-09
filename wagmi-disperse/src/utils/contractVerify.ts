@@ -53,9 +53,7 @@ export function isDisperseContract(bytecode: string | undefined): boolean {
   } else if (startsWithRuntime) {
     result = true;
   } else {
-    debug(
-      `Bytecode mismatch. Runtime length: ${cleanRuntime.length}, Bytecode length: ${cleanBytecode.length}`,
-    );
+    debug(`Bytecode mismatch. Runtime length: ${cleanRuntime.length}, Bytecode length: ${cleanBytecode.length}`);
     result = false;
   }
 
